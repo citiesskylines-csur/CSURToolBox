@@ -5,3 +5,7 @@
 *.cache
 *.ide-shm
 *.ide-wal
+.vs/CSURToolBox/v16/.suo
+.vs/CSURToolBox/v16/Server/sqlite3/db.lock
+obj/Release/CSURToolBox.csproj.CopyComplete
+obj/Release/CSURToolBox.csproj.FileListAbsolute.txt

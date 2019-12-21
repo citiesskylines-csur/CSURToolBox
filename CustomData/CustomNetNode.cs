@@ -113,13 +113,13 @@ namespace CSURToolBox.CustomData
                 NetManager instance = Singleton<NetManager>.instance;
                 NetSegment mysegment = CSUROffset.GetSameInfoSegment(node);
                 Vector3 direction = CSUROffset.CheckNodeEq(mysegment.m_startNode, node) ? mysegment.m_startDirection : -mysegment.m_endDirection;
-                Debug.Log(direction);
+                //Debug.Log(direction);
                 if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0) lht = true;
                 // normal to the right hand side
                 Vector3 normal = new Vector3(direction.z, 0, -direction.x).normalized;
                 Vector3 trueNodeCenter = node.m_position + (lht ? -collisionHalfWidth : collisionHalfWidth) * normal;
-                Debug.Log($"num2: {num2}, num2m: {num2m}");
-                Debug.Log($"node: {node.m_position}, center: {trueNodeCenter}");
+                //Debug.Log($"num2: {num2}, num2m: {num2m}");
+                //Debug.Log($"node: {node.m_position}, center: {trueNodeCenter}");
                 if (Segment1.Intersect(ray.a.y, ray.b.y, node.m_position.y, out t))
                 {
                     float num3 = Vector3.Distance(ray.Position(t), trueNodeCenter);

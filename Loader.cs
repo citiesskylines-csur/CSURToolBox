@@ -322,6 +322,19 @@ namespace CSURToolBox
                     //detourFailed = true;
                 }
 
+                //6
+                DebugLog.LogToFileOnly("Detour NetSegment::OverlapQuad calls");
+                try
+                {
+                    Detours.Add(new Detour(typeof(NetSegment).GetMethod("OverlapQuad", BindingFlags.Public | BindingFlags.Instance),
+                                           typeof(CustomNetSegment).GetMethod("OverlapQuad", BindingFlags.Public | BindingFlags.Static)));
+                }
+                catch (Exception)
+                {
+                    DebugLog.LogToFileOnly("Could not detour NetSegment::OverlapQuad");
+                    detourFailed = true;
+                }
+
                 isMoveItRunning = CheckMoveItIsLoaded();
 
                 if (detourFailed)

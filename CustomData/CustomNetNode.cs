@@ -87,69 +87,6 @@ namespace CSURToolBox.CustomData
             priority = 0f;
             return false;
         }
-        
-        public static bool CheckNodeEq(ushort node1, NetNode node2)
-        {
-            if (Singleton<NetManager>.instance.m_nodes.m_buffer[node1].m_buildIndex == node2.m_buildIndex)
-            {
-                if (Singleton<NetManager>.instance.m_nodes.m_buffer[node1].m_position == node2.m_position)
-                {
-                    if (Singleton<NetManager>.instance.m_nodes.m_buffer[node1].m_nextGridNode == node2.m_nextGridNode)
-                    {
-                        if (Singleton<NetManager>.instance.m_nodes.m_buffer[node1].m_flags == node2.m_flags)
-                        {
-                            if (Singleton<NetManager>.instance.m_nodes.m_buffer[node1].m_nextLaneNode == node2.m_nextLaneNode)
-                            {
-                                if (Singleton<NetManager>.instance.m_nodes.m_buffer[node1].m_elevation == node2.m_elevation)
-                                {
-                                    if (Singleton<NetManager>.instance.m_nodes.m_buffer[node1].m_segment0 == node2.m_segment0)
-                                    {
-                                        if (Singleton<NetManager>.instance.m_nodes.m_buffer[node1].m_segment1 == node2.m_segment1)
-                                        {
-                                            if (Singleton<NetManager>.instance.m_nodes.m_buffer[node1].m_segment2 == node2.m_segment2)
-                                            {
-                                                if (Singleton<NetManager>.instance.m_nodes.m_buffer[node1].m_segment3 == node2.m_segment3)
-                                                {
-                                                    if (Singleton<NetManager>.instance.m_nodes.m_buffer[node1].m_segment4 == node2.m_segment4)
-                                                    {
-                                                        if (Singleton<NetManager>.instance.m_nodes.m_buffer[node1].m_segment5 == node2.m_segment5)
-                                                        {
-                                                            if (Singleton<NetManager>.instance.m_nodes.m_buffer[node1].m_segment6 == node2.m_segment6)
-                                                            {
-                                                                if (Singleton<NetManager>.instance.m_nodes.m_buffer[node1].m_segment7 == node2.m_segment7)
-                                                                {
-                                                                    return true;
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return false;
-        }
-
-        public static NetSegment GetSameInfoSegment(NetNode node)
-        {
-            for (int i = 0; i < 8; i ++)
-            {
-                if (node.GetSegment(i) != 0)
-                {
-                    if (Singleton<NetManager>.instance.m_segments.m_buffer[node.GetSegment(i)].Info == node.Info)
-                    {
-                        return Singleton<NetManager>.instance.m_segments.m_buffer[node.GetSegment(i)];
-                    }
-                }
-            }
-            return default(NetSegment);
-        }
 
         public static bool RayCastNodeMasked(ref NetNode node, Segment3 ray, float snapElevation, bool bothSides, out float t, out float priority)
         {
@@ -174,8 +111,8 @@ namespace CSURToolBox.CustomData
             if (node.CountSegments() != 0)
             {
                 NetManager instance = Singleton<NetManager>.instance;
-                NetSegment mysegment = GetSameInfoSegment(node);
-                Vector3 direction = CheckNodeEq(mysegment.m_startNode, node) ? mysegment.m_startDirection : -mysegment.m_endDirection;
+                NetSegment mysegment = CSUROffset.GetSameInfoSegment(node);
+                Vector3 direction = CSUROffset.CheckNodeEq(mysegment.m_startNode, node) ? mysegment.m_startDirection : -mysegment.m_endDirection;
                 Debug.Log(direction);
                 if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0) lht = true;
                 // normal to the right hand side
@@ -209,6 +146,146 @@ namespace CSURToolBox.CustomData
             t = 0f;
             priority = 0f;
             return false;
+        }
+
+        public static void UpdateBuilding(ref NetNode node, ushort nodeID, BuildingInfo newBuilding, float heightOffset)
+        {
+            float num = 0f;
+            if ((object)newBuilding != null)
+            {
+                NetInfo info = node.Info;
+                if ((object)info != null)
+                {
+                    num = info.m_netAI.GetNodeBuildingAngle(nodeID, ref node);
+                }
+            }
+            BuildingInfo buildingInfo = null;
+            if (node.m_building != 0)
+            {
+                buildingInfo = Singleton<BuildingManager>.instance.m_buildings.m_buffer[node.m_building].Info;
+            }
+            if ((object)newBuilding != buildingInfo)
+            {
+                if (node.m_building != 0)
+                {
+                    Singleton<BuildingManager>.instance.ReleaseBuilding(node.m_building);
+                    node.m_building = 0;
+                }
+                if ((object)newBuilding != null)
+                {
+                    Vector3 position = node.m_position;
+                    position.y += heightOffset;
+                    // NON-STOCK CODE STARTS
+                    if (CSUROffset.IsCSUROffset(node.Info))
+                    {
+                        bool lht = false;
+                        if (node.CountSegments() != 0)
+                        {
+                            float collisionHalfWidth = Mathf.Max(3f, (node.Info.m_halfWidth + node.Info.m_pavementWidth) / 2f);
+                            NetSegment mysegment = CSUROffset.GetSameInfoSegment(node);
+                            Vector3 direction = CSUROffset.CheckNodeEq(mysegment.m_startNode, node) ? mysegment.m_startDirection : -mysegment.m_endDirection;
+                            if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0) lht = true;
+                            // normal to the right hand side
+                            Vector3 normal = new Vector3(direction.z, 0, -direction.x).normalized;
+                            position = position + (lht ? -collisionHalfWidth : collisionHalfWidth) * normal;
+                        }
+                    }
+                    // NON-STOCK CODE ENDS
+                    num *= 6.28318548f;
+                    if ((object)buildingInfo != null || TestNodeBuilding(nodeID, newBuilding, position, num))
+                    {
+                        Randomizer randomizer = new Randomizer(nodeID);
+                        if (Singleton<BuildingManager>.instance.CreateBuilding(out node.m_building, ref randomizer, newBuilding, position, num, 0, node.m_buildIndex + 1))
+                        {
+                            Singleton<BuildingManager>.instance.m_buildings.m_buffer[node.m_building].m_flags |= (Building.Flags.Untouchable | Building.Flags.FixedHeight);
+                        }
+                    }
+                }
+            }
+            else if (node.m_building != 0)
+            {
+                BuildingManager instance = Singleton<BuildingManager>.instance;
+                Vector3 position2 = node.m_position;
+                position2.y += heightOffset;
+                // NON-STOCK CODE STARTS
+                if (CSUROffset.IsCSUROffset(node.Info))
+                {
+                    bool lht = false;
+                    if (node.CountSegments() != 0)
+                    {
+                        float collisionHalfWidth = Mathf.Max(3f, (node.Info.m_halfWidth + node.Info.m_pavementWidth)/2f);
+                        NetSegment mysegment = CSUROffset.GetSameInfoSegment(node);
+                        Vector3 direction = CSUROffset.CheckNodeEq(mysegment.m_startNode, node) ? mysegment.m_startDirection : -mysegment.m_endDirection;
+                        if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0) lht = true;
+                        // normal to the right hand side
+                        Vector3 normal = new Vector3(direction.z, 0, -direction.x).normalized;
+                        position2 = position2 + (lht ? -collisionHalfWidth : collisionHalfWidth) * normal;
+                    }
+                }
+                // NON-STOCK CODE ENDS
+                num *= 6.28318548f;
+                // NON-STOCK CODE STARTS
+                if (CSUROffset.IsCSUROffset(node.Info) && (instance.m_buildings.m_buffer[node.m_building].m_position != position2 || instance.m_buildings.m_buffer[node.m_building].m_angle != num))
+                {
+                    instance.m_buildings.m_buffer[node.m_building].m_position = position2;
+                    instance.m_buildings.m_buffer[node.m_building].m_angle = num;
+                    instance.UpdateBuilding(node.m_building);
+                }
+                else
+                {
+                    if (instance.m_buildings.m_buffer[node.m_building].m_position.y != position2.y || instance.m_buildings.m_buffer[node.m_building].m_angle != num)
+                    {
+                        instance.m_buildings.m_buffer[node.m_building].m_position.y = position2.y;
+                        instance.m_buildings.m_buffer[node.m_building].m_angle = num;
+                        instance.UpdateBuilding(node.m_building);
+                    }
+                }
+                               
+                // NON-STOCK CODE ENDS
+            }
+        }
+
+        public static bool TestNodeBuilding(ushort nodeID, BuildingInfo info, Vector3 position, float angle)
+        {
+            Vector2 a = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle));
+            Vector2 a2 = new Vector3(a.y, 0f - a.x);
+            if (info.m_placementMode == BuildingInfo.PlacementMode.Roadside || info.m_placementMode == BuildingInfo.PlacementMode.PathsideOrGround)
+            {
+                a *= (float)info.m_cellWidth * 4f - 0.8f;
+                a2 *= (float)info.m_cellLength * 4f - 0.8f;
+            }
+            else
+            {
+                a *= (float)info.m_cellWidth * 4f;
+                a2 *= (float)info.m_cellLength * 4f;
+            }
+            if (info.m_circular)
+            {
+                a *= 0.7f;
+                a2 *= 0.7f;
+            }
+            ItemClass.CollisionType collisionType = info.m_buildingAI.GetCollisionType();
+            Vector2 a3 = VectorUtils.XZ(position);
+            Quad2 quad = default(Quad2);
+            quad.a = a3 - a - a2;
+            quad.b = a3 - a + a2;
+            quad.c = a3 + a + a2;
+            quad.d = a3 + a - a2;
+            float minY = Mathf.Min(position.y, Singleton<TerrainManager>.instance.SampleRawHeightSmooth(position));
+            float maxY = position.y + info.m_generatedInfo.m_size.y;
+            if (collisionType == ItemClass.CollisionType.Elevated)
+            {
+                minY = position.y + info.m_generatedInfo.m_min.y;
+            }
+            if (Singleton<NetManager>.instance.OverlapQuad(quad, minY, maxY, collisionType, info.m_class.m_layer, nodeID, 0, 0, null))
+            {
+                return false;
+            }
+            if (Singleton<BuildingManager>.instance.OverlapQuad(quad, minY, maxY, collisionType, info.m_class.m_layer, 0, nodeID, 0, null))
+            {
+                return false;
+            }
+            return true;
         }
     }
 }

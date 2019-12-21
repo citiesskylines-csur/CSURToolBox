@@ -5,6 +5,7 @@ using ColossalFramework.Plugins;
 using ColossalFramework.UI;
 using CSURToolBox.CustomAI;
 using CSURToolBox.CustomData;
+using CSURToolBox.CustomManager;
 using CSURToolBox.UI;
 using CSURToolBox.Util;
 using ICities;
@@ -72,6 +73,7 @@ namespace CSURToolBox
                     SetupGui();
                     CheckTMPE();
                     InitDetour();
+                    InstallPilla();
                     DebugLog.LogToFileOnly("OnLevelLoaded");
                     if (mode == LoadMode.NewGame)
                     {
@@ -93,6 +95,7 @@ namespace CSURToolBox
                 if (CSURToolBox.IsEnabled)
                 {
                     RevertDetour();
+                    RemovePilla();
                     if (isGuiRunning)
                     {
                         RemoveGui();
@@ -293,6 +296,32 @@ namespace CSURToolBox
                     //detourFailed = true;
                 }
 
+                //4
+                DebugLog.LogToFileOnly("Detour NetNode::UpdateBuilding calls");
+                try
+                {
+                    Detours.Add(new Detour(typeof(NetNode).GetMethod("UpdateBuilding", BindingFlags.Public | BindingFlags.Instance),
+                                           typeof(CustomNetNode).GetMethod("UpdateBuilding", BindingFlags.Public | BindingFlags.Static)));
+                }
+                catch (Exception)
+                {
+                    DebugLog.LogToFileOnly("Could not detour NetNode::UpdateBuilding");
+                    detourFailed = true;
+                }
+                //5
+                //public bool OverlapQuad(Quad2 quad, float minY, float maxY, ItemClass.CollisionType collisionType, ItemClass.Layer requireLayers, ItemClass.Layer forbidLayers, ushort ignoreNode1, ushort ignoreNode2, ushort ignoreSegment, ulong[] segmentMask)
+                DebugLog.LogToFileOnly("Detour NetManager::OverlapQuad calls");
+                try
+                {
+                    Detours.Add(new Detour(typeof(NetManager).GetMethod("OverlapQuad", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(Quad2), typeof(float), typeof(float), typeof(ItemClass.CollisionType), typeof(ItemClass.Layer), typeof(ItemClass.Layer), typeof(ushort), typeof(ushort), typeof(ushort), typeof(ulong[]) }, null),
+                                           typeof(CustomNetManager).GetMethod("OverlapQuad", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(Quad2), typeof(float), typeof(float), typeof(ItemClass.CollisionType), typeof(ItemClass.Layer), typeof(ItemClass.Layer), typeof(ushort), typeof(ushort), typeof(ushort), typeof(ulong[]) }, null)));
+                }
+                catch (Exception)
+                {
+                    DebugLog.LogToFileOnly("Could not detour NetManager::OverlapQuad");
+                    //detourFailed = true;
+                }
+
                 isMoveItRunning = CheckMoveItIsLoaded();
 
                 if (detourFailed)
@@ -359,6 +388,30 @@ namespace CSURToolBox
         private bool CheckMoveItIsLoaded()
         {
             return this.Check3rdPartyModLoaded("MoveIt", true);
+        }
+
+        public void InstallPilla()
+        {
+            string[] assets = new string[] { "CSUR 1R4P_Data", "CSUR 1R5P_Data", "CSUR-T 1R4P=2R5P_Data", "CSUR-T 2R5P=1R4P_Data" };
+            for (int i = 0; i < assets.Length; i++)
+            {
+                NetInfo asset = PrefabCollection<NetInfo>.FindLoaded(assets[i]);
+                var roadAI = asset.m_netAI as RoadAI;
+                RoadBridgeAI elevatedAI = roadAI.m_elevatedInfo.m_netAI as RoadBridgeAI;
+                elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("CSUR 2DC.Ama S-1_Data");
+            }
+        }
+
+        public void RemovePilla()
+        {
+            string[] assets = new string[] { "CSUR 1R4P_Data", "CSUR 1R5P_Data", "CSUR-T 1R4P=2R5P_Data", "CSUR-T 2R5P=1R4P_Data" };
+            for (int i = 0; i < assets.Length; i++)
+            {
+                NetInfo asset = PrefabCollection<NetInfo>.FindLoaded(assets[i]);
+                var roadAI = asset.m_netAI as RoadAI;
+                RoadBridgeAI elevatedAI = roadAI.m_elevatedInfo.m_netAI as RoadBridgeAI;
+                elevatedAI.m_bridgePillarInfo = null;// PrefabCollection<BuildingInfo>.FindLoaded("CSUR 2DC.Ama S-1_Data");
+            }
         }
     }
 }

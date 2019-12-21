@@ -7,7 +7,7 @@ namespace CSURToolBox.Util
     {
         public static void LogToFileOnly(string msg)
         {
-            using (FileStream fileStream = new FileStream("CSUR_UI.txt", FileMode.Append))
+            using (FileStream fileStream = new FileStream("CSURToolBox.txt", FileMode.Append))
             {
                 StreamWriter streamWriter = new StreamWriter(fileStream);
                 streamWriter.WriteLine(msg);

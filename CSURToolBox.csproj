@@ -57,6 +57,7 @@
     <Compile Include="CustomAI\NewLaneConnectorTool.cs" />
     <Compile Include="CustomData\CustomNetNode.cs" />
     <Compile Include="CustomData\CustomNetSegment.cs" />
+    <Compile Include="CustomManager\CustomNetManager.cs" />
     <Compile Include="Loader.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

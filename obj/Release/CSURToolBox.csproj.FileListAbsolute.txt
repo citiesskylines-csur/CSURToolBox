@@ -1,0 +1,13 @@
+D:\Mod\CSURToolBox\bin\Release\CSURToolBox.dll
+D:\Mod\CSURToolBox\bin\Release\CSURToolBox.pdb
+D:\Mod\CSURToolBox\bin\Release\Assembly-CSharp.dll
+D:\Mod\CSURToolBox\bin\Release\ColossalManaged.dll
+D:\Mod\CSURToolBox\bin\Release\ICities.dll
+D:\Mod\CSURToolBox\bin\Release\UnityEngine.dll
+D:\Mod\CSURToolBox\bin\Release\PopsApiWrapper.dll
+D:\Mod\CSURToolBox\bin\Release\Assembly-CSharp-firstpass.dll
+D:\Mod\CSURToolBox\bin\Release\ICSharpCode.SharpZipLib.dll
+D:\Mod\CSURToolBox\obj\Release\CSURToolBox.csproj.CopyComplete
+D:\Mod\CSURToolBox\obj\Release\CSURToolBox.dll
+D:\Mod\CSURToolBox\obj\Release\CSURToolBox.pdb
+D:\Mod\CSURToolBox\obj\Release\CSURToolBox.csprojAssemblyReference.cache

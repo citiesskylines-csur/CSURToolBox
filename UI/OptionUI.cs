@@ -1,10 +1,6 @@
 ﻿using ColossalFramework.UI;
 using ICities;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace CSURToolBox.UI
@@ -12,7 +8,6 @@ namespace CSURToolBox.UI
     public class OptionUI : MonoBehaviour
     {
         public static bool isShortCutsToPanel = false;
-        public static bool isMutuallyExclude = false;
         public static void makeSettings(UIHelperBase helper)
         {
             // tabbing code is borrowed from RushHour mod
@@ -52,7 +47,6 @@ namespace CSURToolBox.UI
 
             var generalGroup1 = panelHelper.AddGroup("ShortCuts Control") as UIHelper;
             generalGroup1.AddCheckbox("ShortCuts will be used for ToPanel Button", isShortCutsToPanel, (index) => isShortCutsToPanelEnable(index));
-            generalGroup1.AddCheckbox("N/NP/N+1 is mutually excluded(select this if you never use ShortCuts)", isMutuallyExclude, (index) => isMutuallyExcludeEnable(index));
             SaveSetting();
 
             // Function_ShortCut
@@ -98,7 +92,6 @@ namespace CSURToolBox.UI
             FileStream fs = File.Create("CSUR_UI_setting.txt");
             StreamWriter streamWriter = new StreamWriter(fs);
             streamWriter.WriteLine(isShortCutsToPanel);
-            streamWriter.WriteLine(isMutuallyExclude);
             streamWriter.Flush();
             fs.Close();
         }
@@ -119,16 +112,6 @@ namespace CSURToolBox.UI
                 {
                     isShortCutsToPanel = false;
                 }
-
-                strLine = sr.ReadLine();
-                if (strLine == "True")
-                {
-                    isMutuallyExclude = true;
-                }
-                else
-                {
-                    isMutuallyExclude = false;
-                }
                 sr.Close();
                 fs.Close();
             }
@@ -136,11 +119,6 @@ namespace CSURToolBox.UI
         public static void isShortCutsToPanelEnable(bool index)
         {
             isShortCutsToPanel = index;
-            SaveSetting();
-        }
-        public static void isMutuallyExcludeEnable(bool index)
-        {
-            isMutuallyExclude = index;
             SaveSetting();
         }
     }

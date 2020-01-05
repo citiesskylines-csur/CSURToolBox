@@ -17,7 +17,7 @@ namespace CSURToolBox
         }
         public string Description
         {
-            get { return "Tool Box for CSUR Road, Include LaneSelector, Road Offset Patch and TMPE laneconnector Fix"; }
+            get { return "Tool Box for CSUR Road, Include LaneSelector, Road offset selection, Offset road pillar support and TMPE laneconnector Fix"; }
         }
         public void OnEnabled()
         {

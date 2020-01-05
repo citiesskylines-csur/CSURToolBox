@@ -9,6 +9,7 @@ namespace CSURToolBox.UI
 {
     public class MainUI : UIPanel
     {
+
         public static readonly string cacheName = "MainUI";
         private static readonly float WIDTH = 565f;
         private static readonly float HEIGHT = 245f;
@@ -18,8 +19,8 @@ namespace CSURToolBox.UI
         private static readonly int N_POS_INT = 10;
         private static readonly int CENTER = 2;
 
-        private static readonly string[] labelsHalf = {"1P", "0P", "0P", "1P", "2P", "3P", "4P", "5P", "6P"};
-        private static readonly string[] labelsInt = {"2", "1", "C", "1", "2", "3", "4", "5", "6", "7" };
+        private static readonly string[] labelsHalf = { "1P", "0P", "0P", "1P", "2P", "3P", "4P", "5P", "6P" };
+        private static readonly string[] labelsInt = { "2", "1", "C", "1", "2", "3", "4", "5", "6", "7" };
         private UIDragHandle m_DragHandler;
         private UIButton m_closeButton;
         private UISprite m_UIBG;
@@ -50,15 +51,6 @@ namespace CSURToolBox.UI
         public static bool uturnLane;
         public static bool hasSidewalk;
         public static bool hasBike;
-        public static bool m_2L1PLDouble;
-        public static bool m_1L0PLDouble;
-        public static bool m_C0PRDouble;
-        public static bool m_1R1PRDouble;
-        public static bool m_2R2PRDouble;
-        public static bool m_3R3PRDouble;
-        public static bool m_4R4PRDouble;
-        public static bool m_5R5PRDouble;
-        public static bool m_6R6PRDouble;
 
         public override void Update()
         {
@@ -76,15 +68,6 @@ namespace CSURToolBox.UI
             uturnLane = false;
             hasSidewalk = true;
             hasBike = true;
-            m_2L1PLDouble = false;
-            m_1L0PLDouble = false;
-            m_C0PRDouble = false;
-            m_1R1PRDouble = false;
-            m_2R2PRDouble = false;
-            m_3R3PRDouble = false;
-            m_4R4PRDouble = false;
-            m_5R5PRDouble = false;
-            m_6R6PRDouble = false;
             //UI
             size = new Vector2(WIDTH, HEIGHT);
             backgroundSprite = "MenuPanel";
@@ -111,7 +94,7 @@ namespace CSURToolBox.UI
             m_UIBG.spriteName = "UIBG";
             m_UIBG.relativePosition = new Vector3(0f, 35f);
             m_UIBG.width = WIDTH;
-            m_UIBG.height = HEIGHT -30f;
+            m_UIBG.height = HEIGHT - 30f;
             m_UIBG.zOrder = 12;
             //result
             m_result = AddUIComponent<UISprite>();
@@ -230,7 +213,7 @@ namespace CSURToolBox.UI
             m_copyButton.hoveredBgSprite = "COPY_S";
             m_copyButton.playAudioEvents = true;
             m_copyButton.size = new Vector2(BTN_SIZE, BTN_SIZE);
-            m_copyButton.relativePosition = new Vector3(m_toIntButtons[3].relativePosition.x + 10f, 
+            m_copyButton.relativePosition = new Vector3(m_toIntButtons[3].relativePosition.x + 10f,
                                                         m_toIntButtons[3].relativePosition.y + 47f);
             m_copyButton.autoSize = true;
             m_copyButton.eventClick += delegate (UIComponent component, UIMouseEventParameter eventParam)
@@ -315,15 +298,6 @@ namespace CSURToolBox.UI
         {
             fromSelected = 0;
             toSelected = 0;
-            m_2L1PLDouble = false;
-            m_1L0PLDouble = false;
-            m_C0PRDouble = false;
-            m_1R1PRDouble = false;
-            m_2R2PRDouble = false;
-            m_3R3PRDouble = false;
-            m_4R4PRDouble = false;
-            m_5R5PRDouble = false;
-            m_6R6PRDouble = false;
             RefreshData();
         }
         public void symButton_OnCheckChanged()
@@ -338,7 +312,7 @@ namespace CSURToolBox.UI
             {
                 //try uturn
                 uturnLane = true;
-                if (PrefabCollection<NetInfo>.FindLoaded(Parser.ModuleNameFromUI(fromSelected, toSelected, symmetry, uturnLane, hasSidewalk, hasBike)+"_Data") == null)
+                if (PrefabCollection<NetInfo>.FindLoaded(Parser.ModuleNameFromUI(fromSelected, toSelected, symmetry, uturnLane, hasSidewalk, hasBike) + "_Data") == null)
                 {
                     //try +1
                     symmetry = 1;
@@ -496,7 +470,8 @@ namespace CSURToolBox.UI
                 {
                     // selected sprite
                     m_toIntButtons[i].normalBgSprite = labelsInt[i] + ((i < CENTER) ? "_L" : (i > CENTER) ? "_R" : "_C");
-                } else
+                }
+                else
                 {
                     // unselected sprite
                     m_toIntButtons[i].normalBgSprite = labelsInt[i] + "_S";
@@ -548,48 +523,102 @@ namespace CSURToolBox.UI
             // Checking key presses
             if (OptionsKeymappingLane.m_2L1PL.IsPressed(e))
             {
-                if (OptionUI.isShortCutsToPanel) if (!m_2L1PLDouble) ClickToLaneButton(0); else ClickToLaneButton(1); else if (!m_2L1PLDouble) ClickFromLaneButton(0); else ClickFromLaneButton(1);
-                m_2L1PLDouble = m_2L1PLDouble ? false : true;
+                if (OptionUI.isShortCutsToPanel)
+                {
+                    if ((toSelected & 0) == 0) ClickToLaneButton(0); else ClickToLaneButton(1);
+                }
+                else
+                {
+                    if ((fromSelected & 0) == 0) ClickFromLaneButton(0); else ClickFromLaneButton(1);
+                }
             }
             if (OptionsKeymappingLane.m_1L0PL.IsPressed(e))
             {
-                if (OptionUI.isShortCutsToPanel) if (!m_1L0PLDouble) ClickToLaneButton(2); else ClickToLaneButton(3); else if (!m_1L0PLDouble) ClickFromLaneButton(2); else ClickFromLaneButton(3);
-                m_1L0PLDouble = m_1L0PLDouble ? false : true;
+                if (OptionUI.isShortCutsToPanel)
+                {
+                    if ((toSelected & ((1 << 1) + (1 << 2))) == 0) ClickToLaneButton(2); else ClickToLaneButton(3);
+                }
+                else
+                {
+                    if ((fromSelected & ((1 << 1) + (1 << 2))) == 0) ClickFromLaneButton(2); else ClickFromLaneButton(3);
+                }
             }
             if (OptionsKeymappingLane.m_C0PR.IsPressed(e))
             {
-                if (OptionUI.isShortCutsToPanel) if (!m_C0PRDouble) ClickToLaneButton(4); else ClickToLaneButton(5); else if (!m_C0PRDouble) ClickFromLaneButton(4); else ClickFromLaneButton(5);
-                m_C0PRDouble = m_C0PRDouble ? false : true;
+                if (OptionUI.isShortCutsToPanel)
+                {
+                    if ((toSelected & ((1 << 3) + (1 << 4))) == 0) ClickToLaneButton(4); else ClickToLaneButton(5);
+                }
+                else
+                {
+                    if ((fromSelected & ((1 << 3) + (1 << 4))) == 0) ClickFromLaneButton(5); else ClickFromLaneButton(4);
+                }
             }
             if (OptionsKeymappingLane.m_1R1PR.IsPressed(e))
             {
-                if (OptionUI.isShortCutsToPanel) if (!m_1R1PRDouble) ClickToLaneButton(6); else ClickToLaneButton(7); else if (!m_1R1PRDouble) ClickFromLaneButton(6); else ClickFromLaneButton(7);
-                m_1R1PRDouble = m_1R1PRDouble ? false : true;
+                if (OptionUI.isShortCutsToPanel)
+                {
+                    if ((toSelected & ((1 << 5) + (1 << 6))) == 0) ClickToLaneButton(6); else ClickToLaneButton(7);
+                }
+                else
+                {
+                    if ((fromSelected & ((1 << 5) + (1 << 6))) == 0) ClickFromLaneButton(6); else ClickFromLaneButton(7);
+                }
             }
             if (OptionsKeymappingLane.m_2R2PR.IsPressed(e))
             {
-                if (OptionUI.isShortCutsToPanel) if (!m_2R2PRDouble) ClickToLaneButton(8); else ClickToLaneButton(9); else if (!m_2R2PRDouble) ClickFromLaneButton(8); else ClickFromLaneButton(9);
-                m_2R2PRDouble = m_2R2PRDouble ? false : true;
+                if (OptionUI.isShortCutsToPanel)
+                {
+                    if ((toSelected & ((1 << 7) + (1 << 8))) == 0) ClickToLaneButton(8); else ClickToLaneButton(9);
+                }
+                else
+                {
+                    if ((fromSelected & ((1 << 7) + (1 << 8))) == 0) ClickFromLaneButton(8); else ClickFromLaneButton(9);
+                }
             }
             if (OptionsKeymappingLane.m_3R3PR.IsPressed(e))
             {
-                if (OptionUI.isShortCutsToPanel) if (!m_3R3PRDouble) ClickToLaneButton(10); else ClickToLaneButton(11); else if (!m_3R3PRDouble) ClickFromLaneButton(10); else ClickFromLaneButton(11);
-                m_3R3PRDouble = m_3R3PRDouble ? false : true;
+                if (OptionUI.isShortCutsToPanel)
+                {
+                    if ((toSelected & ((1 << 9) + (1 << 10))) == 0) ClickToLaneButton(10); else ClickToLaneButton(11);
+                }
+                else
+                {
+                    if ((fromSelected & ((1 << 9) + (1 << 10))) == 0) ClickFromLaneButton(10); else ClickFromLaneButton(11);
+                }
             }
             if (OptionsKeymappingLane.m_4R4PR.IsPressed(e))
             {
-                if (OptionUI.isShortCutsToPanel) if (!m_4R4PRDouble) ClickToLaneButton(12); else ClickToLaneButton(13); else if (!m_4R4PRDouble) ClickFromLaneButton(12); else ClickFromLaneButton(13);
-                m_4R4PRDouble = m_4R4PRDouble ? false : true;
+                if (OptionUI.isShortCutsToPanel)
+                {
+                    if ((toSelected & ((1 << 11) + (1 << 12))) == 0) ClickToLaneButton(12); else ClickToLaneButton(13);
+                }
+                else
+                {
+                    if ((fromSelected & ((1 << 11) + (1 << 12))) == 0) ClickFromLaneButton(12); else ClickFromLaneButton(13);
+                }
             }
             if (OptionsKeymappingLane.m_5R5PR.IsPressed(e))
             {
-                if (OptionUI.isShortCutsToPanel) if (!m_5R5PRDouble) ClickToLaneButton(14); else ClickToLaneButton(15); else if (!m_5R5PRDouble) ClickFromLaneButton(14); else ClickFromLaneButton(15);
-                m_5R5PRDouble = m_5R5PRDouble ? false : true;
+                if (OptionUI.isShortCutsToPanel)
+                {
+                    if ((toSelected & ((1 << 13) + (1 << 14))) == 0) ClickToLaneButton(14); else ClickToLaneButton(15);
+                }
+                else
+                {
+                    if ((fromSelected & ((1 << 13) + (1 << 14))) == 0) ClickFromLaneButton(14); else ClickFromLaneButton(15);
+                }
             }
             if (OptionsKeymappingLane.m_6R6PR.IsPressed(e))
             {
-                if (OptionUI.isShortCutsToPanel) if (!m_6R6PRDouble) ClickToLaneButton(16); else ClickToLaneButton(17); else if (!m_6R6PRDouble) ClickFromLaneButton(16); else ClickFromLaneButton(17);
-                m_6R6PRDouble = m_6R6PRDouble ? false : true;
+                if (OptionUI.isShortCutsToPanel)
+                {
+                    if ((toSelected & ((1 << 15) + (1 << 16))) == 0) ClickToLaneButton(16); else ClickToLaneButton(17);
+                }
+                else
+                {
+                    if ((fromSelected & ((1 << 15) + (1 << 16))) == 0) ClickFromLaneButton(16); else ClickFromLaneButton(17);
+                }
             }
             if (OptionsKeymappingLane.m_7R.IsPressed(e)) if (OptionUI.isShortCutsToPanel) ClickToLaneButton(18); else ClickFromLaneButton(18);
 
@@ -605,50 +634,16 @@ namespace CSURToolBox.UI
         {
             byte myBit = bit;
             toSelected ^= 1 << myBit;
-            if (OptionUI.isMutuallyExclude)
-            {
-                toSelected &= ~(1 << myBit + 1);
-                if (myBit > 0) toSelected &= ~(1 << myBit - 1);
-            }
-            else
-            {
-                if ((toSelected & (1 << myBit)) != 0)
-                {
-                    if ((bit & 1) != 0)
-                    {
-                        toSelected &= ~(1 << myBit - 1);
-                    }
-                    else
-                    {
-                        toSelected &= ~(1 << myBit + 1);
-                    }
-                }
-            }
+            toSelected &= ~(1 << myBit + 1);
+            if (myBit > 0) toSelected &= ~(1 << myBit - 1);
             RefreshData();
         }
         public void ClickFromLaneButton(byte bit)
         {
             byte myBit = bit;
             fromSelected ^= 1 << myBit;
-            if (OptionUI.isMutuallyExclude)
-            {
-                fromSelected &= ~(1 << myBit + 1);
-                if (myBit > 0) fromSelected &= ~(1 << myBit - 1);
-            }
-            else
-            {
-                if ((fromSelected & (1 << myBit)) != 0)
-                {
-                    if ((bit & 1) != 0)
-                    {
-                        fromSelected &= ~(1 << myBit - 1);
-                    }
-                    else
-                    {
-                        fromSelected &= ~(1 << myBit + 1);
-                    }
-                }
-            }
+            fromSelected &= ~(1 << myBit + 1);
+            if (myBit > 0) fromSelected &= ~(1 << myBit - 1);
             RefreshData();
         }
     }

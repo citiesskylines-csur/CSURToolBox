@@ -15,6 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace CSURToolBox
@@ -73,7 +74,7 @@ namespace CSURToolBox
                     SetupGui();
                     CheckTMPE();
                     InitDetour();
-                    InstallPilla();
+                    InstallPillar();
                     DebugLog.LogToFileOnly("OnLevelLoaded");
                     if (mode == LoadMode.NewGame)
                     {
@@ -95,7 +96,7 @@ namespace CSURToolBox
                 if (CSURToolBox.IsEnabled)
                 {
                     RevertDetour();
-                    RemovePilla();
+                    RemovePillar();
                     if (isGuiRunning)
                     {
                         RemoveGui();
@@ -360,6 +361,7 @@ namespace CSURToolBox
                     RedirectionHelper.RevertRedirect(d.OriginalMethod, d.Redirect);
                 }
                 DetourInited = false;
+                Threading.isFirstTime = true;
                 Detours.Clear();
                 DebugLog.LogToFileOnly("Reverting detours finished.");
             }
@@ -403,27 +405,178 @@ namespace CSURToolBox
             return this.Check3rdPartyModLoaded("MoveIt", true);
         }
 
-        public void InstallPilla()
+        public void InstallPillar()
         {
-            string[] assets = new string[] { "CSUR 1R4P_Data", "CSUR 1R5P_Data", "CSUR-T 1R4P=2R5P_Data", "CSUR-T 2R5P=1R4P_Data" };
-            for (int i = 0; i < assets.Length; i++)
+            for (uint num = 0u; num < PrefabCollection<NetInfo>.LoadedCount(); num++)
             {
-                NetInfo asset = PrefabCollection<NetInfo>.FindLoaded(assets[i]);
-                var roadAI = asset.m_netAI as RoadAI;
-                RoadBridgeAI elevatedAI = roadAI.m_elevatedInfo.m_netAI as RoadBridgeAI;
-                elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("CSUR 2DC.Ama S-1_Data");
+                NetInfo loaded = PrefabCollection<NetInfo>.GetLoaded(num);
+                if (CSUROffset.IsCSUR(loaded))
+                {
+                    RoadBridgeAI elevatedAI = null;
+                    if ((loaded.m_netAI is RoadBridgeAI) && (Regex.Match(loaded.name, "Elevated", RegexOptions.IgnoreCase)).Success && (loaded.m_segments.Length != 0))
+                        elevatedAI = loaded.m_netAI as RoadBridgeAI;
+                    else
+                        continue;
+
+                    //Caculate lane num
+                    int laneNum = (int)((loaded.m_halfWidth - loaded.m_pavementWidth) / 3.75 - 0.5);
+
+                    if (!CSUROffset.IsCSURDual(loaded))
+                    {
+                        if (Regex.Match(loaded.name, "CSUR-S", RegexOptions.IgnoreCase).Success)
+                            laneNum = laneNum - 2;
+                        else if (Regex.Match(loaded.name, "CSUR-T", RegexOptions.IgnoreCase).Success)
+                            laneNum = laneNum - 2;
+
+                        if (laneNum < 0)
+                            laneNum = 0;
+
+                        switch (laneNum)
+                        {
+                            case 0:
+                            case 1:
+                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = " + laneNum.ToString());
+                                DebugLog.LogToFileOnly("Try to Load pillar Ama S-1_Data");
+                                elevatedAI.m_bridgePillarOffset = 0.5f;
+                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama S-1_Data") != null)
+                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama S-1_Data"); 
+                                else
+                                    DebugLog.LogToFileOnly("Failed Load pillar Ama S-1_Data");
+                                break;
+                            case 2:
+                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = 2");
+                                DebugLog.LogToFileOnly("Try to Load pillar Ama S-2_Data");
+                                elevatedAI.m_bridgePillarOffset = 1f;
+                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama S-2_Data") != null)
+                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama S-2_Data");
+                                else
+                                    DebugLog.LogToFileOnly("Failed Load pillar Ama S-2_Data");
+                                break;
+                            case 3:
+                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = 3");
+                                DebugLog.LogToFileOnly("Try to Load pillar Ama S-3_Data");
+                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama S-3_Data") != null)
+                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama S-3_Data");
+                                else
+                                    DebugLog.LogToFileOnly("Failed Load pillar Ama S-3_Data");
+                                break;
+                            case 4:
+                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = 4");
+                                DebugLog.LogToFileOnly("Try to Load pillar Ama G-3_Data");
+                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama G-3_Data") != null)
+                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama G-3_Data");
+                                else
+                                    DebugLog.LogToFileOnly("Failed Load pillar Ama G-3_Data");
+                                break;
+                            case 5:
+                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = 5");
+                                DebugLog.LogToFileOnly("Try to Load pillar Ama G-4_Data");
+                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama G-4_Data") != null)
+                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama G-4_Data");
+                                else
+                                    DebugLog.LogToFileOnly("Failed Load pillar Ama G-4_Data");
+                                break;
+                            default:
+                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = " + laneNum.ToString());
+                                DebugLog.LogToFileOnly("Try to Load pillar Ama G-5_Data");
+                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama G-5_Data") != null)
+                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama G-5_Data");
+                                else
+                                    DebugLog.LogToFileOnly("Failed Load pillar Ama G-5_Data");
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        if (Regex.Match(loaded.name, "CSUR-S", RegexOptions.IgnoreCase).Success)
+                            laneNum = laneNum - 1;
+                        else if (Regex.Match(loaded.name, "CSUR-T", RegexOptions.IgnoreCase).Success)
+                            laneNum = laneNum - 1;
+                        else if (Regex.Match(loaded.name, "CSUR-R", RegexOptions.IgnoreCase).Success)
+                            laneNum = laneNum - 1;
+
+                        if (laneNum < 0)
+                            laneNum = 0;
+
+                        laneNum = laneNum * 2;
+                        switch (laneNum)
+                        {
+                            case 0:
+                            case 2:
+                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = " + laneNum.ToString());
+                                DebugLog.LogToFileOnly("Try to Load pillar Ama S-2_Data");
+                                elevatedAI.m_bridgePillarOffset = 1f;
+                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama S-2_Data") != null)
+                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama S-2_Data");
+                                else
+                                    DebugLog.LogToFileOnly("Failed Load pillar Ama S-2_Data");
+                                break;
+                            case 4:
+                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = 4");
+                                DebugLog.LogToFileOnly("Try to Load pillar Ama G-2_Data");
+                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama G-2_Data") != null)
+                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama G-2_Data");
+                                else
+                                    DebugLog.LogToFileOnly("Failed Load pillar Ama G-2_Data");
+                                break;
+                            case 6:
+                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = 6");
+                                DebugLog.LogToFileOnly("Try to Load pillar Ama G-6DR_Data");
+                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama G-6DR_Data") != null)
+                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama G-6DR_Data");
+                                else
+                                    DebugLog.LogToFileOnly("Failed Load pillar Ama G-6DR_Data");
+                                break;
+                            case 8:
+                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = 8");
+                                DebugLog.LogToFileOnly("Try to Load pillar Ama G-8DR_Data");
+                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama G-8DR_Data") != null)
+                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama G-8DR_Data");
+                                else
+                                    DebugLog.LogToFileOnly("Failed Load pillar Ama G-8DR_Data");
+                                break;
+                            case 10:
+                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = 10");
+                                DebugLog.LogToFileOnly("Try to Load pillar Ama G-8DR_Data");
+                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama G-8DR_Data") != null)
+                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama G-8DR_Data");
+                                else
+                                    DebugLog.LogToFileOnly("Failed Load pillar Ama G-8DR_Data");
+                                break;
+                            default:
+                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = " + laneNum.ToString());
+                                DebugLog.LogToFileOnly("Try to Load pillar Ama G-8DR_Data");
+                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama G-8DR_Data") != null)
+                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama G-8DR_Data");
+                                else
+                                    DebugLog.LogToFileOnly("Failed Load pillar Ama G-8DR_Data");
+                                break;
+                        }
+                    }                        
+                }
             }
         }
 
-        public void RemovePilla()
+        public void RemovePillar()
         {
-            string[] assets = new string[] { "CSUR 1R4P_Data", "CSUR 1R5P_Data", "CSUR-T 1R4P=2R5P_Data", "CSUR-T 2R5P=1R4P_Data" };
-            for (int i = 0; i < assets.Length; i++)
+            for (uint num = 0u; num < PrefabCollection<NetInfo>.LoadedCount(); num++)
             {
-                NetInfo asset = PrefabCollection<NetInfo>.FindLoaded(assets[i]);
-                var roadAI = asset.m_netAI as RoadAI;
-                RoadBridgeAI elevatedAI = roadAI.m_elevatedInfo.m_netAI as RoadBridgeAI;
-                elevatedAI.m_bridgePillarInfo = null;// PrefabCollection<BuildingInfo>.FindLoaded("CSUR 2DC.Ama S-1_Data");
+                NetInfo loaded = PrefabCollection<NetInfo>.GetLoaded(num);
+                if (CSUROffset.IsCSUROffset(loaded))
+                {
+                    var roadAI = loaded.m_netAI as RoadAI;
+                    RoadBridgeAI elevatedAI = null;
+                    if ((loaded.m_netAI is RoadBridgeAI) && (Regex.Match(loaded.name, "Elevated", RegexOptions.IgnoreCase)).Success)
+                    {
+                        elevatedAI = loaded.m_netAI as RoadBridgeAI;
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                    elevatedAI.m_bridgePillarInfo = null;// PrefabCollection<BuildingInfo>.FindLoaded("CSUR 2DC.Ama S-1_Data");
+                    DebugLog.LogToFileOnly("Remove pilla for " + loaded.name.ToString());
+                }
             }
         }
     }

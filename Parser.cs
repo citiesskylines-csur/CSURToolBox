@@ -7,12 +7,12 @@ namespace CSURToolBox
     public class Parser
     {
         private static readonly bool SCREEN_UTURN = true;
-        private static readonly bool SCREEN_ASYM = true;
+        private static readonly bool SCREEN_ASYM = false;
 
         private static readonly byte origin = 4;
 
 
-        private static byte highestBit(int num)
+        private static byte HighestBit(int num)
         {
             byte p = 0;
             while (num > 0)
@@ -26,7 +26,7 @@ namespace CSURToolBox
         private static string LanePosition(int pos)
         {
             int laneNum = (pos - origin) / 2;
-            Debug.Log($"Lane position:{pos}");
+            //Debug.Log($"Lane position:{pos}");
             if ((pos & 1) == 0)
             {
                 return laneNum >= 0 ? $"R{laneNum}" : $"L{-laneNum}";
@@ -60,6 +60,7 @@ namespace CSURToolBox
             string blocks = "";
             string blockName, leftBlockName = null;
             bool asymApplied = false;
+            bool appendLeft = false;
             while (bitmask > 0)
             {
                 while ((bitmask & 1) == 0)
@@ -77,7 +78,7 @@ namespace CSURToolBox
                 {
                     int ilane = pointer - 2;
                     blockName = LanePosition(ilane);
-                    Debug.Log($"counter: {counter}, name: {blockName}");
+                    //Debug.Log($"counter: {counter}, name: {blockName}");
                     // abbreviate nRn as nR
                     if (blockName.Substring(1) == counter.ToString())
                     {
@@ -99,10 +100,15 @@ namespace CSURToolBox
                     else if (blockName.Substring(1) == $"{counter - 1}P")
                     {
                         // nR(n-1)P is the one-way counterpart of nDC
-                        if (symmetry == 0) blockName = $"{counter * 2}DC";
+                        if (symmetry == 0 || symmetry == 225) blockName = $"{counter * 2}DC";
                         else if (symmetry == 1) blockName = $"{counter * 2 + 1}DS";
                         else if (symmetry == 2) blockName = $"{counter * 2 + 2}DS2";
+                        else if (symmetry == 254) blockName = $"{counter * 2 - 1}DS";
+                        else if (symmetry == 253) blockName = $"{counter * 2 - 2}DS2";
                         else throw new ArgumentException("Asymmetric road should have at most difference of 2");
+                        if (symmetry > 0 && symmetry < 225) appendLeft = true;
+                        if (symmetry > 0) symmetry = 255;
+
                     }
                     else if (symmetry == 0)
                     {
@@ -158,7 +164,14 @@ namespace CSURToolBox
                     }
                     else
                     {
-                        blocks += blockName;
+                        if (appendLeft)
+                        {
+                            blocks = blockName + blocks;
+                        }
+                        else
+                        {
+                            blocks += blockName;
+                        }
                     }
                 }
             }
@@ -170,8 +183,8 @@ namespace CSURToolBox
         public static string ModuleNameFromUI(int fromSelected, int toSelected, byte symmetry,
                                             bool uturnLane, bool hasSidewalk, bool hasBike)
         {
-            // Empty selection or overlapping lanes always give no module
-            if ((fromSelected == 0) || (toSelected == 0) || (fromSelected & fromSelected << 1) != 0 || (toSelected & toSelected << 1) != 0)
+            // or overlapping lanes always give no module
+            if ((fromSelected & fromSelected << 1) != 0 || (toSelected & toSelected << 1) != 0)
             {
                 return null;
             }
@@ -179,6 +192,13 @@ namespace CSURToolBox
             if ((!hasSidewalk) && hasBike)
             {
                 return null;
+            }
+            // Empty selection gives standalone sidewalk
+            if ((fromSelected == 0) || (toSelected == 0))
+            {
+                if (hasSidewalk && hasBike) return "CSUR SidewalkWithBikeLane";
+                if (hasSidewalk && !hasBike) return "CSUR Sidewalk";
+                if (!hasSidewalk && !hasBike) return "CSUR Median";
             }
             // screen uturn modules, only a two-way non-ramp road with the right side aligned
             // may have a uturn variant. 
@@ -188,7 +208,7 @@ namespace CSURToolBox
                 if (symmetry != 0) return null;
                 if ((fromSelected & toSelected) == fromSelected || (fromSelected & toSelected) == toSelected)
                 {
-                    if (highestBit(fromSelected) != highestBit(toSelected)) return null;
+                    if (HighestBit(fromSelected) != HighestBit(toSelected)) return null;
                 }
                 else
                 {
@@ -219,15 +239,40 @@ namespace CSURToolBox
                 }
                 // to prevent an empty key, GetBlocks() either
                 // returns a module name or raises ArgumentException
-                key += " " + GetBlocks(fromSelected, symmetry);
+                byte symm_start = symmetry;
+                byte symm_end = symmetry;
+                if (fromSelected != toSelected && ((fromSelected & toSelected & 32) != 0) && symmetry > 0 && symmetry < 255)
+                {
+                    // special symmetry values for undivided interfaces
+                    byte dMaxBit = (byte)Mathf.Abs(HighestBit(fromSelected) - HighestBit(toSelected));
+                    if (dMaxBit == 1)
+                    {
+                        symm_start = (byte)(fromSelected < toSelected ? 0 : symmetry);
+                        symm_end = (byte)(fromSelected < toSelected ? symmetry : 0);
+                        key = "CSUR-R";
+                    }
+                    else if (dMaxBit == 2)
+                    {
+                        symm_start = (byte)(fromSelected < toSelected ? 0 : 255 - symmetry);
+                        symm_end = (byte)(fromSelected < toSelected ? 255 - symmetry : 0);
+                        key = "CSUR-T";
+                    }
+                    else if (dMaxBit == 3)
+                    {
+                        symm_start = (byte)(fromSelected < toSelected ? symmetry : 225);
+                        symm_end = (byte)(fromSelected < toSelected ? 225 : symmetry);
+                        key = "CSUR-R";
+                    }
+                }
+                key += " " + GetBlocks(fromSelected, symm_start);
                 if (fromSelected != toSelected)
                 {
-                    key += "=" + GetBlocks(toSelected, symmetry);
+                    key += "=" + GetBlocks(toSelected, symm_end);
                 }
                 if (uturnLane) key += " uturn";
                 if (!hasSidewalk && !hasBike) key += " express";
                 if (hasSidewalk && !hasBike) key += " compact";
-                Debug.Log($"Found module {key}");
+                //Debug.Log($"Found module {key}");
                 return key;
             }
             catch (ArgumentException e)

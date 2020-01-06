@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using UnityEngine;
 
 namespace CSURToolBox.CustomData
@@ -227,9 +228,12 @@ namespace CSURToolBox.CustomData
                 // NON-STOCK CODE STARTS
                 if (CSUROffset.IsCSUROffset(node.Info) && (instance.m_buildings.m_buffer[node.m_building].m_position != position2 || instance.m_buildings.m_buffer[node.m_building].m_angle != num))
                 {
+                    RemoveFromGrid(node.m_building, ref instance.m_buildings.m_buffer[node.m_building]);
                     instance.m_buildings.m_buffer[node.m_building].m_position = position2;
                     instance.m_buildings.m_buffer[node.m_building].m_angle = num;
-                    instance.UpdateBuilding(node.m_building);
+                    AddToGrid(node.m_building, ref instance.m_buildings.m_buffer[node.m_building]);
+                    instance.m_buildings.m_buffer[node.m_building].CalculateBuilding(node.m_building);
+                    Singleton<BuildingManager>.instance.UpdateBuildingRenderer(node.m_building, true);
                 }
                 else
                 {
@@ -245,6 +249,73 @@ namespace CSURToolBox.CustomData
             }
         }
 
+        private static void RemoveFromGrid(ushort building, ref Building data)
+        {
+            BuildingManager instance = Singleton<BuildingManager>.instance;
+            BuildingInfo info = data.Info;
+            int num = Mathf.Clamp((int)(data.m_position.x / 64f + 135f), 0, 269);
+            int num2 = Mathf.Clamp((int)(data.m_position.z / 64f + 135f), 0, 269);
+            int num3 = num2 * 270 + num;
+            while (!Monitor.TryEnter(instance.m_buildingGrid, SimulationManager.SYNCHRONIZE_TIMEOUT))
+            {
+            }
+            try
+            {
+                ushort num4 = 0;
+                ushort num5 = instance.m_buildingGrid[num3];
+                int num6 = 0;
+                while (num5 != 0)
+                {
+                    if (num5 == building)
+                    {
+                        if (num4 == 0)
+                        {
+                            instance.m_buildingGrid[num3] = data.m_nextGridBuilding;
+                            break;
+                        }
+                        Singleton<BuildingManager>.instance.m_buildings.m_buffer[(int)num4].m_nextGridBuilding = data.m_nextGridBuilding;
+                        break;
+                    }
+                    else
+                    {
+                        num4 = num5;
+                        num5 = Singleton<BuildingManager>.instance.m_buildings.m_buffer[(int)num5].m_nextGridBuilding;
+                        if (++num6 > 49152)
+                        {
+                            CODebugBase<LogChannel>.Error(LogChannel.Core, "Invalid list detected!\n" + Environment.StackTrace);
+                            break;
+                        }
+                    }
+                }
+                data.m_nextGridBuilding = 0;
+            }
+            finally
+            {
+                Monitor.Exit(instance.m_buildingGrid);
+            }
+            if (info != null)
+            {
+                Singleton<RenderManager>.instance.UpdateGroup(num * 45 / 270, num2 * 45 / 270, info.m_prefabDataLayer);
+            }
+        }
+
+        private static void AddToGrid(ushort building, ref Building data)
+        {
+            int num = Mathf.Clamp((int)(data.m_position.x / 64f + 135f), 0, 269);
+            int num2 = Mathf.Clamp((int)(data.m_position.z / 64f + 135f), 0, 269) * 270 + num;
+            while (!Monitor.TryEnter(Singleton<BuildingManager>.instance.m_buildingGrid, SimulationManager.SYNCHRONIZE_TIMEOUT))
+            {
+            }
+            try
+            {
+                Singleton<BuildingManager>.instance.m_buildings.m_buffer[(int)building].m_nextGridBuilding = Singleton<BuildingManager>.instance.m_buildingGrid[num2];
+                Singleton<BuildingManager>.instance.m_buildingGrid[num2] = building;
+            }
+            finally
+            {
+                Monitor.Exit(Singleton<BuildingManager>.instance.m_buildingGrid);
+            }
+        }
         public static bool TestNodeBuilding(ushort nodeID, BuildingInfo info, Vector3 position, float angle)
         {
             Vector2 a = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle));

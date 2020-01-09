@@ -55,6 +55,7 @@
     <Compile Include="CUSRToolBox.cs" />
     <Compile Include="CustomAI\CustomNetAI.cs" />
     <Compile Include="CustomAI\NewLaneConnectorTool.cs" />
+    <Compile Include="CustomData\CustomBuilding.cs" />
     <Compile Include="CustomData\CustomNetNode.cs" />
     <Compile Include="CustomData\CustomNetSegment.cs" />
     <Compile Include="CustomManager\CustomNetManager.cs" />

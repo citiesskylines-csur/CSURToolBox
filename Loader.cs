@@ -335,6 +335,18 @@ namespace CSURToolBox
                     DebugLog.LogToFileOnly("Could not detour NetSegment::OverlapQuad");
                     detourFailed = true;
                 }
+                //7
+                DebugLog.LogToFileOnly("Detour Building::FindParentNode calls");
+                try
+                {
+                    Detours.Add(new Detour(typeof(Building).GetMethod("FindParentNode", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort) }, null),
+                                           typeof(CustomBuilding).GetMethod("FindParentNode", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(Building).MakeByRefType(), typeof(ushort) }, null)));
+                }
+                catch (Exception)
+                {
+                    DebugLog.LogToFileOnly("Could not detour Building::FindParentNode");
+                    detourFailed = true;
+                }
 
                 isMoveItRunning = CheckMoveItIsLoaded();
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using UnityEngine;
 
 namespace CSURToolBox.Util
 {
@@ -12,6 +13,7 @@ namespace CSURToolBox.Util
         public const string CSUR_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)+(=|-)?([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)*";
         public const string CSUR_DUAL_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9]D(L|S|C|R)[1-9]*P?)+(=|-)?([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)*";
         public const string CSUR_OFFSET_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9](L|R)[1-9]*P?)+(=|-)?([[1-9]?[0-9](L|R)[1-9]*P?)*";
+        public const string CSUR_LANEOFFSET_REGEX = "CSUR-S ([1-9])R([1-9]?)(P?)=([1-9])R([1-9]?)(P?)";
 
         public static bool IsCSUR(NetInfo asset)
         {
@@ -44,6 +46,90 @@ namespace CSURToolBox.Util
             string savenameStripped = asset.name.Substring(asset.name.IndexOf('.') + 1);
             Match m = Regex.Match(savenameStripped, CSUR_DUAL_REGEX, RegexOptions.IgnoreCase);
             return m.Success;
+        }
+
+        //TODO: needOffsetStartIdex is for CSUR-R Road, is laneidex > needOffsetStartIdex, we need to do offset
+        //Currently, we only support CSUR-S Road to do offset, all laneOffset is the same value, and needOffsetStartIdex is 0, so all the road need to do offset
+        //Return false to avoid to do offset.
+        public static bool IsCSURLaneOffset(NetInfo asset, ref float laneOffset, ref int needOffsetStartIdex)
+        {
+            laneOffset = 0f;
+            needOffsetStartIdex = 0;
+
+            if (asset == null || (asset.m_netAI.GetType() != typeof(RoadAI) && asset.m_netAI.GetType() != typeof(RoadBridgeAI) && asset.m_netAI.GetType() != typeof(RoadTunnelAI)))
+            {
+                return false;
+            }
+            string savenameStripped = asset.name.Substring(asset.name.IndexOf('.') + 1);
+            Match m = Regex.Match(savenameStripped, CSUR_LANEOFFSET_REGEX, RegexOptions.IgnoreCase);
+
+            if (!m.Success)
+                return false;
+
+            DebugLog.LogToFileOnly(m.Groups[1].Value);
+            DebugLog.LogToFileOnly(m.Groups[2].Value);
+            DebugLog.LogToFileOnly(m.Groups[3].Value);
+            DebugLog.LogToFileOnly(m.Groups[4].Value);
+            DebugLog.LogToFileOnly(m.Groups[5].Value);
+            DebugLog.LogToFileOnly(m.Groups[6].Value);
+
+            float startOffset = 0;
+            if (m.Groups[2].Value == "")
+            {
+                if (m.Groups[1].Value != "")
+                    startOffset = int.Parse(m.Groups[1].Value);
+            }
+            else
+            {
+                if (m.Groups[3].Value == "")
+                {
+                    if (m.Groups[2].Value != "")
+                        startOffset = int.Parse(m.Groups[2].Value);
+                }
+                else
+                {
+                    if (m.Groups[2].Value != "")
+                        startOffset = int.Parse(m.Groups[2].Value) + 0.5f;
+                }
+            }
+
+            float endOffset = 0;
+            if (m.Groups[5].Value == "")
+            {
+                if (m.Groups[4].Value != "")
+                    endOffset = int.Parse(m.Groups[4].Value);
+            }
+            else
+            {
+                if (m.Groups[6].Value == "")
+                {
+                    if (m.Groups[5].Value != "")
+                        endOffset = int.Parse(m.Groups[5].Value);
+                }
+                else
+                {
+                    if (m.Groups[5].Value != "")
+                        endOffset = int.Parse(m.Groups[5].Value) + 0.5f;
+                }
+            }
+
+            DebugLog.LogToFileOnly("startoffset = " + startOffset.ToString());
+            DebugLog.LogToFileOnly("endoffset = " + endOffset.ToString());
+
+            if (startOffset!=0 && endOffset!=0)
+            {
+                laneOffset = endOffset - startOffset;
+            }
+
+            if (laneOffset!=0)
+                return m.Success;
+            else
+                return false;
+        }
+        //TODO: Use name and laneposition to get LaneIndex. the leftest lane is 0;
+        public static int CSURLaneIndex(NetInfo asset, NetInfo.Lane lane)
+        {
+            return 0;
         }
         public static bool CheckNodeEq(ushort node1, NetNode node2)
         {

@@ -32,6 +32,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="0Harmony">
+      <HintPath>..\0Harmony.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>F:\SteamLibrary\steamapps\common\Cities_Skylines\Cities_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
@@ -68,6 +71,7 @@
     <Compile Include="UI\OptionKeyMappingFunction.cs" />
     <Compile Include="UI\OptionKeyMappingLane.cs" />
     <Compile Include="UI\OptionUI.cs" />
+    <Compile Include="Util\HarmonyDetours.cs" />
     <Compile Include="Util\CSUROffset.cs" />
     <Compile Include="Util\DebugLog.cs" />
     <Compile Include="Util\Localization.cs" />
@@ -88,6 +92,7 @@
     <PostBuildEvent>copy "D:\Mod\CSURToolBox\bin\Release\CSURToolBox.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\CSURToolBox.dll
 rd /q /s "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\Resources"
 mkdir "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\Resources"
-copy "D:\Mod\CSURToolBox\Resources\*.*" "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\Resources"</PostBuildEvent>
+copy "D:\Mod\CSURToolBox\Resources\*.*" "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\Resources"
+copy "D:\Mod\CSURToolBox\bin\Release\0Harmony.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\0Harmony.dll"</PostBuildEvent>
   </PropertyGroup>
 </Project>

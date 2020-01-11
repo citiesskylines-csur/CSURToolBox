@@ -125,13 +125,6 @@ namespace CSURToolBox
                     DebugLog.LogToFileOnly(text);
                     UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", text, true);
                 }
-
-                if (Loader.HarmonyDetourFailed)
-                {
-                    string error = "CSURToolBox HarmonyDetourInit is failed, Send CSURToolBox.txt to Author.";
-                    DebugLog.LogToFileOnly(error);
-                    UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", error, true);
-                }
             }
         }
     }

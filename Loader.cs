@@ -37,8 +37,6 @@ namespace CSURToolBox
         public static bool is583429740 = false;
         public static bool is1637663252 = false;
         public static bool is1806963141 = false;
-        public static bool HarmonyDetourInited = false;
-        public static bool HarmonyDetourFailed = true;
         public static bool Done { get; private set; } // Only one Assets installation throughout the application
         public class Detour
         {
@@ -76,7 +74,6 @@ namespace CSURToolBox
                     SetupGui();
                     CheckTMPE();
                     InitDetour();
-                    HarmonyInitDetour();
                     InstallPillar();
                     DebugLog.LogToFileOnly("OnLevelLoaded");
                     if (mode == LoadMode.NewGame)
@@ -99,7 +96,6 @@ namespace CSURToolBox
                 if (CSURToolBox.IsEnabled)
                 {
                     RevertDetour();
-                    HarmonyRevertDetour();
                     RemovePillar();
                     if (isGuiRunning)
                     {
@@ -352,6 +348,19 @@ namespace CSURToolBox
                     detourFailed = true;
                 }
 
+                //8
+                DebugLog.LogToFileOnly("Detour NetSegment::UpdateLanes calls");
+                try
+                {
+                    Detours.Add(new Detour(typeof(NetSegment).GetMethod("UpdateLanes", BindingFlags.Public | BindingFlags.Instance),
+                                           typeof(CustomNetSegment).GetMethod("UpdateLanes", BindingFlags.Public | BindingFlags.Static)));
+                }
+                catch (Exception)
+                {
+                    DebugLog.LogToFileOnly("Could not detour NetSegment::UpdateLanes");
+                    detourFailed = true;
+                }
+
                 isMoveItRunning = CheckMoveItIsLoaded();
 
                 if (detourFailed)
@@ -419,27 +428,6 @@ namespace CSURToolBox
         private bool CheckMoveItIsLoaded()
         {
             return this.Check3rdPartyModLoaded("MoveIt", true);
-        }
-
-        public void HarmonyInitDetour()
-        {
-            if (!HarmonyDetourInited)
-            {
-                DebugLog.LogToFileOnly("Init harmony detours");
-                HarmonyDetours.Apply();
-                HarmonyDetourInited = true;
-            }
-        }
-
-        public void HarmonyRevertDetour()
-        {
-            if (HarmonyDetourInited)
-            {
-                DebugLog.LogToFileOnly("Revert harmony detours");
-                HarmonyDetours.DeApply();
-                HarmonyDetourInited = false;
-                HarmonyDetourFailed = true;
-            }
         }
 
         public void InstallPillar()

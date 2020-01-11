@@ -55,7 +55,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CUSRToolBox.cs" />
+    <Compile Include="CSURToolBox.cs" />
     <Compile Include="CustomAI\CustomNetAI.cs" />
     <Compile Include="CustomAI\NewLaneConnectorTool.cs" />
     <Compile Include="CustomData\CustomBuilding.cs" />

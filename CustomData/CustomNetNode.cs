@@ -179,16 +179,46 @@ namespace CSURToolBox.CustomData
                     // NON-STOCK CODE STARTS
                     if (CSUROffset.IsCSUROffset(node.Info))
                     {
-                        bool lht = false;
-                        if (node.CountSegments() != 0)
+                        float laneOffset = 0;
+                        int needOffsetStartIdex = 0;
+                        float startOffset = 0;
+                        float endOffset = 0;
+                        if (CSUROffset.IsCSURLaneOffset(node.Info, ref laneOffset, ref needOffsetStartIdex, ref startOffset, ref endOffset))
                         {
-                            float collisionHalfWidth = Mathf.Max(3f, (node.Info.m_halfWidth + node.Info.m_pavementWidth) / 2f);
-                            NetSegment mysegment = CSUROffset.GetSameInfoSegment(node);
-                            Vector3 direction = CSUROffset.CheckNodeEq(mysegment.m_startNode, node) ? mysegment.m_startDirection : -mysegment.m_endDirection;
-                            if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0) lht = true;
-                            // normal to the right hand side
-                            Vector3 normal = new Vector3(direction.z, 0, -direction.x).normalized;
-                            position = position + (lht ? -collisionHalfWidth : collisionHalfWidth) * normal;
+                            bool lht = false;
+                            if (node.CountSegments() != 0)
+                            {
+                                float collisionHalfWidth = 0;
+                                int laneNum = CSUROffset.CountLanes(node.Info);
+                                if (CSUROffset.isStartNode(nodeID))
+                                {
+                                    collisionHalfWidth = startOffset * 3.75f - laneNum * 1.875f + node.Info.m_pavementWidth * 2f; ;
+                                }
+                                else
+                                {
+                                    collisionHalfWidth = endOffset * 3.75f - laneNum * 1.875f + node.Info.m_pavementWidth * 2f; ;
+                                }
+                                NetSegment mysegment = CSUROffset.GetSameInfoSegment(node);
+                                Vector3 direction = CSUROffset.CheckNodeEq(mysegment.m_startNode, node) ? mysegment.m_startDirection : -mysegment.m_endDirection;
+                                if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0) lht = true;
+                                // normal to the right hand side
+                                Vector3 normal = new Vector3(direction.z, 0, -direction.x).normalized;
+                                position = position + (lht ? -collisionHalfWidth : collisionHalfWidth) * normal;
+                            }
+                        }
+                        else
+                        {
+                            bool lht = false;
+                            if (node.CountSegments() != 0)
+                            {
+                                float collisionHalfWidth = Mathf.Max(3f, (node.Info.m_halfWidth + node.Info.m_pavementWidth) / 2f);
+                                NetSegment mysegment = CSUROffset.GetSameInfoSegment(node);
+                                Vector3 direction = CSUROffset.CheckNodeEq(mysegment.m_startNode, node) ? mysegment.m_startDirection : -mysegment.m_endDirection;
+                                if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0) lht = true;
+                                // normal to the right hand side
+                                Vector3 normal = new Vector3(direction.z, 0, -direction.x).normalized;
+                                position = position + (lht ? -collisionHalfWidth : collisionHalfWidth) * normal;
+                            }
                         }
                     }
                     // NON-STOCK CODE ENDS
@@ -211,16 +241,46 @@ namespace CSURToolBox.CustomData
                 // NON-STOCK CODE STARTS
                 if (CSUROffset.IsCSUROffset(node.Info))
                 {
-                    bool lht = false;
-                    if (node.CountSegments() != 0)
+                    float laneOffset = 0;
+                    int needOffsetStartIdex = 0;
+                    float startOffset = 0;
+                    float endOffset = 0;
+                    if (CSUROffset.IsCSURLaneOffset(node.Info, ref laneOffset, ref needOffsetStartIdex, ref startOffset, ref endOffset))
                     {
-                        float collisionHalfWidth = Mathf.Max(3f, (node.Info.m_halfWidth + node.Info.m_pavementWidth)/2f);
-                        NetSegment mysegment = CSUROffset.GetSameInfoSegment(node);
-                        Vector3 direction = CSUROffset.CheckNodeEq(mysegment.m_startNode, node) ? mysegment.m_startDirection : -mysegment.m_endDirection;
-                        if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0) lht = true;
-                        // normal to the right hand side
-                        Vector3 normal = new Vector3(direction.z, 0, -direction.x).normalized;
-                        position2 = position2 + (lht ? -collisionHalfWidth : collisionHalfWidth) * normal;
+                        bool lht = false;
+                        if (node.CountSegments() != 0)
+                        {
+                            float collisionHalfWidth = 0;
+                            int laneNum = CSUROffset.CountLanes(node.Info);
+                            if (CSUROffset.isStartNode(nodeID))
+                            {
+                                collisionHalfWidth = startOffset * 3.75f - laneNum * 1.875f + node.Info.m_pavementWidth * 2f;
+                            }
+                            else
+                            {
+                                collisionHalfWidth = endOffset * 3.75f - laneNum * 1.875f + node.Info.m_pavementWidth * 2f;
+                            }
+                            NetSegment mysegment = CSUROffset.GetSameInfoSegment(node);
+                            Vector3 direction = CSUROffset.CheckNodeEq(mysegment.m_startNode, node) ? mysegment.m_startDirection : -mysegment.m_endDirection;
+                            if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0) lht = true;
+                            // normal to the right hand side
+                            Vector3 normal = new Vector3(direction.z, 0, -direction.x).normalized;
+                            position2 = position2 + (lht ? -collisionHalfWidth : collisionHalfWidth) * normal;
+                        }
+                    }
+                    else
+                    {
+                        bool lht = false;
+                        if (node.CountSegments() != 0)
+                        {
+                            float collisionHalfWidth = Mathf.Max(3f, (node.Info.m_halfWidth + node.Info.m_pavementWidth) / 2f);
+                            NetSegment mysegment = CSUROffset.GetSameInfoSegment(node);
+                            Vector3 direction = CSUROffset.CheckNodeEq(mysegment.m_startNode, node) ? mysegment.m_startDirection : -mysegment.m_endDirection;
+                            if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0) lht = true;
+                            // normal to the right hand side
+                            Vector3 normal = new Vector3(direction.z, 0, -direction.x).normalized;
+                            position2 = position2 + (lht ? -collisionHalfWidth : collisionHalfWidth) * normal;
+                        }
                     }
                 }
                 // NON-STOCK CODE ENDS

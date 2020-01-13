@@ -469,13 +469,11 @@ namespace CSURToolBox
                         continue;
 
                     //Caculate lane num
-                    int laneNum = (int)((loaded.m_halfWidth - loaded.m_pavementWidth) / 3.75 - 0.5);
+                    int laneNum = CSUROffset.CountLanes(loaded);
 
                     if (!CSUROffset.IsCSURDual(loaded))
                     {
-                        if (Regex.Match(loaded.name, "CSUR-S", RegexOptions.IgnoreCase).Success)
-                            laneNum = laneNum - 2;
-                        else if (Regex.Match(loaded.name, "CSUR-T", RegexOptions.IgnoreCase).Success)
+                        if (Regex.Match(loaded.name, "CSUR-T", RegexOptions.IgnoreCase).Success)
                             laneNum = laneNum - 2;
 
                         if (laneNum < 0)

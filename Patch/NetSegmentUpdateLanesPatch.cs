@@ -29,7 +29,7 @@ namespace CSURToolBox.Patch
                     float num2 = 0f;
                     if ((m_info.m_netAI is RoadAI) || (m_info.m_netAI is RoadBridgeAI) || (m_info.m_netAI is RoadTunnelAI))
                     {
-                        if (CSURUtil.IsCSURLaneOffset(m_info) && OptionUI.isCSURSSmooth)
+                        if (CSURUtil.IsCSURLaneOffset(m_info))
                         {
                             for (int i = 0; i < m_info.m_lanes.Length; i++)
                             {
@@ -41,7 +41,7 @@ namespace CSURToolBox.Patch
                                 NetInfo.Lane lane = m_info.m_lanes[i];
                                 float laneOffsetUnit = CSURUtil.CSURLaneOffset(m_info, lane);
                                 laneOffset = laneOffsetUnit * 3.75f;
-                                DebugLog.LogToFileOnly("lanepostion = " + lane.m_position.ToString() + " laneoffset = " + laneOffset.ToString());
+                                //DebugLog.LogToFileOnly("lanepostion = " + lane.m_position.ToString() + " laneoffset = " + laneOffset.ToString());
                                 float effort = (OptionUI.smoothLevel == 2) ? 0.002f : (OptionUI.smoothLevel == 1) ? 0.01f : 0.05f;
                                 //EG: before patch: point1-point4 is 1.5*3.75
                                 //After patch, point1-point4 is (1 1.3333 1.6667 2)*3.75
@@ -56,6 +56,8 @@ namespace CSURToolBox.Patch
                                 Bezier3 newBezier = default(Bezier3);
                                 newBezier.a = newBezierA;
                                 newBezier.d = newBezierD;
+
+                                //Try to get smooth bezier as close as real roadmesh
                                 NetSegment.CalculateMiddlePoints(newBezierA, newBezierADir, newBezierD, newBezierDDir, true, true, out newBezier.b, out newBezier.c);
 
                                 instance.m_lanes.m_buffer[firstLane].m_bezier = newBezier;

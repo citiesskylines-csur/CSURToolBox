@@ -14,9 +14,22 @@ namespace CSURToolBox.CustomAI
     {
         public virtual float CustomGetCollisionHalfWidth()
         {
+            // NON-STOCK CODE STARTS
+            float laneOffset = 0;
+            float startOffset = 0;
+            float endOffset = 0;
+            bool IsCSURSLane = CSURUtil.IsCSURSLane(m_info.m_netAI.m_info, ref laneOffset, ref startOffset, ref endOffset);
             if (CSURUtil.IsCSUROffset(m_info))
             {
-                return (m_info.m_halfWidth - m_info.m_pavementWidth) / 2f;
+                if (!IsCSURSLane)
+                {
+                    return (m_info.m_halfWidth - m_info.m_pavementWidth) / 2f;
+                }
+                else
+                {
+                    float laneNum = CSURUtil.CountCSURSVehicleLanes(m_info) + CSURUtil.CountCSURSOtherLanes(m_info);
+                    return (laneNum * 3.75f / 2f);
+                }
             }
             return m_info.m_halfWidth;
         }

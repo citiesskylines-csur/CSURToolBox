@@ -13,7 +13,7 @@ namespace CSURToolBox.Util
         public const string CSUR_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)+(=|-)?([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)*";
         public const string CSUR_DUAL_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9]D(L|S|C|R)[1-9]*P?)+(=|-)?([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)*";
         public const string CSUR_OFFSET_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9](L|R)[1-9]*P?)+(=|-)?([[1-9]?[0-9](L|R)[1-9]*P?)*";
-        public const string CSURR_LANE_REGEX = "CSUR-S ([1-9])(R|C)([1-9]?)(P?)=([1-9])(R|C)([1-9]?)(P?)";
+        public const string CSURS_LANE_REGEX = "CSUR-S ([1-9])(R|C)([1-9]?)(P?)=([1-9])(R|C)([1-9]?)(P?)";
         public const string CSUR_LANEOFFSET_REGEXPREFIX = "CSUR-(T|R|S)? ";
         public const string EachUnit = "[1-9]?[0-9]?D?[C|S|L|R]?[1-9]*P?";
         public const string MustUnit = "[1-9]?[0-9]D?[C|S|L|R][1-9]*P?";
@@ -52,7 +52,7 @@ namespace CSURToolBox.Util
             return m.Success;
         }
 
-        public static bool IsCSURRLane(NetInfo asset, ref float laneOffset, ref float startOffset, ref float endOffset)
+        public static bool IsCSURSLane(NetInfo asset, ref float laneOffset, ref float startOffset, ref float endOffset)
         {
             laneOffset = 0f;
 
@@ -61,7 +61,7 @@ namespace CSURToolBox.Util
                 return false;
             }
             string savenameStripped = asset.name.Substring(asset.name.IndexOf('.') + 1);
-            Match m = Regex.Match(savenameStripped, CSURR_LANE_REGEX, RegexOptions.IgnoreCase);
+            Match m = Regex.Match(savenameStripped, CSURS_LANE_REGEX, RegexOptions.IgnoreCase);
 
             if (!m.Success)
                 return false;
@@ -526,7 +526,7 @@ namespace CSURToolBox.Util
         }
         
         //bike lane is 2.75, treat as 2.75/3.75 lanes
-        public static float CountLanes(NetInfo info)
+        public static float CountCSURSVehicleLanes(NetInfo info)
         {
             float count = 0f;
             for (int i = 0; i < info.m_lanes.Length; i++)
@@ -535,9 +535,18 @@ namespace CSURToolBox.Util
                 {
                     count += 1f;
                 }
-                else if (info.m_lanes[i].m_laneType.IsFlagSet(NetInfo.LaneType.Vehicle) && info.m_lanes[i].m_vehicleType.IsFlagSet(VehicleInfo.VehicleType.Bicycle))
+            }
+            return count;
+        }
+
+        public static float CountCSURSOtherLanes(NetInfo info)
+        {
+            float count = 0f;
+            for (int i = 0; i < info.m_lanes.Length; i++)
+            {
+                if (info.m_lanes[i].m_laneType.IsFlagSet(NetInfo.LaneType.Vehicle) && info.m_lanes[i].m_vehicleType.IsFlagSet(VehicleInfo.VehicleType.Bicycle))
                 {
-                    count += (2.75f/3.75f);
+                    count += 2.75f/3.75f;
                 }
                 else if (info.m_lanes[i].m_laneType.IsFlagSet(NetInfo.LaneType.Pedestrian))
                 {

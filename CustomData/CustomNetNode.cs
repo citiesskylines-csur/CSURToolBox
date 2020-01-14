@@ -17,7 +17,7 @@ namespace CSURToolBox.CustomData
         {
             NetInfo info = node.Info;
             // NON-STOCK CODE STARTS
-            if (CSUROffset.IsCSUROffset(info.m_netAI.m_info))
+            if (CSURUtil.IsCSUROffset(info.m_netAI.m_info))
             {
                 return RayCastNodeMasked(ref node, ray, snapElevation, false, out t, out priority);
             }
@@ -55,7 +55,7 @@ namespace CSURToolBox.CustomData
         {
             NetInfo info = node.Info;
             // NON-STOCK CODE STARTS
-            if (CSUROffset.IsCSUROffset(info.m_netAI.m_info))
+            if (CSURUtil.IsCSUROffset(info.m_netAI.m_info))
             {
                 return RayCastNodeMasked(ref node, ray, snapElevation, false, out t, out priority);
             }
@@ -112,8 +112,8 @@ namespace CSURToolBox.CustomData
             if (node.CountSegments() != 0)
             {
                 NetManager instance = Singleton<NetManager>.instance;
-                NetSegment mysegment = CSUROffset.GetSameInfoSegment(node);
-                Vector3 direction = CSUROffset.CheckNodeEq(mysegment.m_startNode, node) ? mysegment.m_startDirection : -mysegment.m_endDirection;
+                NetSegment mysegment = CSURUtil.GetSameInfoSegment(node);
+                Vector3 direction = CSURUtil.CheckNodeEq(mysegment.m_startNode, node) ? mysegment.m_startDirection : -mysegment.m_endDirection;
                 //Debug.Log(direction);
                 if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0) lht = true;
                 // normal to the right hand side
@@ -177,20 +177,19 @@ namespace CSURToolBox.CustomData
                     Vector3 position = node.m_position;
                     position.y += heightOffset;
                     // NON-STOCK CODE STARTS
-                    if (CSUROffset.IsCSUROffset(node.Info))
+                    if (CSURUtil.IsCSUROffset(node.Info))
                     {
                         float laneOffset = 0;
-                        int needOffsetStartIdex = 0;
                         float startOffset = 0;
                         float endOffset = 0;
-                        if (CSUROffset.IsCSURLaneOffset(node.Info, ref laneOffset, ref needOffsetStartIdex, ref startOffset, ref endOffset))
+                        if (CSURUtil.IsCSURRLane(node.Info, ref laneOffset, ref startOffset, ref endOffset))
                         {
                             bool lht = false;
                             if (node.CountSegments() != 0)
                             {
                                 float collisionHalfWidth = 0;
-                                int laneNum = CSUROffset.CountLanes(node.Info);
-                                if (CSUROffset.isStartNode(nodeID))
+                                float laneNum = CSURUtil.CountLanes(node.Info);
+                                if (CSURUtil.isStartNode(nodeID))
                                 {
                                     collisionHalfWidth = startOffset * 3.75f - laneNum * 1.875f + node.Info.m_pavementWidth * 2f; ;
                                 }
@@ -198,8 +197,8 @@ namespace CSURToolBox.CustomData
                                 {
                                     collisionHalfWidth = endOffset * 3.75f - laneNum * 1.875f + node.Info.m_pavementWidth * 2f; ;
                                 }
-                                NetSegment mysegment = CSUROffset.GetSameInfoSegment(node);
-                                Vector3 direction = CSUROffset.CheckNodeEq(mysegment.m_startNode, node) ? mysegment.m_startDirection : -mysegment.m_endDirection;
+                                NetSegment mysegment = CSURUtil.GetSameInfoSegment(node);
+                                Vector3 direction = CSURUtil.CheckNodeEq(mysegment.m_startNode, node) ? mysegment.m_startDirection : -mysegment.m_endDirection;
                                 if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0) lht = true;
                                 // normal to the right hand side
                                 Vector3 normal = new Vector3(direction.z, 0, -direction.x).normalized;
@@ -212,8 +211,8 @@ namespace CSURToolBox.CustomData
                             if (node.CountSegments() != 0)
                             {
                                 float collisionHalfWidth = Mathf.Max(3f, (node.Info.m_halfWidth + node.Info.m_pavementWidth) / 2f);
-                                NetSegment mysegment = CSUROffset.GetSameInfoSegment(node);
-                                Vector3 direction = CSUROffset.CheckNodeEq(mysegment.m_startNode, node) ? mysegment.m_startDirection : -mysegment.m_endDirection;
+                                NetSegment mysegment = CSURUtil.GetSameInfoSegment(node);
+                                Vector3 direction = CSURUtil.CheckNodeEq(mysegment.m_startNode, node) ? mysegment.m_startDirection : -mysegment.m_endDirection;
                                 if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0) lht = true;
                                 // normal to the right hand side
                                 Vector3 normal = new Vector3(direction.z, 0, -direction.x).normalized;
@@ -239,20 +238,19 @@ namespace CSURToolBox.CustomData
                 Vector3 position2 = node.m_position;
                 position2.y += heightOffset;
                 // NON-STOCK CODE STARTS
-                if (CSUROffset.IsCSUROffset(node.Info))
+                if (CSURUtil.IsCSUROffset(node.Info))
                 {
                     float laneOffset = 0;
-                    int needOffsetStartIdex = 0;
                     float startOffset = 0;
                     float endOffset = 0;
-                    if (CSUROffset.IsCSURLaneOffset(node.Info, ref laneOffset, ref needOffsetStartIdex, ref startOffset, ref endOffset))
+                    if (CSURUtil.IsCSURRLane(node.Info, ref laneOffset, ref startOffset, ref endOffset))
                     {
                         bool lht = false;
                         if (node.CountSegments() != 0)
                         {
                             float collisionHalfWidth = 0;
-                            int laneNum = CSUROffset.CountLanes(node.Info);
-                            if (CSUROffset.isStartNode(nodeID))
+                            float laneNum = CSURUtil.CountLanes(node.Info);
+                            if (CSURUtil.isStartNode(nodeID))
                             {
                                 collisionHalfWidth = startOffset * 3.75f - laneNum * 1.875f + node.Info.m_pavementWidth * 2f;
                             }
@@ -260,8 +258,8 @@ namespace CSURToolBox.CustomData
                             {
                                 collisionHalfWidth = endOffset * 3.75f - laneNum * 1.875f + node.Info.m_pavementWidth * 2f;
                             }
-                            NetSegment mysegment = CSUROffset.GetSameInfoSegment(node);
-                            Vector3 direction = CSUROffset.CheckNodeEq(mysegment.m_startNode, node) ? mysegment.m_startDirection : -mysegment.m_endDirection;
+                            NetSegment mysegment = CSURUtil.GetSameInfoSegment(node);
+                            Vector3 direction = CSURUtil.CheckNodeEq(mysegment.m_startNode, node) ? mysegment.m_startDirection : -mysegment.m_endDirection;
                             if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0) lht = true;
                             // normal to the right hand side
                             Vector3 normal = new Vector3(direction.z, 0, -direction.x).normalized;
@@ -274,8 +272,8 @@ namespace CSURToolBox.CustomData
                         if (node.CountSegments() != 0)
                         {
                             float collisionHalfWidth = Mathf.Max(3f, (node.Info.m_halfWidth + node.Info.m_pavementWidth) / 2f);
-                            NetSegment mysegment = CSUROffset.GetSameInfoSegment(node);
-                            Vector3 direction = CSUROffset.CheckNodeEq(mysegment.m_startNode, node) ? mysegment.m_startDirection : -mysegment.m_endDirection;
+                            NetSegment mysegment = CSURUtil.GetSameInfoSegment(node);
+                            Vector3 direction = CSURUtil.CheckNodeEq(mysegment.m_startNode, node) ? mysegment.m_startDirection : -mysegment.m_endDirection;
                             if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0) lht = true;
                             // normal to the right hand side
                             Vector3 normal = new Vector3(direction.z, 0, -direction.x).normalized;
@@ -286,7 +284,7 @@ namespace CSURToolBox.CustomData
                 // NON-STOCK CODE ENDS
                 num *= 6.28318548f;
                 // NON-STOCK CODE STARTS
-                if (CSUROffset.IsCSUROffset(node.Info) && (instance.m_buildings.m_buffer[node.m_building].m_position != position2 || instance.m_buildings.m_buffer[node.m_building].m_angle != num))
+                if (CSURUtil.IsCSUROffset(node.Info) && (instance.m_buildings.m_buffer[node.m_building].m_position != position2 || instance.m_buildings.m_buffer[node.m_building].m_angle != num))
                 {
                     RemoveFromGrid(node.m_building, ref instance.m_buildings.m_buffer[node.m_building]);
                     instance.m_buildings.m_buffer[node.m_building].m_position = position2;

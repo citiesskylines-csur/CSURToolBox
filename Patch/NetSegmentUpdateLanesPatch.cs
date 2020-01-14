@@ -25,15 +25,11 @@ namespace CSURToolBox.Patch
                     //Patch Begin
                     NetManager instance = Singleton<NetManager>.instance;
                     uint firstLane = __instance.m_lanes;
-                    float laneOffsetUnit= 0;
-                    int startOffsetIdex = 0;
-                    float startOffset = 0;
-                    float endOffset = 0;
                     float num = 0f;
                     float num2 = 0f;
                     if ((m_info.m_netAI is RoadAI) || (m_info.m_netAI is RoadBridgeAI) || (m_info.m_netAI is RoadTunnelAI))
                     {
-                        if (CSUROffset.IsCSURLaneOffset(m_info, ref laneOffsetUnit, ref startOffsetIdex, ref startOffset, ref endOffset) && OptionUI.isCSURSSmooth)
+                        if (CSURUtil.IsCSURLaneOffset(m_info) && OptionUI.isCSURSSmooth)
                         {
                             for (int i = 0; i < m_info.m_lanes.Length; i++)
                             {
@@ -43,51 +39,26 @@ namespace CSURToolBox.Patch
                                 }
                                 float laneOffset = 0;
                                 NetInfo.Lane lane = m_info.m_lanes[i];
-                                if (lane.m_laneType.IsFlagSet(NetInfo.LaneType.Pedestrian))
-                                {
-                                    laneOffset = laneOffsetUnit * 3.75f;
-                                }
-                                else if (lane.m_laneType.IsFlagSet(NetInfo.LaneType.Vehicle))
-                                {
-                                    if (lane.m_vehicleType.IsFlagSet(VehicleInfo.VehicleType.Car))
-                                    {
-                                        laneOffset = laneOffsetUnit * 3.75f;
-                                    }
-                                    else if (lane.m_vehicleType.IsFlagSet(VehicleInfo.VehicleType.Bicycle))
-                                    {
-                                        laneOffset = laneOffsetUnit * 2.75f;
-                                    }
-                                    else
-                                    {
-                                        continue;
-                                    }
-                                }
-                                else
-                                {
-                                    continue;
-                                }
+                                float laneOffsetUnit = CSURUtil.CSURLaneOffset(m_info, lane);
+                                laneOffset = laneOffsetUnit * 3.75f;
+                                DebugLog.LogToFileOnly("lanepostion = " + lane.m_position.ToString() + " laneoffset = " + laneOffset.ToString());
+                                float effort = (OptionUI.smoothLevel == 2) ? 0.002f : (OptionUI.smoothLevel == 1) ? 0.01f : 0.05f;
+                                //EG: before patch: point1-point4 is 1.5*3.75
+                                //After patch, point1-point4 is (1 1.3333 1.6667 2)*3.75
+                                var bezier = instance.m_lanes.m_buffer[firstLane].m_bezier;
+                                Vector3 newBezierA = bezier.Position(0) + (new Vector3(-bezier.Tangent(0).z, 0, bezier.Tangent(0).x).normalized) * (laneOffset * 0.5f);
+                                Vector3 newBezierA1 = bezier.Position(effort) + (new Vector3(-bezier.Tangent(effort).z, 0, bezier.Tangent(effort).x).normalized) * (laneOffset * (0.5f - effort));
+                                Vector3 newBezierADir = VectorUtils.NormalizeXZ(newBezierA1 - newBezierA);
+                                Vector3 newBezierD = bezier.Position(1) + (new Vector3(bezier.Tangent(1).z, 0, -bezier.Tangent(1).x).normalized) * (laneOffset * 0.5f);
+                                Vector3 newBezierD1 = bezier.Position(1f - effort) + (new Vector3(bezier.Tangent(1f - effort).z, 0, -bezier.Tangent(1f - effort).x).normalized) * (laneOffset * (0.5f - effort));
+                                Vector3 newBezierDDir = VectorUtils.NormalizeXZ(newBezierD1 - newBezierD);
 
-                                //TODO:Get CSURLaneIndex and if greater than startOffsetIdex, we need to do offset.
-                                if (CSUROffset.CSURLaneIndex(m_info, lane) >= startOffsetIdex)
-                                {
-                                    float effort = (OptionUI.smoothLevel == 2) ? 0.002f : (OptionUI.smoothLevel == 1) ? 0.01f : 0.05f;
-                                    //EG: before patch: point1-point4 is 1.5*3.75
-                                    //After patch, point1-point4 is (1 1.3333 1.6667 2)*3.75
-                                    var bezier = instance.m_lanes.m_buffer[firstLane].m_bezier;
-                                    Vector3 newBezierA = bezier.Position(0) + (new Vector3(-bezier.Tangent(0).z, 0, bezier.Tangent(0).x).normalized) * (laneOffset * 0.5f);
-                                    Vector3 newBezierA1 = bezier.Position(effort) + (new Vector3(-bezier.Tangent(effort).z, 0, bezier.Tangent(effort).x).normalized) * (laneOffset * (0.5f - effort));
-                                    Vector3 newBezierADir = VectorUtils.NormalizeXZ(newBezierA1 - newBezierA);
-                                    Vector3 newBezierD = bezier.Position(1) + (new Vector3(bezier.Tangent(1).z, 0, -bezier.Tangent(1).x).normalized) * (laneOffset * 0.5f);
-                                    Vector3 newBezierD1 = bezier.Position(1f-effort) + (new Vector3(bezier.Tangent(1f - effort).z, 0, -bezier.Tangent(1f - effort).x).normalized) * (laneOffset * (0.5f - effort));
-                                    Vector3 newBezierDDir = VectorUtils.NormalizeXZ(newBezierD1 - newBezierD);
+                                Bezier3 newBezier = default(Bezier3);
+                                newBezier.a = newBezierA;
+                                newBezier.d = newBezierD;
+                                NetSegment.CalculateMiddlePoints(newBezierA, newBezierADir, newBezierD, newBezierDDir, true, true, out newBezier.b, out newBezier.c);
 
-                                    Bezier3 newBezier = default(Bezier3);
-                                    newBezier.a = newBezierA;
-                                    newBezier.d = newBezierD;
-                                    NetSegment.CalculateMiddlePoints(newBezierA, newBezierADir, newBezierD, newBezierDDir, true, true, out newBezier.b, out newBezier.c);
-
-                                    instance.m_lanes.m_buffer[firstLane].m_bezier = newBezier;
-                                }
+                                instance.m_lanes.m_buffer[firstLane].m_bezier = newBezier;
                                 num += instance.m_lanes.m_buffer[firstLane].UpdateLength();
                                 num2 += 1f;
                                 firstLane = instance.m_lanes.m_buffer[firstLane].m_nextLane;

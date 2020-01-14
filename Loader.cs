@@ -460,7 +460,7 @@ namespace CSURToolBox
             for (uint num = 0u; num < PrefabCollection<NetInfo>.LoadedCount(); num++)
             {
                 NetInfo loaded = PrefabCollection<NetInfo>.GetLoaded(num);
-                if (CSUROffset.IsCSUR(loaded))
+                if (CSURUtil.IsCSUR(loaded))
                 {
                     RoadBridgeAI elevatedAI = null;
                     if ((loaded.m_netAI is RoadBridgeAI) && (Regex.Match(loaded.name, "Elevated", RegexOptions.IgnoreCase)).Success && (loaded.m_segments.Length != 0))
@@ -469,9 +469,9 @@ namespace CSURToolBox
                         continue;
 
                     //Caculate lane num
-                    int laneNum = CSUROffset.CountLanes(loaded);
+                    int laneNum = (int)CSURUtil.CountLanes(loaded);
 
-                    if (!CSUROffset.IsCSURDual(loaded))
+                    if (!CSURUtil.IsCSURDual(loaded))
                     {
                         if (Regex.Match(loaded.name, "CSUR-T", RegexOptions.IgnoreCase).Success)
                             laneNum = laneNum - 2;
@@ -610,7 +610,7 @@ namespace CSURToolBox
             for (uint num = 0u; num < PrefabCollection<NetInfo>.LoadedCount(); num++)
             {
                 NetInfo loaded = PrefabCollection<NetInfo>.GetLoaded(num);
-                if (CSUROffset.IsCSUROffset(loaded))
+                if (CSURUtil.IsCSUROffset(loaded))
                 {
                     var roadAI = loaded.m_netAI as RoadAI;
                     RoadBridgeAI elevatedAI = null;

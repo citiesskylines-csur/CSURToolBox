@@ -47,7 +47,7 @@ namespace CSURToolBox.CustomData
 
         public static bool RayCast(ref NetSegment mysegment, ushort segmentID, Segment3 ray, float snapElevation, bool nameOnly, out float t, out float priority)
         {
-            if (CSUROffset.IsCSUROffset(mysegment.Info.m_netAI.m_info))
+            if (CSURUtil.IsCSUROffset(mysegment.Info.m_netAI.m_info))
             {
                 return NetSegmentRayCastMasked(mysegment, segmentID, ray, -1000f, false, out t, out priority);
             }
@@ -388,7 +388,7 @@ namespace CSURToolBox.CustomData
             bezier.a = Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_startNode].m_position;
             bezier.d = Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_endNode].m_position;
             // NON-STOCK CODE STARTS
-            if (CSUROffset.IsCSUROffset(Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_startNode].Info))
+            if (CSURUtil.IsCSUROffset(Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_startNode].Info))
             {
                 var width = (Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_startNode].Info.m_halfWidth + Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_startNode].Info.m_pavementWidth) / 2f;
                 bool lht = false;
@@ -398,7 +398,7 @@ namespace CSURToolBox.CustomData
                 Vector3 normal = new Vector3(direction.z, 0, -direction.x).normalized;
                 bezier.a = bezier.a + (lht ? -width : width) * normal;
             }
-            if (CSUROffset.IsCSUROffset(Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_endNode].Info))
+            if (CSURUtil.IsCSUROffset(Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_endNode].Info))
             {
                 bool lht = false;
                 var width = (Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_endNode].Info.m_halfWidth + Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_endNode].Info.m_pavementWidth) / 2f;

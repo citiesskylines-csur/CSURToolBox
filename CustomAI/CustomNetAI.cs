@@ -14,7 +14,7 @@ namespace CSURToolBox.CustomAI
     {
         public virtual float CustomGetCollisionHalfWidth()
         {
-            if (CSUROffset.IsCSUROffset(m_info))
+            if (CSURUtil.IsCSUROffset(m_info))
             {
                 return (m_info.m_halfWidth - m_info.m_pavementWidth) / 2f;
             }

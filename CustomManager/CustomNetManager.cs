@@ -61,28 +61,28 @@ namespace CSURToolBox.CustomManager
 										Vector3 position = instance.m_nodes.m_buffer[startNode2].m_position;
 										Vector3 position2 = instance.m_nodes.m_buffer[endNode2].m_position;
 										// NON-STOCK CODE STARTS
-										if (CSUROffset.IsCSUROffset(instance.m_nodes.m_buffer[startNode2].Info))
+										if (CSURUtil.IsCSUROffset(instance.m_nodes.m_buffer[startNode2].Info))
 										{
 											bool lht = false;
 											if (instance.m_nodes.m_buffer[startNode2].CountSegments() != 0)
 											{
 												float collisionHalfWidth = Mathf.Max(3f, (instance.m_nodes.m_buffer[startNode2].Info.m_halfWidth + instance.m_nodes.m_buffer[startNode2].Info.m_pavementWidth) / 2f);
-												NetSegment mysegment = CSUROffset.GetSameInfoSegment(instance.m_nodes.m_buffer[startNode2]);
-												Vector3 direction = CSUROffset.CheckNodeEq(mysegment.m_startNode, instance.m_nodes.m_buffer[startNode2]) ? mysegment.m_startDirection : -mysegment.m_endDirection;
+												NetSegment mysegment = CSURUtil.GetSameInfoSegment(instance.m_nodes.m_buffer[startNode2]);
+												Vector3 direction = CSURUtil.CheckNodeEq(mysegment.m_startNode, instance.m_nodes.m_buffer[startNode2]) ? mysegment.m_startDirection : -mysegment.m_endDirection;
 												if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0) lht = true;
 												// normal to the right hand side
 												Vector3 normal = new Vector3(direction.z, 0, -direction.x).normalized;
 												position = position + (lht ? -collisionHalfWidth : collisionHalfWidth) * normal;
 											}
 										}
-										if (CSUROffset.IsCSUROffset(instance.m_nodes.m_buffer[endNode2].Info))
+										if (CSURUtil.IsCSUROffset(instance.m_nodes.m_buffer[endNode2].Info))
 										{
 											bool lht = false;
 											if (instance.m_nodes.m_buffer[endNode2].CountSegments() != 0)
 											{
 												float collisionHalfWidth = Mathf.Max(3f, (instance.m_nodes.m_buffer[endNode2].Info.m_halfWidth + instance.m_nodes.m_buffer[endNode2].Info.m_pavementWidth) / 2f);
-												NetSegment mysegment = CSUROffset.GetSameInfoSegment(instance.m_nodes.m_buffer[endNode2]);
-												Vector3 direction = CSUROffset.CheckNodeEq(mysegment.m_startNode, instance.m_nodes.m_buffer[endNode2]) ? mysegment.m_startDirection : -mysegment.m_endDirection;
+												NetSegment mysegment = CSURUtil.GetSameInfoSegment(instance.m_nodes.m_buffer[endNode2]);
+												Vector3 direction = CSURUtil.CheckNodeEq(mysegment.m_startNode, instance.m_nodes.m_buffer[endNode2]) ? mysegment.m_startDirection : -mysegment.m_endDirection;
 												if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0) lht = true;
 												// normal to the right hand side
 												Vector3 normal = new Vector3(direction.z, 0, -direction.x).normalized;

@@ -8,6 +8,7 @@ namespace CSURToolBox.UI
     public class OptionUI : MonoBehaviour
     {
         public static bool isShortCutsToPanel = false;
+        public static int smoothLevel = 1;
         public static void makeSettings(UIHelperBase helper)
         {
             // tabbing code is borrowed from RushHour mod
@@ -68,6 +69,22 @@ namespace CSURToolBox.UI
             panel = generalGroup.self as UIPanel;
 
             panel.gameObject.AddComponent<OptionsKeymappingFunction>();
+
+            ++tabIndex;
+
+            AddOptionTab(tabStrip, "Experimental Function");
+            tabStrip.selectedIndex = tabIndex;
+
+            currentPanel = tabStrip.tabContainer.components[tabIndex] as UIPanel;
+            currentPanel.autoLayout = true;
+            currentPanel.autoLayoutDirection = LayoutDirection.Vertical;
+            currentPanel.autoLayoutPadding.top = 5;
+            currentPanel.autoLayoutPadding.left = 10;
+            currentPanel.autoLayoutPadding.right = 10;
+
+            panelHelper = new UIHelper(currentPanel);
+            var generalGroup2 = panelHelper.AddGroup("Experimental Function") as UIHelper;
+            generalGroup2.AddDropdown("smooth level", new string[] { "Low", "Medium", "High" }, smoothLevel, (index) => GetSmoothLevel(index));
         }
         private static UIButton AddOptionTab(UITabstrip tabStrip, string caption)
         {
@@ -92,6 +109,7 @@ namespace CSURToolBox.UI
             FileStream fs = File.Create("CSUR_UI_setting.txt");
             StreamWriter streamWriter = new StreamWriter(fs);
             streamWriter.WriteLine(isShortCutsToPanel);
+            streamWriter.WriteLine(smoothLevel);
             streamWriter.Flush();
             fs.Close();
         }
@@ -112,6 +130,21 @@ namespace CSURToolBox.UI
                 {
                     isShortCutsToPanel = false;
                 }
+
+                strLine = sr.ReadLine();
+
+                if (strLine == "2")
+                {
+                    smoothLevel = 2;
+                }
+                else if (strLine == "0")
+                {
+                    smoothLevel = 0;
+                }
+                else
+                {
+                    smoothLevel = 1;
+                }
                 sr.Close();
                 fs.Close();
             }
@@ -119,6 +152,11 @@ namespace CSURToolBox.UI
         public static void isShortCutsToPanelEnable(bool index)
         {
             isShortCutsToPanel = index;
+            SaveSetting();
+        }
+        public static void GetSmoothLevel(int index)
+        {
+            smoothLevel = index;
             SaveSetting();
         }
     }

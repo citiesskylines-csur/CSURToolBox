@@ -37,6 +37,8 @@ namespace CSURToolBox
         public static bool is583429740 = false;
         public static bool is1637663252 = false;
         public static bool is1806963141 = false;
+        public static bool HarmonyDetourInited = false;
+        public static bool HarmonyDetourFailed = true;
         public static bool Done { get; private set; } // Only one Assets installation throughout the application
         public class Detour
         {
@@ -74,6 +76,7 @@ namespace CSURToolBox
                     SetupGui();
                     CheckTMPE();
                     InitDetour();
+                    HarmonyInitDetour();
                     InstallPillar();
                     DebugLog.LogToFileOnly("OnLevelLoaded");
                     if (mode == LoadMode.NewGame)
@@ -96,6 +99,7 @@ namespace CSURToolBox
                 if (CSURToolBox.IsEnabled)
                 {
                     RevertDetour();
+                    HarmonyRevertDetour();
                     RemovePillar();
                     if (isGuiRunning)
                     {
@@ -349,7 +353,7 @@ namespace CSURToolBox
                 }
 
                 //8
-                DebugLog.LogToFileOnly("Detour NetSegment::UpdateLanes calls");
+                /*DebugLog.LogToFileOnly("Detour NetSegment::UpdateLanes calls");
                 try
                 {
                     Detours.Add(new Detour(typeof(NetSegment).GetMethod("UpdateLanes", BindingFlags.Public | BindingFlags.Instance),
@@ -359,7 +363,7 @@ namespace CSURToolBox
                 {
                     DebugLog.LogToFileOnly("Could not detour NetSegment::UpdateLanes");
                     detourFailed = true;
-                }
+                }*/
 
                 isMoveItRunning = CheckMoveItIsLoaded();
 
@@ -430,12 +434,33 @@ namespace CSURToolBox
             return this.Check3rdPartyModLoaded("MoveIt", true);
         }
 
+        public void HarmonyInitDetour()
+        {
+            if (!HarmonyDetourInited)
+            {
+                DebugLog.LogToFileOnly("Init harmony detours");
+                HarmonyDetours.Apply();
+                HarmonyDetourInited = true;
+            }
+        }
+
+        public void HarmonyRevertDetour()
+        {
+            if (HarmonyDetourInited)
+            {
+                DebugLog.LogToFileOnly("Revert harmony detours");
+                HarmonyDetours.DeApply();
+                HarmonyDetourInited = false;
+                HarmonyDetourFailed = true;
+            }
+        }
+
         public void InstallPillar()
         {
             for (uint num = 0u; num < PrefabCollection<NetInfo>.LoadedCount(); num++)
             {
                 NetInfo loaded = PrefabCollection<NetInfo>.GetLoaded(num);
-                if (CSUROffset.IsCSUR(loaded))
+                if (CSURUtil.IsCSUR(loaded))
                 {
                     RoadBridgeAI elevatedAI = null;
                     if ((loaded.m_netAI is RoadBridgeAI) && (Regex.Match(loaded.name, "Elevated", RegexOptions.IgnoreCase)).Success && (loaded.m_segments.Length != 0))
@@ -444,14 +469,12 @@ namespace CSURToolBox
                         continue;
 
                     //Caculate lane num
-                    int laneNum = (int)((loaded.m_halfWidth - loaded.m_pavementWidth) / 3.75 - 0.5);
+                    int laneNum = (int)CSURUtil.CountCSURSVehicleLanes(loaded);
 
-                    if (!CSUROffset.IsCSURDual(loaded))
+                    if (!CSURUtil.IsCSURDual(loaded))
                     {
-                        if (Regex.Match(loaded.name, "CSUR-S", RegexOptions.IgnoreCase).Success)
-                            laneNum = laneNum - 2;
-                        else if (Regex.Match(loaded.name, "CSUR-T", RegexOptions.IgnoreCase).Success)
-                            laneNum = laneNum - 2;
+                        if (Regex.Match(loaded.name, "CSUR-T", RegexOptions.IgnoreCase).Success)
+                            laneNum = laneNum - 1;
 
                         if (laneNum < 0)
                             laneNum = 0;
@@ -587,7 +610,7 @@ namespace CSURToolBox
             for (uint num = 0u; num < PrefabCollection<NetInfo>.LoadedCount(); num++)
             {
                 NetInfo loaded = PrefabCollection<NetInfo>.GetLoaded(num);
-                if (CSUROffset.IsCSUROffset(loaded))
+                if (CSURUtil.IsCSUROffset(loaded))
                 {
                     var roadAI = loaded.m_netAI as RoadAI;
                     RoadBridgeAI elevatedAI = null;

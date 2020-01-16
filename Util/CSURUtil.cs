@@ -1,4 +1,5 @@
 ﻿using ColossalFramework;
+using CSURToolBox.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace CSURToolBox.Util
         public const string EachUnit = "[1-9]?[0-9]?D?[C|S|L|R]?[1-9]*P?";
         public const string MustUnit = "[1-9]?[0-9]D?[C|S|L|R][1-9]*P?";
         public const string CSUR_LANEOFFSET_REGEXLEFT = CSUR_LANEOFFSET_REGEXPREFIX + "(" + MustUnit + EachUnit + EachUnit + EachUnit + EachUnit + EachUnit + ")" + "=";
-        public const string CSUR_LANEOFFSET_REGEX = CSUR_LANEOFFSET_REGEXLEFT + "(" + MustUnit + EachUnit + EachUnit + EachUnit + EachUnit + EachUnit + ")" + "_";
+        public const string CSUR_LANEOFFSET_REGEX = CSUR_LANEOFFSET_REGEXLEFT + "(" + MustUnit + EachUnit + EachUnit + EachUnit + EachUnit + EachUnit + ")" + "( compact| express)?" + "_";
         public static bool IsCSUR(NetInfo asset)
         {
             if (asset == null || (asset.m_netAI.GetType() != typeof(RoadAI) && asset.m_netAI.GetType() != typeof(RoadBridgeAI) && asset.m_netAI.GetType() != typeof(RoadTunnelAI)))
@@ -66,14 +67,17 @@ namespace CSURToolBox.Util
             if (!m.Success)
                 return false;
 
-            DebugLog.LogToFileOnly(m.Groups[1].Value);
-            DebugLog.LogToFileOnly(m.Groups[2].Value);
-            DebugLog.LogToFileOnly(m.Groups[3].Value);
-            DebugLog.LogToFileOnly(m.Groups[4].Value);
-            DebugLog.LogToFileOnly(m.Groups[5].Value);
-            DebugLog.LogToFileOnly(m.Groups[6].Value);
-            DebugLog.LogToFileOnly(m.Groups[7].Value);
-            DebugLog.LogToFileOnly(m.Groups[8].Value);
+            if (OptionUI.isDebug)
+            {
+                DebugLog.LogToFileOnly(m.Groups[1].Value);
+                DebugLog.LogToFileOnly(m.Groups[2].Value);
+                DebugLog.LogToFileOnly(m.Groups[3].Value);
+                DebugLog.LogToFileOnly(m.Groups[4].Value);
+                DebugLog.LogToFileOnly(m.Groups[5].Value);
+                DebugLog.LogToFileOnly(m.Groups[6].Value);
+                DebugLog.LogToFileOnly(m.Groups[7].Value);
+                DebugLog.LogToFileOnly(m.Groups[8].Value);
+            }
 
             startOffset = 0;
             if (m.Groups[2].Value == "C")
@@ -126,9 +130,11 @@ namespace CSURToolBox.Util
                     }
                 }
             }
-
-            DebugLog.LogToFileOnly("startoffset = " + startOffset.ToString());
-            DebugLog.LogToFileOnly("endoffset = " + endOffset.ToString());
+            if (OptionUI.isDebug)
+            {
+                DebugLog.LogToFileOnly("startoffset = " + startOffset.ToString());
+                DebugLog.LogToFileOnly("endoffset = " + endOffset.ToString());
+            }
 
             if (startOffset!=0 && endOffset!=0)
             {
@@ -152,9 +158,12 @@ namespace CSURToolBox.Util
             if (!m.Success)
                 return false;
 
-            DebugLog.LogToFileOnly("CSURLaneOffset1 = " + m.Groups[1].Value);
-            DebugLog.LogToFileOnly("CSURLaneOffset2 = " + m.Groups[2].Value);
-            DebugLog.LogToFileOnly("CSURLaneOffset3 = " + m.Groups[3].Value);
+            if (OptionUI.isDebug)
+            {
+                DebugLog.LogToFileOnly("CSURLaneOffset1 = " + m.Groups[1].Value);
+                DebugLog.LogToFileOnly("CSURLaneOffset2 = " + m.Groups[2].Value);
+                DebugLog.LogToFileOnly("CSURLaneOffset3 = " + m.Groups[3].Value);
+            }
             return true;
         }
 
@@ -180,7 +189,10 @@ namespace CSURToolBox.Util
                     }
                 }
             }
-            DebugLog.LogToFileOnly("CSURLaneOffset: leftStartLaneIndex = " + leftStartLaneIndex.ToString() + "rightStartLaneIndex = " + rightStartLaneIndex.ToString());
+            if (OptionUI.isDebug)
+            {
+                DebugLog.LogToFileOnly("CSURLaneOffset: leftStartLaneIndex = " + leftStartLaneIndex.ToString() + "rightStartLaneIndex = " + rightStartLaneIndex.ToString());
+            }
 
             float[] leftEndLaneOffset = new float[8];
             float[] rightEndLaneOffset = new float[8];
@@ -198,7 +210,10 @@ namespace CSURToolBox.Util
                     }
                 }
             }
-            DebugLog.LogToFileOnly("CSURLaneOffset: leftEndLaneIndex = " + leftEndLaneIndex.ToString() + "rightEndLaneIndex = " + rightEndLaneIndex.ToString());
+            if (OptionUI.isDebug)
+            {
+                DebugLog.LogToFileOnly("CSURLaneOffset: leftEndLaneIndex = " + leftEndLaneIndex.ToString() + "rightEndLaneIndex = " + rightEndLaneIndex.ToString());
+            }
 
             if ((leftEndLaneIndex + rightEndLaneIndex) != 0)
             {
@@ -221,7 +236,10 @@ namespace CSURToolBox.Util
                                 {
                                     StartLaneOffset[i] = rightStartLaneOffset[i - leftStartLaneIndex];
                                 }
-                                DebugLog.LogToFileOnly("StartLaneOffset, Line" + i.ToString() + " =" + StartLaneOffset[i].ToString());
+                                if (OptionUI.isDebug)
+                                {
+                                    DebugLog.LogToFileOnly("StartLaneOffset, Line" + i.ToString() + " =" + StartLaneOffset[i].ToString());
+                                }
                             }
 
                             for (int i = 0; i < leftEndLaneIndex + rightEndLaneIndex; i++)
@@ -234,11 +252,17 @@ namespace CSURToolBox.Util
                                 {
                                     EndLaneOffset[i] = rightEndLaneOffset[i - leftEndLaneIndex];
                                 }
-                                DebugLog.LogToFileOnly("EndLaneOffset, Line" + i.ToString() + " =" + EndLaneOffset[i].ToString());
+                                if (OptionUI.isDebug)
+                                {
+                                    DebugLog.LogToFileOnly("EndLaneOffset, Line" + i.ToString() + " =" + EndLaneOffset[i].ToString());
+                                }
                             }
 
                             int laneIndex = GetLaneIndex(asset, lane);
-                            DebugLog.LogToFileOnly("laneIndex = " + laneIndex.ToString() + "lane position = " + lane.m_position.ToString());
+                            if (OptionUI.isDebug)
+                            {
+                                DebugLog.LogToFileOnly("laneIndex = " + laneIndex.ToString() + "lane position = " + lane.m_position.ToString());
+                            }
                             if (lane.m_laneType.IsFlagSet(NetInfo.LaneType.Vehicle) && lane.m_vehicleType.IsFlagSet(VehicleInfo.VehicleType.Car))
                             {
                                 return 0;
@@ -283,12 +307,18 @@ namespace CSURToolBox.Util
                                     EndLaneOffset[i] = rightEndLaneOffset[i - leftEndLaneIndex];
                                 }
 
-                                DebugLog.LogToFileOnly("StartLaneOffset, Line" + i.ToString() + " =" + StartLaneOffset[i].ToString());
-                                DebugLog.LogToFileOnly("EndLaneOffset, Line" + i.ToString() + " =" + EndLaneOffset[i].ToString());
+                                if (OptionUI.isDebug)
+                                {
+                                    DebugLog.LogToFileOnly("StartLaneOffset, Line" + i.ToString() + " =" + StartLaneOffset[i].ToString());
+                                    DebugLog.LogToFileOnly("EndLaneOffset, Line" + i.ToString() + " =" + EndLaneOffset[i].ToString());
+                                }
                             }
 
                             int laneIndex = GetLaneIndex(asset, lane);
-                            DebugLog.LogToFileOnly("laneIndex = " + laneIndex.ToString() + "lane position = " + lane.m_position.ToString());
+                            if (OptionUI.isDebug)
+                            {
+                                DebugLog.LogToFileOnly("laneIndex = " + laneIndex.ToString() + "lane position = " + lane.m_position.ToString());
+                            }
                             if (lane.m_laneType.IsFlagSet(NetInfo.LaneType.Vehicle) && lane.m_vehicleType.IsFlagSet(VehicleInfo.VehicleType.Car))
                             {
                                 return (EndLaneOffset[laneIndex] - StartLaneOffset[laneIndex]);
@@ -349,11 +379,14 @@ namespace CSURToolBox.Util
         {
             //name EG:2DR 3DS 1R2 1R2P 3C 3L
             Match m = Regex.Match(name, "([0-9]*)(D?)(S|C|R|L)([0-9]?[0-9]?)(P?)", RegexOptions.IgnoreCase);
-            DebugLog.LogToFileOnly("ProcessNameUnit match 1 = " + m.Groups[1].Value);
-            DebugLog.LogToFileOnly("ProcessNameUnit match 2 = " + m.Groups[2].Value);
-            DebugLog.LogToFileOnly("ProcessNameUnit match 3 = " + m.Groups[3].Value);
-            DebugLog.LogToFileOnly("ProcessNameUnit match 4 = " + m.Groups[4].Value);
-            DebugLog.LogToFileOnly("ProcessNameUnit match 5 = " + m.Groups[5].Value);
+            if (OptionUI.isDebug)
+            {
+                DebugLog.LogToFileOnly("ProcessNameUnit match 1 = " + m.Groups[1].Value);
+                DebugLog.LogToFileOnly("ProcessNameUnit match 2 = " + m.Groups[2].Value);
+                DebugLog.LogToFileOnly("ProcessNameUnit match 3 = " + m.Groups[3].Value);
+                DebugLog.LogToFileOnly("ProcessNameUnit match 4 = " + m.Groups[4].Value);
+                DebugLog.LogToFileOnly("ProcessNameUnit match 5 = " + m.Groups[5].Value);
+            }
             //Process Dual
             if (m.Groups[2].Value == "D")
             {

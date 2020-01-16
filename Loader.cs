@@ -78,6 +78,7 @@ namespace CSURToolBox
                     InitDetour();
                     HarmonyInitDetour();
                     InstallPillar();
+                    RefreshSegment();
                     DebugLog.LogToFileOnly("OnLevelLoaded");
                     if (mode == LoadMode.NewGame)
                     {
@@ -536,17 +537,17 @@ namespace CSURToolBox
                     }
                     else
                     {
-                        if (Regex.Match(loaded.name, "CSUR-S", RegexOptions.IgnoreCase).Success)
+                        /*if (Regex.Match(loaded.name, "CSUR-S", RegexOptions.IgnoreCase).Success)
                             laneNum = laneNum - 1;
                         else if (Regex.Match(loaded.name, "CSUR-T", RegexOptions.IgnoreCase).Success)
                             laneNum = laneNum - 1;
                         else if (Regex.Match(loaded.name, "CSUR-R", RegexOptions.IgnoreCase).Success)
-                            laneNum = laneNum - 1;
+                            laneNum = laneNum - 1;*/
 
                         if (laneNum < 0)
                             laneNum = 0;
 
-                        laneNum = laneNum * 2;
+                        //laneNum = laneNum * 2;
                         switch (laneNum)
                         {
                             case 0:
@@ -624,6 +625,18 @@ namespace CSURToolBox
                     }
                     elevatedAI.m_bridgePillarInfo = null;// PrefabCollection<BuildingInfo>.FindLoaded("CSUR 2DC.Ama S-1_Data");
                     DebugLog.LogToFileOnly("Remove pilla for " + loaded.name.ToString());
+                }
+            }
+        }
+
+        public void RefreshSegment()
+        {
+            for (ushort i =0; i < Singleton<NetManager>.instance.m_segments.m_size; i++)
+            {
+                NetInfo asset = Singleton<NetManager>.instance.m_segments.m_buffer[i].Info;
+                if (CSURUtil.IsCSURLaneOffset(asset))
+                {
+                    Singleton<NetManager>.instance.UpdateSegment(i);
                 }
             }
         }

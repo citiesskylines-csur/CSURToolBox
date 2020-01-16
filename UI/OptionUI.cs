@@ -8,6 +8,7 @@ namespace CSURToolBox.UI
     public class OptionUI : MonoBehaviour
     {
         public static bool isShortCutsToPanel = false;
+        public static bool isDebug = false;
         public static int smoothLevel = 1;
         public static void makeSettings(UIHelperBase helper)
         {
@@ -84,7 +85,8 @@ namespace CSURToolBox.UI
 
             panelHelper = new UIHelper(currentPanel);
             var generalGroup2 = panelHelper.AddGroup("Experimental Function") as UIHelper;
-            generalGroup2.AddDropdown("smooth level", new string[] { "Low", "Medium", "High" }, smoothLevel, (index) => GetSmoothLevel(index));
+            generalGroup1.AddCheckbox("Debug Mode", isShortCutsToPanel, (index) => isDebugEnable(index));
+            generalGroup2.AddDropdown("lane smooth level", new string[] { "Low", "Medium", "High" }, smoothLevel, (index) => GetSmoothLevel(index));
         }
         private static UIButton AddOptionTab(UITabstrip tabStrip, string caption)
         {
@@ -110,6 +112,7 @@ namespace CSURToolBox.UI
             StreamWriter streamWriter = new StreamWriter(fs);
             streamWriter.WriteLine(isShortCutsToPanel);
             streamWriter.WriteLine(smoothLevel);
+            streamWriter.WriteLine(isDebug);
             streamWriter.Flush();
             fs.Close();
         }
@@ -145,6 +148,17 @@ namespace CSURToolBox.UI
                 {
                     smoothLevel = 1;
                 }
+
+                strLine = sr.ReadLine();
+
+                if (strLine == "True")
+                {
+                    isDebug = true;
+                }
+                else
+                {
+                    isDebug = false;
+                }
                 sr.Close();
                 fs.Close();
             }
@@ -157,6 +171,12 @@ namespace CSURToolBox.UI
         public static void GetSmoothLevel(int index)
         {
             smoothLevel = index;
+            SaveSetting();
+        }
+
+        public static void isDebugEnable(bool index)
+        {
+            isDebug = index;
             SaveSetting();
         }
     }

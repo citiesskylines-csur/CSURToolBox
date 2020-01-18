@@ -85,7 +85,7 @@ namespace CSURToolBox.UI
 
             panelHelper = new UIHelper(currentPanel);
             var generalGroup2 = panelHelper.AddGroup("Experimental Function") as UIHelper;
-            generalGroup1.AddCheckbox("Debug Mode", isShortCutsToPanel, (index) => isDebugEnable(index));
+            generalGroup2.AddCheckbox("Debug Mode", isShortCutsToPanel, (index) => isDebugEnable(index));
             generalGroup2.AddDropdown("lane smooth level", new string[] { "Low", "Medium", "High" }, smoothLevel, (index) => GetSmoothLevel(index));
         }
         private static UIButton AddOptionTab(UITabstrip tabStrip, string caption)
@@ -108,20 +108,19 @@ namespace CSURToolBox.UI
         public static void SaveSetting()
         {
             //save langugae
-            FileStream fs = File.Create("CSUR_UI_setting.txt");
+            FileStream fs = File.Create("CSUR_ToolBox_setting.txt");
             StreamWriter streamWriter = new StreamWriter(fs);
             streamWriter.WriteLine(isShortCutsToPanel);
             streamWriter.WriteLine(smoothLevel);
-            streamWriter.WriteLine(isDebug);
             streamWriter.Flush();
             fs.Close();
         }
 
         public static void LoadSetting()
         {
-            if (File.Exists("CSUR_UI_setting.txt"))
+            if (File.Exists("CSUR_ToolBox_setting.txt"))
             {
-                FileStream fs = new FileStream("CSUR_UI_setting.txt", FileMode.Open);
+                FileStream fs = new FileStream("CSUR_ToolBox_setting.txt", FileMode.Open);
                 StreamReader sr = new StreamReader(fs);
                 string strLine = sr.ReadLine();
 
@@ -147,17 +146,6 @@ namespace CSURToolBox.UI
                 else
                 {
                     smoothLevel = 1;
-                }
-
-                strLine = sr.ReadLine();
-
-                if (strLine == "True")
-                {
-                    isDebug = true;
-                }
-                else
-                {
-                    isDebug = false;
                 }
                 sr.Close();
                 fs.Close();

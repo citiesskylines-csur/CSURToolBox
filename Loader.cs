@@ -79,6 +79,7 @@ namespace CSURToolBox
                     HarmonyInitDetour();
                     InstallPillar();
                     RefreshSegment();
+                    OptionUI.isDebug = false;
                     DebugLog.LogToFileOnly("OnLevelLoaded");
                     if (mode == LoadMode.NewGame)
                     {
@@ -365,6 +366,20 @@ namespace CSURToolBox
                     DebugLog.LogToFileOnly("Could not detour NetSegment::UpdateLanes");
                     detourFailed = true;
                 }*/
+
+                //9
+                //protected Vector4 CustomGetPathTargetPosition(ushort instanceID, ref CitizenInstance citizenData, ref CitizenInstance.Frame frameData, float minSqrDistance)
+                DebugLog.LogToFileOnly("Detour CitizenAI::GetPathTargetPosition calls");
+                try
+                {
+                    Detours.Add(new Detour(typeof(CitizenAI).GetMethod("GetPathTargetPosition", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(CitizenInstance).MakeByRefType(), typeof(CitizenInstance.Frame).MakeByRefType(), typeof(float) }, null),
+                                           typeof(CustomCitizenAI).GetMethod("CustomGetPathTargetPosition", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(CitizenInstance).MakeByRefType(), typeof(CitizenInstance.Frame).MakeByRefType(), typeof(float) }, null)));
+                }
+                catch (Exception)
+                {
+                    DebugLog.LogToFileOnly("Could not detour CitizenAI::GetPathTargetPosition");
+                    detourFailed = true;
+                }
 
                 isMoveItRunning = CheckMoveItIsLoaded();
 

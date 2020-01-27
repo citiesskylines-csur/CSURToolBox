@@ -381,6 +381,20 @@ namespace CSURToolBox
                     detourFailed = true;
                 }
 
+                //10
+                //public static void CalculateCorner(ref NetSegment segment, ushort segmentID, bool heightOffset, bool start, bool leftSide, out Vector3 cornerPos, out Vector3 cornerDirection, out bool smooth)
+                DebugLog.LogToFileOnly("Detour NetSegment::CalculateCorner calls");
+                try
+                {
+                    Detours.Add(new Detour(typeof(NetSegment).GetMethod("CalculateCorner", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(bool), typeof(bool), typeof(bool), typeof(Vector3).MakeByRefType(), typeof(Vector3).MakeByRefType(), typeof(bool).MakeByRefType() }, null),
+                                           typeof(CustomNetSegment).GetMethod("CalculateCorner", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(NetSegment).MakeByRefType(), typeof(ushort), typeof(bool), typeof(bool), typeof(bool), typeof(Vector3).MakeByRefType(), typeof(Vector3).MakeByRefType(), typeof(bool).MakeByRefType() }, null)));
+                }
+                catch (Exception)
+                {
+                    DebugLog.LogToFileOnly("Could not detour NetSegment::CalculateCorner");
+                    detourFailed = true;
+                }
+
                 isMoveItRunning = CheckMoveItIsLoaded();
 
                 if (detourFailed)

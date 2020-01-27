@@ -14,6 +14,7 @@ namespace CSURToolBox.Util
         public const string CSUR_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)+(=|-)?([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)*" + "( compact| express)?" + "_";
         public const string CSUR_DUAL_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9]D(L|S|C|R)[1-9]*P?)+(=|-)?([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)*_" + "( compact| express)?" + "_";
         public const string CSUR_OFFSET_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9](L|R)[1-9]*P?)+(=)?([[1-9]?[0-9](L|R)[1-9]*P?)*" + "( compact| express)?" + "_";
+        public const string CSUR_NOOFFSET_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9](L|R)[1-9]*P?)+(=)?([[1-9]?[0-9]D?(S|C)[1-9]*P?)+" + "( compact| express)?" + "_";
         public const string CSURS_LANE_REGEX = "CSUR-S ([1-9])(R|C)([1-9]?)(P?)=([1-9])(R|C)([1-9]?)(P?)";
         public const string CSUR_LANEOFFSET_REGEXPREFIX = "CSUR-(T|R|S)? ";
         public const string EachUnit = "[1-9]?[0-9]?D?[C|S|L|R]?[1-9]*P?";
@@ -39,7 +40,8 @@ namespace CSURToolBox.Util
             }
             string savenameStripped = asset.name.Substring(asset.name.IndexOf('.') + 1);
             Match m = Regex.Match(savenameStripped, CSUR_OFFSET_REGEX, RegexOptions.IgnoreCase);
-            return m.Success;
+            Match m1 = Regex.Match(savenameStripped, CSUR_NOOFFSET_REGEX, RegexOptions.IgnoreCase);
+            return m.Success && (!m1.Success);
         }
 
         public static bool IsCSURDual(NetInfo asset)
@@ -167,7 +169,7 @@ namespace CSURToolBox.Util
             return true;
         }
 
-            //TODO: Use name and laneposition to get LaneOffset
+        //TODO: Use name and laneposition to get LaneOffset
         public static float CSURLaneOffset(NetInfo asset, NetInfo.Lane lane)
         {
             string savenameStripped = asset.name.Substring(asset.name.IndexOf('.') + 1);
@@ -177,15 +179,42 @@ namespace CSURToolBox.Util
             float[] rightStartLaneOffset = new float[8];
             int leftStartLaneIndex = 0;
             int rightStartLaneIndex = 0;
-            for (int i = 0; i < 6; i++)
+            bool xRxxDSCase = false;
+
+            if (m.Groups[2].Value != "")
             {
-                if (m.Groups[2].Value != "")
+                //add "=" to help match
+                Match m1 = Regex.Match(m.Groups[2].Value + "=", pattern, RegexOptions.IgnoreCase);
+                if ((m1.Groups[1].Value != "") && (m1.Groups[4].Value != ""))
                 {
-                    //add "=" to help match
-                    Match m1 = Regex.Match(m.Groups[2].Value + "=", pattern, RegexOptions.IgnoreCase);
-                    if (m1.Groups[i+1].Value != "")
+                    if ((!TryParseDSInProcessNameUnit(m1.Groups[1].Value)) && TryParseDSInProcessNameUnit(m1.Groups[4].Value))
                     {
-                        ProcessNameUnit(m1.Groups[i+1].Value, ref leftStartLaneOffset, ref rightStartLaneOffset, ref leftStartLaneIndex, ref rightStartLaneIndex);
+                        xRxxDSCase = true;
+                        Regex r = new Regex("R");
+                        string s;
+                        s = r.Replace(m1.Groups[1].Value, "L", 1);
+                        if (OptionUI.isDebug)
+                        {
+                            DebugLog.LogToFileOnly("CSURLaneOffset: replaced xRxxDSCase = " + s);
+                        }
+                        ProcessNameUnit(m1.Groups[4].Value, ref leftStartLaneOffset, ref rightStartLaneOffset, ref leftStartLaneIndex, ref rightStartLaneIndex);
+                        ProcessNameUnit(s, ref leftStartLaneOffset, ref rightStartLaneOffset, ref leftStartLaneIndex, ref rightStartLaneIndex);
+                    }
+                }
+            }
+
+            if (!xRxxDSCase)
+            {
+                for (int i = 0; i < 6; i++)
+                {
+                    if (m.Groups[2].Value != "")
+                    {
+                        //add "=" to help match
+                        Match m1 = Regex.Match(m.Groups[2].Value + "=", pattern, RegexOptions.IgnoreCase);
+                        if (m1.Groups[i * 3 + 1].Value != "")
+                        {
+                            ProcessNameUnit(m1.Groups[i * 3 + 1].Value, ref leftStartLaneOffset, ref rightStartLaneOffset, ref leftStartLaneIndex, ref rightStartLaneIndex);
+                        }
                     }
                 }
             }
@@ -198,15 +227,43 @@ namespace CSURToolBox.Util
             float[] rightEndLaneOffset = new float[8];
             int leftEndLaneIndex = 0;
             int rightEndLaneIndex = 0;
-            for (int i = 0; i < 6; i++)
+
+            xRxxDSCase = false;
+
+            if (m.Groups[3].Value != "")
             {
-                if (m.Groups[3].Value != "")
+                //add "=" to help match
+                Match m1 = Regex.Match(m.Groups[3].Value + "=", pattern, RegexOptions.IgnoreCase);
+                if ((m1.Groups[1].Value != "") && (m1.Groups[4].Value != ""))
                 {
-                    //add "=" to help match
-                    Match m1 = Regex.Match(m.Groups[3].Value + "=", pattern, RegexOptions.IgnoreCase);
-                    if (m1.Groups[i+1].Value != "")
+                    if ((!TryParseDSInProcessNameUnit(m1.Groups[1].Value)) && TryParseDSInProcessNameUnit(m1.Groups[4].Value))
                     {
-                        ProcessNameUnit(m1.Groups[i+1].Value, ref leftEndLaneOffset, ref rightEndLaneOffset, ref leftEndLaneIndex, ref rightEndLaneIndex);
+                        xRxxDSCase = true;
+                        Regex r = new Regex("R");
+                        string s;
+                        s = r.Replace(m1.Groups[1].Value, "L", 1);
+                        if (OptionUI.isDebug)
+                        {
+                            DebugLog.LogToFileOnly("CSURLaneOffset: replaced xRxxDSCase = " + s);
+                        }
+                        ProcessNameUnit(m1.Groups[4].Value, ref leftEndLaneOffset, ref rightEndLaneOffset, ref leftEndLaneIndex, ref rightEndLaneIndex);
+                        ProcessNameUnit(s, ref leftEndLaneOffset, ref rightEndLaneOffset, ref leftEndLaneIndex, ref rightEndLaneIndex);
+                    }
+                }
+            }
+
+            if (!xRxxDSCase)
+            {
+                for (int i = 0; i < 6; i++)
+                {
+                    if (m.Groups[3].Value != "")
+                    {
+                        //add "=" to help match
+                        Match m1 = Regex.Match(m.Groups[3].Value + "=", pattern, RegexOptions.IgnoreCase);
+                        if (m1.Groups[i * 3 + 1].Value != "")
+                        {
+                            ProcessNameUnit(m1.Groups[i * 3 + 1].Value, ref leftEndLaneOffset, ref rightEndLaneOffset, ref leftEndLaneIndex, ref rightEndLaneIndex);
+                        }
                     }
                 }
             }
@@ -373,6 +430,29 @@ namespace CSURToolBox.Util
                     return laneNum;
                 }
             }
+        }
+
+        //identify 1RXX and XDS case
+        public static bool TryParseDSInProcessNameUnit(string name)
+        {
+            Match m = Regex.Match(name, "([0-9]*)(D?)(S|C|R|L)([0-9]?[0-9]?)(P?)", RegexOptions.IgnoreCase);
+            if (OptionUI.isDebug)
+            {
+                DebugLog.LogToFileOnly("TryParseDSInProcessNameUnit match 1 = " + m.Groups[1].Value);
+                DebugLog.LogToFileOnly("TryParseDSInProcessNameUnit match 2 = " + m.Groups[2].Value);
+                DebugLog.LogToFileOnly("TryParseDSInProcessNameUnit match 3 = " + m.Groups[3].Value);
+                DebugLog.LogToFileOnly("TryParseDSInProcessNameUnit match 4 = " + m.Groups[4].Value);
+                DebugLog.LogToFileOnly("TryParseDSInProcessNameUnit match 5 = " + m.Groups[5].Value);
+            }
+
+            if (m.Groups[2].Value == "D")
+            {
+                if (m.Groups[3].Value == "S")
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public static void ProcessNameUnit(string name, ref float[] leftLaneOffset, ref float[] rightLaneOffset, ref int leftLaneIndex, ref int rightLaneIndex)
@@ -557,7 +637,47 @@ namespace CSURToolBox.Util
                 }
             }
         }
-        
+
+        /*public static void SortLaneOffset(ref float[] laneOffset, int laneIndex, bool isLeft)
+        {
+            if (!isLeft)
+            {
+                for (int i = 0; i < laneIndex - 1; i++)
+                {
+                    bool isSorted = true;  //假设剩下的元素已经排序好了
+                    for (int j = 0; j < laneIndex - 1 - i; j++)
+                    {
+                        if (laneOffset[j] > laneOffset[j + 1])
+                        {
+                            float temp = laneOffset[j];
+                            laneOffset[j] = laneOffset[j + 1];
+                            laneOffset[j + 1] = temp;
+                            isSorted = false;  //一旦需要交换数组元素，就说明剩下的元素没有排序好
+                        }
+                    }
+                    if (isSorted) break; //如果没有发生交换，说明剩下的元素已经排序好了
+                }
+            }
+            else
+            {
+                for (int i = 0; i < laneIndex - 1; i++)
+                {
+                    bool isSorted = true;  //假设剩下的元素已经排序好了
+                    for (int j = 0; j < laneIndex - 1 - i; j++)
+                    {
+                        if (laneOffset[j] < laneOffset[j + 1])
+                        {
+                            float temp = laneOffset[j];
+                            laneOffset[j] = laneOffset[j + 1];
+                            laneOffset[j + 1] = temp;
+                            isSorted = false;  //一旦需要交换数组元素，就说明剩下的元素没有排序好
+                        }
+                    }
+                    if (isSorted) break; //如果没有发生交换，说明剩下的元素已经排序好了
+                }
+            }
+        }*/
+
         //bike lane is 2.75, treat as 2.75/3.75 lanes
         public static float CountCSURSVehicleLanes(NetInfo info)
         {

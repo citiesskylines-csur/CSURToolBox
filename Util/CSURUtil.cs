@@ -638,46 +638,6 @@ namespace CSURToolBox.Util
             }
         }
 
-        /*public static void SortLaneOffset(ref float[] laneOffset, int laneIndex, bool isLeft)
-        {
-            if (!isLeft)
-            {
-                for (int i = 0; i < laneIndex - 1; i++)
-                {
-                    bool isSorted = true;  //假设剩下的元素已经排序好了
-                    for (int j = 0; j < laneIndex - 1 - i; j++)
-                    {
-                        if (laneOffset[j] > laneOffset[j + 1])
-                        {
-                            float temp = laneOffset[j];
-                            laneOffset[j] = laneOffset[j + 1];
-                            laneOffset[j + 1] = temp;
-                            isSorted = false;  //一旦需要交换数组元素，就说明剩下的元素没有排序好
-                        }
-                    }
-                    if (isSorted) break; //如果没有发生交换，说明剩下的元素已经排序好了
-                }
-            }
-            else
-            {
-                for (int i = 0; i < laneIndex - 1; i++)
-                {
-                    bool isSorted = true;  //假设剩下的元素已经排序好了
-                    for (int j = 0; j < laneIndex - 1 - i; j++)
-                    {
-                        if (laneOffset[j] < laneOffset[j + 1])
-                        {
-                            float temp = laneOffset[j];
-                            laneOffset[j] = laneOffset[j + 1];
-                            laneOffset[j + 1] = temp;
-                            isSorted = false;  //一旦需要交换数组元素，就说明剩下的元素没有排序好
-                        }
-                    }
-                    if (isSorted) break; //如果没有发生交换，说明剩下的元素已经排序好了
-                }
-            }
-        }*/
-
         //bike lane is 2.75, treat as 2.75/3.75 lanes
         public static float CountCSURSVehicleLanes(NetInfo info)
         {

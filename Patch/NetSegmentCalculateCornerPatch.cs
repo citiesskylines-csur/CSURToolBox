@@ -7,14 +7,15 @@ using System.Text;
 using UnityEngine;
 using CSURToolBox.Util;
 using Harmony;
+using ICities;
 
 namespace CSURToolBox.Patch
 {
     [HarmonyPatch]
     public static class NetSegmentCalculateCornerPatch
     {
-        public static bool[] segmentOffsetLock = new bool[36864];
-        public static float[] segmentOffset = new float[36864];
+        public static bool[] segmentOffsetLock = new bool[65536];
+        public static float[] segmentOffset = new float[65536];
         public static MethodBase TargetMethod()
         {
             return typeof(NetSegment).GetMethod("CalculateCorner", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(bool), typeof(bool), typeof(bool), typeof(Vector3).MakeByRefType(), typeof(Vector3).MakeByRefType(), typeof(bool).MakeByRefType() }, null);
@@ -60,19 +61,19 @@ namespace CSURToolBox.Patch
                 //direct node
                 if (segmentCount == 2)
                 {
-                    m_minCornerOffset = m_minCornerOffset * 2f / 3f;
-                    if (m_minCornerOffset > 28f)
+                    m_minCornerOffset = m_minCornerOffset / 2f;
+                    if (m_minCornerOffset > 24f)
                     {
-                        m_minCornerOffset = 28f;
+                        m_minCornerOffset = 24f;
                     }
-                }               
+                }
             }
 
             //DebugLog.LogToFileOnly("Pre m_minCornerOffset = " + m_minCornerOffset.ToString());
-            if (!segmentOffsetLock[segmentID])
+            if (!segmentOffsetLock[__instance.m_infoIndex])
             {
-                segmentOffset[segmentID] = __instance.Info.m_minCornerOffset;
-                segmentOffsetLock[segmentID] = true;
+                segmentOffset[__instance.m_infoIndex] = __instance.Info.m_minCornerOffset;
+                segmentOffsetLock[__instance.m_infoIndex] = true;
                 __instance.Info.m_minCornerOffset = m_minCornerOffset;
             }
             //DebugLog.LogToFileOnly("Pre m_minCornerOffset = " + __instance.Info.m_minCornerOffset.ToString());
@@ -80,10 +81,10 @@ namespace CSURToolBox.Patch
 
         public static void Postfix(ref NetSegment __instance, ushort segmentID)
         {
-            if (segmentOffsetLock[segmentID])
+            if (segmentOffsetLock[__instance.m_infoIndex])
             {
-                __instance.Info.m_minCornerOffset = segmentOffset[segmentID];
-                segmentOffsetLock[segmentID] = false;
+                __instance.Info.m_minCornerOffset = segmentOffset[__instance.m_infoIndex];
+                segmentOffsetLock[__instance.m_infoIndex] = false;
             }
             //DebugLog.LogToFileOnly("Post m_minCornerOffset = " + __instance.Info.m_minCornerOffset.ToString());
         }

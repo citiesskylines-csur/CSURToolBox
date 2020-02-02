@@ -10,6 +10,8 @@ namespace CSURToolBox.UI
         public static bool isShortCutsToPanel = false;
         public static bool isDebug = false;
         public static int smoothLevel = 1;
+        public static bool disableZone = false;
+        public static bool disableZoneUpdateAll = false;
         public static void makeSettings(UIHelperBase helper)
         {
             // tabbing code is borrowed from RushHour mod
@@ -86,6 +88,8 @@ namespace CSURToolBox.UI
             panelHelper = new UIHelper(currentPanel);
             var generalGroup2 = panelHelper.AddGroup("Experimental Function") as UIHelper;
             generalGroup2.AddCheckbox("Debug Mode", isShortCutsToPanel, (index) => isDebugEnable(index));
+            generalGroup2.AddCheckbox("DisableZone for CSUR Shift Ramp and Transition Road", disableZone, (index) => isDisableZoneEnable(index));
+            generalGroup2.AddCheckbox("UpdateZone when load game", disableZoneUpdateAll, (index) => isDisableZoneUpdateAllEnable(index));
             generalGroup2.AddDropdown("lane smooth level", new string[] { "Low", "Medium", "High" }, smoothLevel, (index) => GetSmoothLevel(index));
         }
         private static UIButton AddOptionTab(UITabstrip tabStrip, string caption)
@@ -112,6 +116,8 @@ namespace CSURToolBox.UI
             StreamWriter streamWriter = new StreamWriter(fs);
             streamWriter.WriteLine(isShortCutsToPanel);
             streamWriter.WriteLine(smoothLevel);
+            streamWriter.WriteLine(disableZone);
+            streamWriter.WriteLine(disableZoneUpdateAll);
             streamWriter.Flush();
             fs.Close();
         }
@@ -147,6 +153,28 @@ namespace CSURToolBox.UI
                 {
                     smoothLevel = 1;
                 }
+
+                strLine = sr.ReadLine();
+
+                if (strLine == "True")
+                {
+                    disableZone = true;
+                }
+                else
+                {
+                    disableZone = false;
+                }
+
+                strLine = sr.ReadLine();
+
+                if (strLine == "True")
+                {
+                    disableZoneUpdateAll = true;
+                }
+                else
+                {
+                    disableZoneUpdateAll = false;
+                }
                 sr.Close();
                 fs.Close();
             }
@@ -165,6 +193,25 @@ namespace CSURToolBox.UI
         public static void isDebugEnable(bool index)
         {
             isDebug = index;
+            SaveSetting();
+        }
+
+        public static void isDisableZoneEnable(bool index)
+        {
+            disableZone = index;
+            if (disableZone)
+            {
+                if (Loader.CurrentLoadMode == LoadMode.NewGame || Loader.CurrentLoadMode == LoadMode.LoadGame)
+                {
+                    Loader.DisableZone();
+                }
+            }
+            SaveSetting();
+        }
+
+        public static void isDisableZoneUpdateAllEnable(bool index)
+        {
+            disableZoneUpdateAll = index;
             SaveSetting();
         }
     }

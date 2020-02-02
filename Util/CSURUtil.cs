@@ -12,6 +12,7 @@ namespace CSURToolBox.Util
     public class CSURUtil
     {
         public const string CSUR_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)+(=|-)?([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)*" + "( compact| express)?" + "_";
+        public const string CSUR_EXPRESS_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)+(=|-)?([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)*" + "( express)" + "_";
         public const string CSUR_DUAL_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9]D(L|S|C|R)[1-9]*P?)+(=|-)?([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)*_" + "( compact| express)?" + "_";
         public const string CSUR_OFFSET_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9](L|R)[1-9]*P?)+(=)?([[1-9]?[0-9](L|R)[1-9]*P?)*" + "( compact| express)?" + "_";
         public const string CSUR_NOOFFSET_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9](L|R)[1-9]*P?)+(=)?([[1-9]?[0-9]D?(S|C)[1-9]*P?)+" + "( compact| express)?" + "_";
@@ -52,6 +53,17 @@ namespace CSURToolBox.Util
             }
             string savenameStripped = asset.name.Substring(asset.name.IndexOf('.') + 1);
             Match m = Regex.Match(savenameStripped, CSUR_DUAL_REGEX, RegexOptions.IgnoreCase);
+            return m.Success;
+        }
+
+        public static bool IsCSURExpress(NetInfo asset)
+        {
+            if (asset == null || (asset.m_netAI.GetType() != typeof(RoadAI) && asset.m_netAI.GetType() != typeof(RoadBridgeAI) && asset.m_netAI.GetType() != typeof(RoadTunnelAI)))
+            {
+                return false;
+            }
+            string savenameStripped = asset.name.Substring(asset.name.IndexOf('.') + 1);
+            Match m = Regex.Match(savenameStripped, CSUR_EXPRESS_REGEX, RegexOptions.IgnoreCase);
             return m.Success;
         }
 

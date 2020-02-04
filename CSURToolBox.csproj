@@ -68,11 +68,13 @@
     <Compile Include="Patch\NetSegmentUpdateLanesPatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Threading.cs" />
+    <Compile Include="UI\StayInLaneUI.cs" />
     <Compile Include="UI\MainButton.cs" />
     <Compile Include="UI\MainUI.cs" />
     <Compile Include="UI\OptionKeyMappingFunction.cs" />
     <Compile Include="UI\OptionKeyMappingLane.cs" />
     <Compile Include="UI\OptionUI.cs" />
+    <Compile Include="Util\MouseSimulater.cs" />
     <Compile Include="Util\HarmonyDetours.cs" />
     <Compile Include="Util\CSURUtil.cs" />
     <Compile Include="Util\DebugLog.cs" />

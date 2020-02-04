@@ -20,6 +20,8 @@ namespace CSURToolBox.UI
             "CSURToolBox_SETTING", SavedInputKey.Encode(KeyCode.None, false, false, false), true);
         public static readonly SavedInputKey m_roadType = new SavedInputKey("roadType",
             "CSURToolBox_SETTING", SavedInputKey.Encode(KeyCode.None, false, false, false), true);
+        public static readonly SavedInputKey m_stayinlane = new SavedInputKey("roadType",
+            "CSURToolBox_SETTING", SavedInputKey.Encode(KeyCode.D, true, false, false), true);
 
         private int count;
 
@@ -34,6 +36,7 @@ namespace CSURToolBox.UI
             AddKeymapping("Clear", m_clear);
             AddKeymapping("Single/Dual/Uturn/Asym+1/Asym+2", m_roadSym);
             AddKeymapping("NA/SideWalk/SideWalk&Bicycle", m_roadType);
+            AddKeymapping("StayInLane", m_stayinlane);
         }
 
         private void AddKeymapping(string label, SavedInputKey savedInputKey)

@@ -67,14 +67,14 @@ namespace CSURToolBox.Patch
                         m_minCornerOffset = 24f;
                     }
                 }
-            }
 
-            //DebugLog.LogToFileOnly("Pre m_minCornerOffset = " + m_minCornerOffset.ToString());
-            if (!segmentOffsetLock[__instance.m_infoIndex])
-            {
-                segmentOffset[__instance.m_infoIndex] = __instance.Info.m_minCornerOffset;
-                segmentOffsetLock[__instance.m_infoIndex] = true;
-                __instance.Info.m_minCornerOffset = m_minCornerOffset;
+                //DebugLog.LogToFileOnly("Pre m_minCornerOffset = " + m_minCornerOffset.ToString());
+                if (!segmentOffsetLock[__instance.m_infoIndex])
+                {
+                    segmentOffset[__instance.m_infoIndex] = __instance.Info.m_minCornerOffset;
+                    segmentOffsetLock[__instance.m_infoIndex] = true;
+                    __instance.Info.m_minCornerOffset = m_minCornerOffset;
+                }
             }
             //DebugLog.LogToFileOnly("Pre m_minCornerOffset = " + __instance.Info.m_minCornerOffset.ToString());
         }

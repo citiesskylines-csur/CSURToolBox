@@ -40,6 +40,7 @@ namespace CSURToolBox
         public static bool is1806963141 = false;
         public static bool HarmonyDetourInited = false;
         public static bool HarmonyDetourFailed = true;
+        public static StayInLaneUI stayInLaneUI;
         public static bool Done { get; private set; } // Only one Assets installation throughout the application
         public class Detour
         {
@@ -247,6 +248,11 @@ namespace CSURToolBox
                     mainUI = (MainUI)parentGuiView.AddUIComponent(typeof(MainUI));
                 }
 
+                if (stayInLaneUI == null)
+                {
+                    stayInLaneUI = (StayInLaneUI)Loader.parentGuiView.AddUIComponent(typeof(StayInLaneUI));
+                }
+
                 SetupMainButton();
                 isGuiRunning = true;
             }
@@ -269,8 +275,10 @@ namespace CSURToolBox
                 parentGuiView = null;
                 UnityEngine.Object.Destroy(mainUI);
                 UnityEngine.Object.Destroy(mainButton);
+                UnityEngine.Object.Destroy(stayInLaneUI);
                 mainUI = null;
                 mainButton = null;
+                stayInLaneUI = null;
             }
         }
 

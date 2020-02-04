@@ -575,27 +575,27 @@ namespace CSURToolBox
                                 break;
                             case 4:
                                 DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = 4");
-                                DebugLog.LogToFileOnly("Try to Load pillar Ama G-2_Data");
-                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama G-2_Data") != null)
-                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama G-2_Data");
+                                DebugLog.LogToFileOnly("Try to Load pillar Ama M-2_Data");
+                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama M-2_Data") != null)
+                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama M-2_Data");
                                 else
-                                    DebugLog.LogToFileOnly("Failed Load pillar Ama G-2_Data");
+                                    DebugLog.LogToFileOnly("Failed Load pillar Ama M-2_Data");
                                 break;
                             case 6:
                                 DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = 6");
-                                DebugLog.LogToFileOnly("Try to Load pillar Ama G-6DR_Data");
-                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama G-6DR_Data") != null)
-                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama G-6DR_Data");
+                                DebugLog.LogToFileOnly("Try to Load pillar Ama M-2_Data");
+                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama M-2_Data") != null)
+                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama M-2_Data");
                                 else
-                                    DebugLog.LogToFileOnly("Failed Load pillar Ama G-6DR_Data");
+                                    DebugLog.LogToFileOnly("Failed Load pillar Ama M-2_Data");
                                 break;
                             case 8:
                                 DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = 8");
-                                DebugLog.LogToFileOnly("Try to Load pillar Ama G-8DR_Data");
-                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama G-8DR_Data") != null)
-                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama G-8DR_Data");
+                                DebugLog.LogToFileOnly("Try to Load pillar Ama M-4_Data");
+                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama M-4_Data") != null)
+                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama M-4_Data");
                                 else
-                                    DebugLog.LogToFileOnly("Failed Load pillar Ama G-8DR_Data");
+                                    DebugLog.LogToFileOnly("Failed Load pillar Ama M-4_Data");
                                 break;
                             case 10:
                                 DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = 10");

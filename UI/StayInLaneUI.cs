@@ -6,6 +6,7 @@ using System.Collections;
 using CSURToolBox.Util;
 using System.Reflection;
 using System;
+using ColossalFramework.Math;
 
 namespace CSURToolBox.UI
 {
@@ -35,7 +36,7 @@ namespace CSURToolBox.UI
         {
             if ((laterLeftClick == 8) && needLaterLeftClick)
             {
-                laterLeftClick = 0 ;
+                laterLeftClick = 0;
                 MouseSimulater.LeftClick();
                 needLaterLeftClick = false;
             }
@@ -49,21 +50,13 @@ namespace CSURToolBox.UI
             if (OptionsKeymappingFunction.m_stayinlane.IsPressed(e))
             {
                 Assembly TMPE = Assembly.Load("TrafficManager");
-                //
                 var selectedNodeId = TMPE.GetType("TrafficManager.UI.TrafficManagerTool").GetProperty("SelectedNodeId");
                 var TrafficManagerTool = TMPE.CreateInstance("TrafficManager.UI.TrafficManagerTool");
                 ushort node = (ushort)selectedNodeId.GetValue(TrafficManagerTool, null);
                 DebugLog.LogToFileOnly("TMPE select node = " + node.ToString());
                 var LaneConnectionManager = TMPE.CreateInstance("TrafficManager.Manager.Impl.LaneConnectionManager");
                 var AddLaneConnection = TMPE.GetType("TrafficManager.Manager.Impl.LaneConnectionManager").GetMethod("AddLaneConnection", BindingFlags.NonPublic | BindingFlags.Instance);
-                uint[] incomingLaneID = new uint[16];
-                uint[] outgoingLaneID = new uint[16];
-                float[] incomingLanePosition = new float[16];
-                float[] outgoingLanePosition = new float[16];
-                bool[] incomingStartNode = new bool[16];
-                bool[] outgoingStartNode = new bool[16];
-                byte incomingLaneNum = 0;
-                byte outgoingLaneNum = 0;
+                //Loop2: Find all lanes in NODE which is outgoing, and try to AddLaneConnection
                 for (int i = 0; i < 8; i++)
                 {
                     ushort segmentID = Singleton<NetManager>.instance.m_nodes.m_buffer[node].GetSegment(i);
@@ -83,79 +76,85 @@ namespace CSURToolBox.UI
                                 bool isOutGoing = IsOutGoing(segmentID, startNode, segment.Info.m_lanes[j]);
                                 if (isOutGoing)
                                 {
-                                    outgoingLaneID[outgoingLaneNum] = firstLane;
-                                    if (startNode)
+                                    float distance = 10000;
+                                    uint laneID = 0;
+                                    //Loop2: Find all incoming lanes in NODE which is the nearest and the same direction to the outgoing lane to AddLaneConnection
+                                    for (int i1 = 0; i1 < 8; i1++)
                                     {
-                                        outgoingLanePosition[outgoingLaneNum] = segment.Info.m_lanes[j].m_position;
-                                    }
-                                    else
-                                    {
-                                        outgoingLanePosition[outgoingLaneNum] = -segment.Info.m_lanes[j].m_position;
-                                    }
-                                    outgoingStartNode[outgoingLaneNum] = startNode;
-                                    outgoingLaneNum++;
-                                }
-                                else
-                                {
-                                    incomingLaneID[incomingLaneNum] = firstLane;
-                                    if (startNode)
-                                    {
-                                        incomingLanePosition[incomingLaneNum] = segment.Info.m_lanes[j].m_position;
-                                    }
-                                    else
-                                    {
-                                        incomingLanePosition[incomingLaneNum] = -segment.Info.m_lanes[j].m_position;
-                                    }
-                                    incomingStartNode[incomingLaneNum] = startNode;
-                                    incomingLaneNum++;
-                                }
-                            }
+                                        ushort segmentID1 = Singleton<NetManager>.instance.m_nodes.m_buffer[node].GetSegment(i1);
+                                        if ((segmentID1 != 0) && (segmentID1 != segmentID))
+                                        {
+                                            var segment1 = Singleton<NetManager>.instance.m_segments.m_buffer[segmentID1];
+                                            uint firstLane1 = segment1.m_lanes;
+                                            bool startNode1 = (segment1.m_startNode == node);
+                                            for (int k = 0; k < segment1.Info.m_lanes.Length; k++)
+                                            {
+                                                if (firstLane1 == 0)
+                                                {
+                                                    break;
+                                                }
+                                                bool isOutGoing1 = IsOutGoing(segmentID1, startNode1, segment1.Info.m_lanes[k]);
+                                                if (segment1.Info.m_lanes[k].m_laneType.IsFlagSet(NetInfo.LaneType.Vehicle) && segment1.Info.m_lanes[k].m_vehicleType.IsFlagSet(VehicleInfo.VehicleType.Car))
+                                                {
+                                                    if (!isOutGoing1)
+                                                    {
+                                                        Vector3 tmpLanePos1 = Vector3.zero;
+                                                        Vector3 tmpLanePos2 = Vector3.zero;
+                                                        Vector3 tmpLaneDir1 = Vector3.zero;
+                                                        Vector3 tmpLaneDir2 = Vector3.zero;
 
+                                                        if (startNode)
+                                                        {
+                                                            tmpLanePos2 = Singleton<NetManager>.instance.m_lanes.m_buffer[firstLane].m_bezier.Position(0);
+                                                            tmpLaneDir2 = VectorUtils.NormalizeXZ(segment.FindDirection(segmentID, node));
+                                                        }
+                                                        else
+                                                        {
+                                                            tmpLanePos2 = Singleton<NetManager>.instance.m_lanes.m_buffer[firstLane].m_bezier.Position(1);
+                                                            tmpLaneDir2 = -VectorUtils.NormalizeXZ(segment.FindDirection(segmentID, node));
+                                                        }
+
+                                                        if (startNode1)
+                                                        {
+                                                            tmpLanePos1 = Singleton<NetManager>.instance.m_lanes.m_buffer[firstLane1].m_bezier.Position(0);
+                                                            tmpLaneDir1 = VectorUtils.NormalizeXZ(segment1.FindDirection(segmentID1, node));
+                                                        }
+                                                        else
+                                                        {
+                                                            tmpLanePos1 = Singleton<NetManager>.instance.m_lanes.m_buffer[firstLane1].m_bezier.Position(1);
+                                                            tmpLaneDir1 = -VectorUtils.NormalizeXZ(segment1.FindDirection(segmentID1, node));
+                                                        }
+
+                                                        if ((tmpLaneDir2.x * tmpLaneDir1.x + tmpLaneDir2.z * tmpLaneDir1.z > 0.9f) || (tmpLaneDir2.x * tmpLaneDir1.x + tmpLaneDir2.z * tmpLaneDir1.z < -0.9f))
+                                                        {
+                                                            if (distance > Vector3.Distance(tmpLanePos2, tmpLanePos1))
+                                                            {
+                                                                distance = Vector3.Distance(tmpLanePos2, tmpLanePos1);
+                                                                laneID = firstLane1;
+                                                            }
+                                                        }
+                                                    } //!isoutgoing
+                                                }//car 
+                                                firstLane1 = Singleton<NetManager>.instance.m_lanes.m_buffer[firstLane1].m_nextLane;
+                                            } // for 
+                                        } 
+                                    }
+                                    if (laneID != 0)
+                                    {
+                                        DebugLog.LogToFileOnly("firstLane = " + firstLane.ToString() + "laneID = " + laneID.ToString());
+                                        AddLaneConnection.Invoke(LaneConnectionManager, new object[] { firstLane, laneID, startNode });
+                                    }
+                                } //isoutgoing
+                            } //car 
                             firstLane = Singleton<NetManager>.instance.m_lanes.m_buffer[firstLane].m_nextLane;
-                        }
+                        }//for
                     }
-                }
-
-                DebugLog.LogToFileOnly("incomingLaneNum = " + incomingLaneNum.ToString() + "outgoingLaneNum = " + outgoingLaneNum.ToString());
-                SortLane(ref incomingLanePosition, ref incomingLaneID, ref incomingStartNode, incomingLaneNum);
-                SortLane(ref outgoingLanePosition, ref outgoingLaneID, ref outgoingStartNode, outgoingLaneNum);
-
-                for (int i = 0; i < outgoingLaneNum; i ++)
-                {
-                    //AddLaneConnection(outgoingLaneID[i], incomingLaneID[i], item.StartNode);
-                    DebugLog.LogToFileOnly("outgoingLaneID[i] = " + outgoingLaneID[i].ToString() + "incomingLaneID[i] = " + incomingLaneID[i].ToString() + "outgoingStartNode[i] = " + outgoingStartNode[i].ToString());
-                    AddLaneConnection.Invoke(LaneConnectionManager, new object[] { outgoingLaneID[i], incomingLaneID[i], outgoingStartNode[i] });
                 }
 
                 //RefreshCurrentNodeMarkers.Invoke(LaneConnectorTool, new object[] { node });
                 //Do a Refresh
                 MouseSimulater.RightClick();
                 needLaterLeftClick = true;
-            }
-        }
-
-        internal void SortLane(ref float[] laneOffset, ref uint[] laneID, ref bool[] startNode, int laneIndex)
-        {
-            for (int i = 0; i < laneIndex - 1; i++)
-            {
-                bool isSorted = true;  //假设剩下的元素已经排序好了
-                for (int j = 0; j < laneIndex - 1 - i; j++)
-                {
-                    if (laneOffset[j] > laneOffset[j + 1])
-                    {
-                        float temp = laneOffset[j];
-                        laneOffset[j] = laneOffset[j + 1];
-                        laneOffset[j + 1] = temp;
-                        uint temp1 = laneID[j];
-                        laneID[j] = laneID[j + 1];
-                        laneID[j + 1] = temp1;
-                        bool temp2 = startNode[j];
-                        startNode[j] = startNode[j + 1];
-                        startNode[j + 1] = temp2;
-                        isSorted = false;  //一旦需要交换数组元素，就说明剩下的元素没有排序好
-                    }
-                }
-                if (isSorted) break; //如果没有发生交换，说明剩下的元素已经排序好了
             }
         }
 

@@ -181,6 +181,21 @@ namespace CSURToolBox.Util
             return true;
         }
 
+        public static bool IsCSURRLaneOffset(NetInfo asset)
+        {
+            if (asset == null || (asset.m_netAI.GetType() != typeof(RoadAI) && asset.m_netAI.GetType() != typeof(RoadBridgeAI) && asset.m_netAI.GetType() != typeof(RoadTunnelAI)))
+            {
+                return false;
+            }
+            string savenameStripped = asset.name.Substring(asset.name.IndexOf('.') + 1);
+            Match m = Regex.Match(savenameStripped, CSUR_LANEOFFSET_REGEX, RegexOptions.IgnoreCase);
+            if (!m.Success)
+                return false;
+
+            Match m1 = Regex.Match(savenameStripped, "CSUR-R", RegexOptions.IgnoreCase);
+            return m1.Success;
+        }
+
         //TODO: Use name and laneposition to get LaneOffset
         public static float CSURLaneOffset(NetInfo asset, NetInfo.Lane lane)
         {

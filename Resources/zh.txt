@@ -1,0 +1,24 @@
+﻿ShortCuts_Control_TIPS	快捷键用于终点面板
+DisableZone	对CSUR Shift Ramp和Transition以及CSUR高速路禁用Zone
+UpdateZone	读取游戏时候自动重新刷新一把Zone
+Lane_Smooth_Level	道路顺滑强度(debug用)
+LaneType	单向/双向/掉头/不对称+1/不对称+2
+RoadType	无人行道/仅人行道/人行道和自行车道
+StayInLane	划线保持车道(需要TMPE)
+StayInLaneAll	全部CSUR Ramp路划线保持车道 
+Copy	复制
+Swap	交换
+Clear	清楚
+Low	低
+Medium	中
+High	高
+Experimental_Function	实验性功能
+Function_Button_ShortCut	功能按钮快捷键
+ShortCuts_Control	快捷键控制
+Lane_Button_ShortCut	车道按钮快捷键
+Lane_ShortCut	车道快捷键
+From	起点面板
+To	终点面板
+Function_ShortCut	功能快捷键
+Debug_Mode	测试模式
+EnablePillar	启用桥墩

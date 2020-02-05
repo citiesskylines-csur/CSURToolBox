@@ -87,9 +87,11 @@
     <Content Include="Resources\CSUR.png" />
     <Content Include="Resources\CSUR1.png" />
     <Content Include="Resources\CSUR2.png" />
+    <Content Include="Resources\en.txt" />
     <Content Include="Resources\Notfound.png" />
     <Content Include="Resources\UIBG.png" />
     <Content Include="Resources\UITOP.png" />
+    <Content Include="Resources\zh.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

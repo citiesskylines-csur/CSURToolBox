@@ -79,7 +79,10 @@ namespace CSURToolBox
                     CheckTMPE();
                     InitDetour();
                     HarmonyInitDetour();
-                    InstallPillar();
+                    if (OptionUI.enablePillar)
+                    {
+                        InstallPillar();
+                    }
                     OptionUI.isDebug = false;
                     if (mode == LoadMode.LoadGame || mode == LoadMode.NewGame)
                     {
@@ -112,7 +115,10 @@ namespace CSURToolBox
                 {
                     RevertDetour();
                     HarmonyRevertDetour();
-                    RemovePillar();
+                    if (OptionUI.enablePillar)
+                    {
+                        RemovePillar();
+                    }
                     if (isGuiRunning)
                     {
                         RemoveGui();

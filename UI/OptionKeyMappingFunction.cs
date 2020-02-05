@@ -2,6 +2,7 @@
 using ColossalFramework;
 using ColossalFramework.Globalization;
 using ColossalFramework.UI;
+using CSURToolBox.Util;
 using UnityEngine;
 
 namespace CSURToolBox.UI
@@ -20,8 +21,10 @@ namespace CSURToolBox.UI
             "CSURToolBox_SETTING", SavedInputKey.Encode(KeyCode.None, false, false, false), true);
         public static readonly SavedInputKey m_roadType = new SavedInputKey("roadType",
             "CSURToolBox_SETTING", SavedInputKey.Encode(KeyCode.None, false, false, false), true);
-        public static readonly SavedInputKey m_stayinlane = new SavedInputKey("roadType",
+        public static readonly SavedInputKey m_stayinlane = new SavedInputKey("stayinlane",
             "CSURToolBox_SETTING", SavedInputKey.Encode(KeyCode.D, true, false, false), true);
+        public static readonly SavedInputKey m_stayinlaneAll = new SavedInputKey("stayinlaneAll",
+            "CSURToolBox_SETTING", SavedInputKey.Encode(KeyCode.G, true, false, false), true);
 
         private int count;
 
@@ -31,12 +34,13 @@ namespace CSURToolBox.UI
 
         private void Awake()
         {
-            AddKeymapping("Copy", m_copy);
-            AddKeymapping("Swap", m_swap);
-            AddKeymapping("Clear", m_clear);
-            AddKeymapping("Single/Dual/Uturn/Asym+1/Asym+2", m_roadSym);
-            AddKeymapping("NA/SideWalk/SideWalk&Bicycle", m_roadType);
-            AddKeymapping("StayInLane", m_stayinlane);
+            AddKeymapping(Localization.Get("Copy"), m_copy);
+            AddKeymapping(Localization.Get("Swap"), m_swap);
+            AddKeymapping(Localization.Get("Clear"), m_clear);
+            AddKeymapping(Localization.Get("LaneType"), m_roadSym);
+            AddKeymapping(Localization.Get("RoadType"), m_roadType);
+            AddKeymapping(Localization.Get("StayInLane"), m_stayinlane);
+            AddKeymapping(Localization.Get("StayInLaneAll"), m_stayinlaneAll);
         }
 
         private void AddKeymapping(string label, SavedInputKey savedInputKey)

@@ -258,14 +258,14 @@ namespace CSURToolBox.UI
             };
 
             m_fromLabel = AddUIComponent<UILabel>();
-            m_fromLabel.text = "From";
+            m_fromLabel.text = Localization.Get("From");
             m_fromLabel.textScale = 1f;
             m_fromLabel.textColor = new Color32(54, 54, 54, 54);
             m_fromLabel.relativePosition = new Vector3(m_toIntButtons[0].relativePosition.x, m_toIntButtons[0].relativePosition.y + 60f);
             m_fromLabel.autoSize = true;
 
             m_toLabel = AddUIComponent<UILabel>();
-            m_toLabel.text = "To";
+            m_toLabel.text = Localization.Get("To");
             m_toLabel.textScale = 1f;
             m_toLabel.textColor = new Color32(54, 54, 54, 54);
             m_toLabel.relativePosition = new Vector3(m_toIntButtons[9].relativePosition.x, m_toIntButtons[9].relativePosition.y + 40f);
@@ -433,8 +433,8 @@ namespace CSURToolBox.UI
             {
                 if (isVisible)
                 {
-                    m_fromLabel.text = "From";
-                    m_toLabel.text = "To";
+                    m_fromLabel.text = Localization.Get("From");
+                    m_toLabel.text = Localization.Get("To");
                     //DebugLog.LogToFileOnly("fromSelected = " + fromSelected.ToString() + " toSelected = " + toSelected.ToString() + " symmetry = " + symmetry.ToString() + " uturnLane: " + uturnLane.ToString() + " hasSidewalk: " + hasSidewalk.ToString());
 
                     var m_currentModule = Parser.ModuleNameFromUI(fromSelected, toSelected, symmetry, uturnLane, hasSidewalk, hasBike);

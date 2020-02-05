@@ -17,8 +17,8 @@ Function_Button_ShortCut	功能按钮快捷键
 ShortCuts_Control	快捷键控制
 Lane_Button_ShortCut	车道按钮快捷键
 Lane_ShortCut	车道快捷键
-From	起点面板
-To	终点面板
+From	起点
+To	终点
 Function_ShortCut	功能快捷键
 Debug_Mode	测试模式
 EnablePillar	启用桥墩

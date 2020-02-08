@@ -76,7 +76,10 @@ namespace CSURToolBox
                 {
                     OptionUI.LoadSetting();
                     SetupGui();
-                    CheckTMPE();
+                    if (mode == LoadMode.LoadGame || mode == LoadMode.NewGame)
+                    {
+                        CheckTMPE();
+                    }
                     InitDetour();
                     HarmonyInitDetour();
                     if (OptionUI.enablePillar)

@@ -625,8 +625,16 @@ namespace CSURToolBox.UI
             if (OptionsKeymappingFunction.m_copy.IsPressed(e)) copyButton_OnCheckChanged();
             if (OptionsKeymappingFunction.m_swap.IsPressed(e)) swapButton_OnCheckChanged();
             if (OptionsKeymappingFunction.m_clear.IsPressed(e)) clearButton_OnCheckChanged();
-            if (OptionsKeymappingFunction.m_roadSym.IsPressed(e)) symButton_OnCheckChanged();
-            if (OptionsKeymappingFunction.m_roadType.IsPressed(e)) hasSideWalkButton_OnCheckChanged();
+            if (OptionsKeymappingFunction.m_roadSym.IsPressed(e))
+            {
+                symButton_OnCheckChanged();
+                refreshOnce = true;
+            }
+            if (OptionsKeymappingFunction.m_roadType.IsPressed(e))
+            {
+                hasSideWalkButton_OnCheckChanged();
+                refreshOnce = true;
+            }
 
             RefreshDisplayData();
         }

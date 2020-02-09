@@ -91,6 +91,7 @@
     <Content Include="Resources\Notfound.png" />
     <Content Include="Resources\UIBG.png" />
     <Content Include="Resources\UITOP.png" />
+    <Content Include="Resources\zh-cn.txt" />
     <Content Include="Resources\zh.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

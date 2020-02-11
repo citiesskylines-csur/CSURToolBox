@@ -92,14 +92,7 @@ namespace CSURToolBox.Util
 
             if (OptionUI.isDebug)
             {
-                DebugLog.LogToFileOnly(m.Groups[1].Value);
-                DebugLog.LogToFileOnly(m.Groups[2].Value);
-                DebugLog.LogToFileOnly(m.Groups[3].Value);
-                DebugLog.LogToFileOnly(m.Groups[4].Value);
-                DebugLog.LogToFileOnly(m.Groups[5].Value);
-                DebugLog.LogToFileOnly(m.Groups[6].Value);
-                DebugLog.LogToFileOnly(m.Groups[7].Value);
-                DebugLog.LogToFileOnly(m.Groups[8].Value);
+                DebugLog.LogToFileOnly(m.Groups[1].Value + " " + m.Groups[2].Value + " " + m.Groups[3].Value + " " + m.Groups[4].Value + " " + m.Groups[5].Value + " " + m.Groups[6].Value + " " + m.Groups[7].Value + " " + m.Groups[8].Value);
             }
 
             startOffset = 0;
@@ -155,8 +148,7 @@ namespace CSURToolBox.Util
             }
             if (OptionUI.isDebug)
             {
-                DebugLog.LogToFileOnly("startoffset = " + startOffset.ToString());
-                DebugLog.LogToFileOnly("endoffset = " + endOffset.ToString());
+                DebugLog.LogToFileOnly("startoffset = " + startOffset.ToString() + "endoffset = " + endOffset.ToString());
             }
 
             if (startOffset!=0 && endOffset!=0)
@@ -183,9 +175,7 @@ namespace CSURToolBox.Util
 
             if (OptionUI.isDebug)
             {
-                DebugLog.LogToFileOnly("CSURLaneOffset1 = " + m.Groups[1].Value);
-                DebugLog.LogToFileOnly("CSURLaneOffset2 = " + m.Groups[2].Value);
-                DebugLog.LogToFileOnly("CSURLaneOffset3 = " + m.Groups[3].Value);
+                DebugLog.LogToFileOnly("CSURLaneOffset1 = " + m.Groups[1].Value + "CSURLaneOffset2 = " + m.Groups[2].Value + "CSURLaneOffset3 = " + m.Groups[3].Value);
             }
             return true;
         }
@@ -402,8 +392,7 @@ namespace CSURToolBox.Util
 
                                 if (OptionUI.isDebug)
                                 {
-                                    DebugLog.LogToFileOnly("StartLaneOffset, Line" + i.ToString() + " =" + StartLaneOffset[i].ToString());
-                                    DebugLog.LogToFileOnly("EndLaneOffset, Line" + i.ToString() + " =" + EndLaneOffset[i].ToString());
+                                    DebugLog.LogToFileOnly("StartLaneOffset, Line" + i.ToString() + " =" + StartLaneOffset[i].ToString() + "EndLaneOffset, Line" + i.ToString() + " =" + EndLaneOffset[i].ToString());
                                 }
                             }
 
@@ -474,11 +463,7 @@ namespace CSURToolBox.Util
             Match m = Regex.Match(name, "([0-9]*)(D?)(S|C|R|L)([0-9]?[0-9]?)(P?)", RegexOptions.IgnoreCase);
             if (OptionUI.isDebug)
             {
-                DebugLog.LogToFileOnly("TryParseDSInProcessNameUnit match 1 = " + m.Groups[1].Value);
-                DebugLog.LogToFileOnly("TryParseDSInProcessNameUnit match 2 = " + m.Groups[2].Value);
-                DebugLog.LogToFileOnly("TryParseDSInProcessNameUnit match 3 = " + m.Groups[3].Value);
-                DebugLog.LogToFileOnly("TryParseDSInProcessNameUnit match 4 = " + m.Groups[4].Value);
-                DebugLog.LogToFileOnly("TryParseDSInProcessNameUnit match 5 = " + m.Groups[5].Value);
+                DebugLog.LogToFileOnly("TryParseDSInProcessNameUnit match 1 = " + m.Groups[1].Value + "match 2 = " + m.Groups[2].Value + "match 3 = " + m.Groups[3].Value + "match 4 = " + m.Groups[4].Value + "match 5 = " + m.Groups[5].Value);
             }
 
             if (m.Groups[2].Value == "D")
@@ -497,11 +482,7 @@ namespace CSURToolBox.Util
             Match m = Regex.Match(name, "([0-9]*)(D?)(S|C|R|L)([0-9]?[0-9]?)(P?)", RegexOptions.IgnoreCase);
             if (OptionUI.isDebug)
             {
-                DebugLog.LogToFileOnly("ProcessNameUnit match 1 = " + m.Groups[1].Value);
-                DebugLog.LogToFileOnly("ProcessNameUnit match 2 = " + m.Groups[2].Value);
-                DebugLog.LogToFileOnly("ProcessNameUnit match 3 = " + m.Groups[3].Value);
-                DebugLog.LogToFileOnly("ProcessNameUnit match 4 = " + m.Groups[4].Value);
-                DebugLog.LogToFileOnly("ProcessNameUnit match 5 = " + m.Groups[5].Value);
+                DebugLog.LogToFileOnly("ProcessNameUnit match 1 = " + m.Groups[1].Value + "match 2 = " + m.Groups[2].Value + "match 3 = " + m.Groups[3].Value + "match 4 = " + m.Groups[4].Value + "match 5 = " + m.Groups[5].Value);
             }
             //Process Dual
             if (m.Groups[2].Value == "D")

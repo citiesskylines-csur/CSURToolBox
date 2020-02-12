@@ -14,6 +14,8 @@ namespace CSURToolBox.UI
         public static bool disableZone = false;
         public static bool disableZoneUpdateAll = false;
         public static bool enablePillar = true;
+        public static bool fixLargeJunction = true;
+        public static bool alignZone = false;
         public static void makeSettings(UIHelperBase helper)
         {
             // tabbing code is borrowed from RushHour mod
@@ -88,11 +90,13 @@ namespace CSURToolBox.UI
 
             panelHelper = new UIHelper(currentPanel);
             var generalGroup2 = panelHelper.AddGroup(Localization.Get("Experimental_Function")) as UIHelper;
-            generalGroup2.AddCheckbox(Localization.Get("Debug_Mode"), isDebug, (index0) => isDebugEnable(index0));
-            generalGroup2.AddCheckbox(Localization.Get("DisableZone"), disableZone, (index1) => isDisableZoneEnable(index1));
-            generalGroup2.AddCheckbox(Localization.Get("UpdateZone"), disableZoneUpdateAll, (index2) => isDisableZoneUpdateAllEnable(index2));
-            generalGroup2.AddCheckbox(Localization.Get("EnablePillar"), enablePillar, (index3) => isEnablePillarEnable(index3));
-            generalGroup2.AddDropdown(Localization.Get("Lane_Smooth_Level"), new string[] { Localization.Get("Low"), Localization.Get("Medium"), Localization.Get("High") }, smoothLevel, (index4) => GetSmoothLevel(index4));
+            generalGroup2.AddCheckbox(Localization.Get("Debug_Mode"), isDebug, (index) => isDebugEnable(index));
+            generalGroup2.AddCheckbox(Localization.Get("DisableZone"), disableZone, (index) => isDisableZoneEnable(index));
+            generalGroup2.AddCheckbox(Localization.Get("UpdateZone"), disableZoneUpdateAll, (index) => isDisableZoneUpdateAllEnable(index));
+            generalGroup2.AddCheckbox(Localization.Get("EnablePillar"), enablePillar, (index) => isEnablePillarEnable(index));
+            generalGroup2.AddCheckbox(Localization.Get("AlignZone"), alignZone, (index) => isAlignZoneEnable(index));
+            generalGroup2.AddCheckbox(Localization.Get("FixLargeJunction"), fixLargeJunction, (index) => isFixLargeJunctionEnable(index));
+            generalGroup2.AddDropdown(Localization.Get("Lane_Smooth_Level"), new string[] { Localization.Get("Low"), Localization.Get("Medium"), Localization.Get("High") }, smoothLevel, (index) => GetSmoothLevel(index));
             SaveSetting();
         }
         private static UIButton AddOptionTab(UITabstrip tabStrip, string caption)
@@ -122,6 +126,8 @@ namespace CSURToolBox.UI
             streamWriter.WriteLine(disableZone);
             streamWriter.WriteLine(disableZoneUpdateAll);
             streamWriter.WriteLine(enablePillar);
+            streamWriter.WriteLine(alignZone);
+            streamWriter.WriteLine(fixLargeJunction);
             streamWriter.Flush();
             fs.Close();
         }
@@ -139,18 +145,11 @@ namespace CSURToolBox.UI
                 disableZone = (sr.ReadLine() == "True") ? true : false;
                 disableZoneUpdateAll = (sr.ReadLine() == "True") ? true : false;
                 enablePillar = (sr.ReadLine() == "False") ? false : true;
+                alignZone = (sr.ReadLine() == "True") ? true : false;
+                fixLargeJunction = (sr.ReadLine() == "False") ? false : true;
 
                 sr.Close();
                 fs.Close();
-            }
-            else
-            {
-                isShortCutsToPanel = false;
-                isDebug = false;
-                smoothLevel = 1;
-                disableZone = false;
-                disableZoneUpdateAll = false;
-                enablePillar = true;
             }
         }
         public static void isShortCutsToPanelEnable(bool index)
@@ -192,6 +191,18 @@ namespace CSURToolBox.UI
         public static void isEnablePillarEnable(bool index)
         {
             enablePillar = index;
+            SaveSetting();
+        }
+
+        public static void isAlignZoneEnable(bool index)
+        {
+            alignZone = index;
+            SaveSetting();
+        }
+
+        public static void isFixLargeJunctionEnable(bool index)
+        {
+            fixLargeJunction = index;
             SaveSetting();
         }
     }

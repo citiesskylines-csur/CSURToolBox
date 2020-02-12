@@ -64,6 +64,7 @@
     <Compile Include="CustomManager\CustomNetManager.cs" />
     <Compile Include="Loader.cs" />
     <Compile Include="Parser.cs" />
+    <Compile Include="Patch\RoadAICreateZoneBlocksPatch.cs" />
     <Compile Include="Patch\NetSegmentCalculateCornerPatch.cs" />
     <Compile Include="Patch\NetSegmentUpdateLanesPatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

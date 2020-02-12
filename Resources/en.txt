@@ -22,3 +22,5 @@ To	To
 Function_ShortCut	Function ShortCut
 Debug_Mode	Debug Mode
 EnablePillar	Enable Pillar
+AlignZone	Align Zone For CSUR Road
+FixLargeJunction	Fix Large Junction

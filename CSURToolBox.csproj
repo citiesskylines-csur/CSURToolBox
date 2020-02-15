@@ -98,11 +98,11 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>mkdir "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\$(SolutionName)"
-del "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\$(SolutionName)\$(TargetFileName)"
-xcopy /y "$(TargetPath)" "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\$(SolutionName)"
-mkdir "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\$(SolutionName)\Resources"
-xcopy /y "$(ProjectDir)\Resources" "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\$(SolutionName)\Resources"
-copy "$(ProjectDir)\0Harmony.dll" "%25LOCALAPPDATA%25\Colossal Order\Cities_Skylines\Addons\Mods\$(SolutionName)\0Harmony.dll"</PostBuildEvent>
+    <PostBuildEvent>copy "D:\Mod\CSURToolBox\bin\Release\CSURToolBox.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\CSURToolBox.dll"
+rd /q /s "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\Resources"
+mkdir "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\Resources"
+copy "D:\Mod\CSURToolBox\Resources\*.*" "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\Resources"
+copy "D:\Mod\CSURToolBox\bin\Release\0Harmony2.0.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\0Harmony.dll"
+copy "D:\Mod\CSURToolBox\PreviewImage.png"  "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\PreviewImage.png"</PostBuildEvent>
   </PropertyGroup>
 </Project>

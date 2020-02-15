@@ -121,6 +121,7 @@ namespace CSURToolBox.CustomData
                 bezier.d.y += max;
                 bool flag = (instance.m_nodes.m_buffer[mysegment.m_startNode].m_flags & NetNode.Flags.Middle) != NetNode.Flags.None;
                 bool flag2 = (instance.m_nodes.m_buffer[mysegment.m_endNode].m_flags & NetNode.Flags.Middle) != NetNode.Flags.None;
+                NetSegment.CalculateMiddlePoints(bezier.a, mysegment.m_startDirection, bezier.d, mysegment.m_endDirection, flag, flag2, out bezier.b, out bezier.c);
                 // NON-STOCK CODE STARTS
                 if (IsCSURSLane)
                 {
@@ -138,12 +139,17 @@ namespace CSURToolBox.CustomData
                     //EG: before patch: point1-point4 is 1.5*3.75
                     //After patch, point1-point4 is (1 1.3333 1.6667 2)*3.75
                     Vector3 newBezierA = bezier.a + (new Vector3(mysegment.m_startDirection.z, 0, -mysegment.m_startDirection.x).normalized) * (startOffset);
-                    Vector3 newBezierD = bezier.d + (new Vector3(-mysegment.m_endDirection.z, 0, mysegment.m_endDirection.x).normalized) * (endOffset + 1.875f);
+                    Vector3 newBezierBDir = VectorUtils.NormalizeXZ(bezier.Tangent(0.333f));
+                    Vector3 newBezierB = bezier.b + (new Vector3(newBezierBDir.z, 0, -newBezierBDir.x).normalized) * (startOffset * 0.667f + endOffset * 0.333f);
+                    Vector3 newBezierCDir = VectorUtils.NormalizeXZ(bezier.Tangent(0.667f));
+                    Vector3 newBezierC = bezier.c + (new Vector3(newBezierCDir.z, 0, -newBezierCDir.x).normalized) * (startOffset * 0.333f + endOffset * 0.667f);
+                    Vector3 newBezierD = bezier.d + (new Vector3(-mysegment.m_endDirection.z, 0, mysegment.m_endDirection.x).normalized) * (endOffset);
 
                     bezier.a = newBezierA;
+                    bezier.b = newBezierB;
+                    bezier.c = newBezierC;
                     bezier.d = newBezierD;
                 }
-                NetSegment.CalculateMiddlePoints(bezier.a, mysegment.m_startDirection, bezier.d, mysegment.m_endDirection, flag, flag2, out bezier.b, out bezier.c);
                 float minNodeDistance = info.GetMinNodeDistance();
                 float collisionHalfWidth = info.m_netAI.GetCollisionHalfWidth();
                 float num4 = (float)(int)instance.m_nodes.m_buffer[mysegment.m_startNode].m_elevation;
@@ -419,70 +425,70 @@ namespace CSURToolBox.CustomData
             // NON-STOCK CODE STARTS
             if (CSURUtil.IsCSUROffset(Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_startNode].Info))
             {
-                float laneOffset = 0;
-                float startOffset = 0;
-                float endOffset = 0;
-                bool IsCSURSLane = CSURUtil.IsCSURSLane(Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_startNode].Info, ref laneOffset, ref startOffset, ref endOffset);
-                if (!IsCSURSLane)
-                {
-                    var width = (Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_startNode].Info.m_halfWidth + Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_startNode].Info.m_pavementWidth) / 2f;
-                    bool lht = false;
-                    Vector3 direction = mysegment.m_startDirection;
-                    if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0) lht = true;
-                    // normal to the right hand side
-                    Vector3 normal = new Vector3(direction.z, 0, -direction.x).normalized;
-                    bezier.a = bezier.a + (lht ? -width : width) * normal;
-                }
-                else
-                {
-                    float vehicleLaneNum = CSURUtil.CountCSURSVehicleLanes(Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_startNode].Info);
-                    float otherLaneNum = CSURUtil.CountCSURSOtherLanes(Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_startNode].Info);
-                    float laneNum = vehicleLaneNum + otherLaneNum;
-                    startOffset = startOffset * 3.75f - laneNum * 1.875f + 1.875f + otherLaneNum * 3.75f;
-                    if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0)
-                    {
-                        startOffset = -startOffset;
-                    }
-                    //EG: before patch: point1-point4 is 1.5*3.75
-                    //After patch, point1-point4 is (1 1.3333 1.6667 2)*3.75
-                    Vector3 newBezierA = bezier.a + (new Vector3(mysegment.m_startDirection.z, 0, -mysegment.m_startDirection.x).normalized) * (startOffset);
-                    bezier.a = newBezierA;
-                }
+                var width = (Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_startNode].Info.m_halfWidth + Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_startNode].Info.m_pavementWidth) / 2f;
+                bool lht = false;
+                Vector3 direction = mysegment.m_startDirection;
+                if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0) lht = true;
+                // normal to the right hand side
+                Vector3 normal = new Vector3(direction.z, 0, -direction.x).normalized;
+                bezier.a = bezier.a + (lht ? -width : width) * normal;
             }
             if (CSURUtil.IsCSUROffset(Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_endNode].Info))
             {
-                float laneOffset = 0;
-                float startOffset = 0;
-                float endOffset = 0;
-                bool IsCSURSLane = CSURUtil.IsCSURSLane(Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_endNode].Info, ref laneOffset, ref startOffset, ref endOffset);
-                if (!IsCSURSLane)
-                {
-                    bool lht = false;
-                    var width = (Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_endNode].Info.m_halfWidth + Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_endNode].Info.m_pavementWidth) / 2f;
-                    Vector3 direction = -mysegment.m_endDirection;
-                    if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0) lht = true;
-                    // normal to the right hand side
-                    Vector3 normal = new Vector3(direction.z, 0, -direction.x).normalized;
-                    bezier.d = bezier.d + (lht ? -width : width) * normal;
-                }
-                else
-                {
-                    float vehicleLaneNum = CSURUtil.CountCSURSVehicleLanes(Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_startNode].Info);
-                    float otherLaneNum = CSURUtil.CountCSURSOtherLanes(Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_startNode].Info);
-                    float laneNum = vehicleLaneNum + otherLaneNum;
-                    endOffset = endOffset * 3.75f - laneNum * 1.875f + 1.875f + otherLaneNum * 3.75f;
-                    //EG: before patch: point1-point4 is 1.5*3.75
-                    //After patch, point1-point4 is (1 1.3333 1.6667 2)*3.75
-                    if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0)
-                    {
-                        endOffset = -endOffset;
-                    }
-                    Vector3 newBezierD = bezier.d + (new Vector3(-mysegment.m_endDirection.z, 0, mysegment.m_endDirection.x).normalized) * (endOffset);
-                    bezier.d = newBezierD;
-                }
+                bool lht = false;
+                var width = (Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_endNode].Info.m_halfWidth + Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_endNode].Info.m_pavementWidth) / 2f;
+                Vector3 direction = -mysegment.m_endDirection;
+                if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0) lht = true;
+                // normal to the right hand side
+                Vector3 normal = new Vector3(direction.z, 0, -direction.x).normalized;
+                bezier.d = bezier.d + (lht ? -width : width) * normal;
             }
             // NON-STOCK CODE ENDS
             CalculateMiddlePoints(bezier.a, mysegment.m_startDirection, bezier.d, mysegment.m_endDirection, true, true, out bezier.b, out bezier.c);
+            // NON-STOCK CODE STARTS
+            float laneOffsetS = 0;
+            float startOffsetS = 0;
+            float endOffsetS = 0;
+            bool IsCSURSLaneS = CSURUtil.IsCSURSLane(Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_startNode].Info, ref laneOffsetS, ref startOffsetS, ref endOffsetS);
+            float laneOffsetE = 0;
+            float startOffsetE = 0;
+            float endOffsetE = 0;
+            bool IsCSURSLaneE = CSURUtil.IsCSURSLane(Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_endNode].Info, ref laneOffsetE, ref startOffsetE, ref endOffsetE);
+            Vector3 newBezierA1 = Vector3.zero;
+            Vector3 newBezierB1 = Vector3.zero;
+            Vector3 newBezierC1 = Vector3.zero;
+            Vector3 newBezierD1 = Vector3.zero;
+            if (IsCSURSLaneS || IsCSURSLaneE)
+            {
+                float vehicleLaneNum = CSURUtil.CountCSURSVehicleLanes(Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_startNode].Info);
+                float otherLaneNum = CSURUtil.CountCSURSOtherLanes(Singleton<NetManager>.instance.m_nodes.m_buffer[mysegment.m_startNode].Info);
+                float laneNum = vehicleLaneNum + otherLaneNum;
+                startOffsetS = startOffsetS * 3.75f - laneNum * 1.875f + 1.875f + otherLaneNum * 3.75f;
+                endOffsetE = endOffsetE * 3.75f - laneNum * 1.875f + 1.875f + otherLaneNum * 3.75f;
+                if ((mysegment.m_flags & NetSegment.Flags.Invert) != 0)
+                {
+                    startOffsetS = -startOffsetS;
+                    endOffsetE = -endOffsetE;
+                }
+
+                if (!IsCSURSLaneS) { startOffsetS = 0; }
+                if (!IsCSURSLaneE) { endOffsetE = 0; }
+                //EG: before patch: point1-point4 is 1.5*3.75
+                //After patch, point1-point4 is (1 1.3333 1.6667 2)*3.75
+                newBezierA1 = bezier.a + (new Vector3(mysegment.m_startDirection.z, 0, -mysegment.m_startDirection.x).normalized) * (startOffsetS);
+                Vector3 newBezierBDir = VectorUtils.NormalizeXZ(bezier.Tangent(0.333f));
+                newBezierB1 = bezier.b + (new Vector3(newBezierBDir.z, 0, -newBezierBDir.x).normalized) * (startOffsetS * 0.667f + endOffsetE * 0.333f);
+                Vector3 newBezierCDir = VectorUtils.NormalizeXZ(bezier.Tangent(0.667f));
+                newBezierC1 = bezier.c + (new Vector3(newBezierCDir.z, 0, -newBezierCDir.x).normalized) * (startOffsetS * 0.333f + endOffsetE * 0.667f);
+                newBezierD1 = bezier.d + (new Vector3(-mysegment.m_endDirection.z, 0, mysegment.m_endDirection.x).normalized) * (endOffsetE);
+
+                bezier.a = newBezierA1;
+                bezier.b = newBezierB1;
+                bezier.c = newBezierC1;
+                bezier.d = newBezierD1;
+            }
+            // NON-STOCK CODE ENDS
+
             Vector3 vector3 = bezier.Min() + new Vector3(0f - collisionHalfWidth, info.m_minHeight, 0f - collisionHalfWidth);
             Vector3 vector4 = bezier.Max() + new Vector3(collisionHalfWidth, info.m_maxHeight, collisionHalfWidth);
             ItemClass.CollisionType collisionType2 = info.m_netAI.GetCollisionType();

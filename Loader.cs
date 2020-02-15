@@ -6,6 +6,7 @@ using ColossalFramework.UI;
 using CSURToolBox.CustomAI;
 using CSURToolBox.CustomData;
 using CSURToolBox.CustomManager;
+using CSURToolBox.Patch;
 using CSURToolBox.UI;
 using CSURToolBox.Util;
 using ICities;
@@ -39,6 +40,7 @@ namespace CSURToolBox
         public static bool is1806963141 = false;
         public static bool HarmonyDetourInited = false;
         public static bool HarmonyDetourFailed = true;
+        public static StayInLaneUI stayInLaneUI;
         public static bool Done { get; private set; } // Only one Assets installation throughout the application
         public class Detour
         {
@@ -73,16 +75,33 @@ namespace CSURToolBox
                 if (mode == LoadMode.LoadGame || mode == LoadMode.NewGame || mode == LoadMode.NewMap || mode == LoadMode.LoadMap || mode == LoadMode.NewAsset || mode == LoadMode.LoadAsset)
                 {
                     OptionUI.LoadSetting();
+                    DataInit();
                     SetupGui();
-                    CheckTMPE();
+                    if (mode == LoadMode.LoadGame || mode == LoadMode.NewGame)
+                    {
+                        CheckTMPE();
+                    }
                     InitDetour();
                     HarmonyInitDetour();
-                    InstallPillar();
-                    DebugLog.LogToFileOnly("OnLevelLoaded");
+                    if (OptionUI.enablePillar)
+                    {
+                        InstallPillar();
+                    }
+                    OptionUI.isDebug = false;
+                    if (mode == LoadMode.LoadGame || mode == LoadMode.NewGame)
+                    {
+                        if (OptionUI.disableZone)
+                        {
+                            DisableZone();
+                        }
+                    }
+                    RefreshSegment();
+                    RefreshNode();
+                    Debug.Log("OnLevelLoaded");
                     if (mode == LoadMode.NewGame)
                     {
                         //InitData();
-                        DebugLog.LogToFileOnly("InitData");
+                        Debug.Log("InitData");
                     }
                 }
             }
@@ -100,7 +119,10 @@ namespace CSURToolBox
                 {
                     RevertDetour();
                     HarmonyRevertDetour();
-                    RemovePillar();
+                    if (OptionUI.enablePillar)
+                    {
+                        RemovePillar();
+                    }
                     if (isGuiRunning)
                     {
                         RemoveGui();
@@ -109,6 +131,16 @@ namespace CSURToolBox
             }
         }
 
+        public static void DataInit()
+        {
+            for (int i = 0; i < NetSegmentCalculateCornerPatch.segmentOffsetLock.Length; i++)
+            {
+                NetSegmentCalculateCornerPatch.segmentOffsetLock[i] = false;
+                NetSegmentCalculateCornerPatch.segmentOffset[i] = 0f;
+                RoadAICreateZoneBlocksPatch.segmentHalfWidthLock[i] = false;
+                RoadAICreateZoneBlocksPatch.segmentHalfWidth[i] = 0f;
+            }
+        }
         private static void LoadSprites()
         {
             if (SpriteUtilities.GetAtlas(m_atlasName) != null) return;
@@ -180,9 +212,9 @@ namespace CSURToolBox
                 spriteSuccess &= SpriteUtilities.AddSpriteToAtlas(new Rect(new Vector2(0, 0), new Vector2(566, 210)), "UIBG", m_atlasNameBg);
                 spriteSuccess &= SpriteUtilities.AddSpriteToAtlas(new Rect(new Vector2(0, 0), new Vector2(565, 35)), "UITOP", m_atlasNameHeader);
                 spriteSuccess &= SpriteUtilities.AddSpriteToAtlas(new Rect(new Vector2(0, 0), new Vector2(150, 150)), "NOASSET", m_atlasNameNoAsset);
-                if (!spriteSuccess) DebugLog.LogToFileOnly("Error: Some sprites haven't been loaded. This is abnormal; you should probably report this to the mod creator.");
+                if (!spriteSuccess) Debug.Log("Error: Some sprites haven't been loaded. This is abnormal; you should probably report this to the mod creator.");
             }
-            else DebugLog.LogToFileOnly("Error: The texture atlas (provides custom icons) has not loaded. All icons have reverted to text prompts.");
+            else Debug.Log("Error: The texture atlas (provides custom icons) has not loaded. All icons have reverted to text prompts.");
         }
 
         public void CheckTMPE()
@@ -204,9 +236,8 @@ namespace CSURToolBox
                 is1806963141 = true;
             }
 
-            if (!this.Check3rdPartyModLoaded("TrafficManager", true))
+            if (!this.Check3rdPartyModLoaded("TrafficManager", false))
             {
-                //UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", "Require TM:PE steamID:583429740 or 1637663252 or 1806963141", true);
                 DebugLog.LogToFileOnly("We do not found TMPE");
             }
         }
@@ -226,6 +257,11 @@ namespace CSURToolBox
                 if (mainUI == null)
                 {
                     mainUI = (MainUI)parentGuiView.AddUIComponent(typeof(MainUI));
+                }
+
+                if (stayInLaneUI == null)
+                {
+                    stayInLaneUI = (StayInLaneUI)Loader.parentGuiView.AddUIComponent(typeof(StayInLaneUI));
                 }
 
                 SetupMainButton();
@@ -250,8 +286,10 @@ namespace CSURToolBox
                 parentGuiView = null;
                 UnityEngine.Object.Destroy(mainUI);
                 UnityEngine.Object.Destroy(mainButton);
+                UnityEngine.Object.Destroy(stayInLaneUI);
                 mainUI = null;
                 mainButton = null;
+                stayInLaneUI = null;
             }
         }
 
@@ -259,11 +297,11 @@ namespace CSURToolBox
         {
             if (!DetourInited)
             {
-                DebugLog.LogToFileOnly("Init detours");
+                Debug.Log("Init detours");
                 bool detourFailed = false;
 
                 //1
-                DebugLog.LogToFileOnly("Detour NetAI::GetCollisionHalfWidth calls");
+                Debug.Log("Detour NetAI::GetCollisionHalfWidth calls");
                 try
                 {
                     Detours.Add(new Detour(typeof(NetAI).GetMethod("GetCollisionHalfWidth", BindingFlags.Public | BindingFlags.Instance),
@@ -271,12 +309,12 @@ namespace CSURToolBox
                 }
                 catch (Exception)
                 {
-                    DebugLog.LogToFileOnly("Could not detour NetAI::GetCollisionHalfWidth");
+                    Debug.Log("Could not detour NetAI::GetCollisionHalfWidth");
                     detourFailed = true;
                 }
                 //2
                 //public static bool RayCast(ref NetSegment mysegment, ushort segmentID, Segment3 ray, float snapElevation, bool nameOnly, out float t, out float priority)
-                DebugLog.LogToFileOnly("Detour NetSegment::RayCast calls");
+                Debug.Log("Detour NetSegment::RayCast calls");
                 try
                 {
                     Detours.Add(new Detour(typeof(NetSegment).GetMethod("RayCast", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Segment3), typeof(float), typeof(bool), typeof(float).MakeByRefType(), typeof(float).MakeByRefType() }, null),
@@ -284,12 +322,12 @@ namespace CSURToolBox
                 }
                 catch (Exception)
                 {
-                    DebugLog.LogToFileOnly("Could not detour NetSegment::RayCast");
+                    Debug.Log("Could not detour NetSegment::RayCast");
                     //detourFailed = true;
                 }
                 //3
                 //public static bool RayCast(ref NetNode node, Segment3 ray, float snapElevation, out float t, out float priority)
-                DebugLog.LogToFileOnly("Detour NetNode::RayCast calls");
+                Debug.Log("Detour NetNode::RayCast calls");
                 try
                 {
                     Detours.Add(new Detour(typeof(NetNode).GetMethod("RayCast", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(Segment3), typeof(float), typeof(float).MakeByRefType(), typeof(float).MakeByRefType() }, null),
@@ -297,12 +335,12 @@ namespace CSURToolBox
                 }
                 catch (Exception)
                 {
-                    DebugLog.LogToFileOnly("Could not detour NetNode::RayCast");
+                    Debug.Log("Could not detour NetNode::RayCast");
                     //detourFailed = true;
                 }
 
                 //4
-                DebugLog.LogToFileOnly("Detour NetNode::UpdateBuilding calls");
+                Debug.Log("Detour NetNode::UpdateBuilding calls");
                 try
                 {
                     Detours.Add(new Detour(typeof(NetNode).GetMethod("UpdateBuilding", BindingFlags.Public | BindingFlags.Instance),
@@ -310,12 +348,12 @@ namespace CSURToolBox
                 }
                 catch (Exception)
                 {
-                    DebugLog.LogToFileOnly("Could not detour NetNode::UpdateBuilding");
+                    Debug.Log("Could not detour NetNode::UpdateBuilding");
                     detourFailed = true;
                 }
                 //5
                 //public bool OverlapQuad(Quad2 quad, float minY, float maxY, ItemClass.CollisionType collisionType, ItemClass.Layer requireLayers, ItemClass.Layer forbidLayers, ushort ignoreNode1, ushort ignoreNode2, ushort ignoreSegment, ulong[] segmentMask)
-                DebugLog.LogToFileOnly("Detour NetManager::OverlapQuad calls");
+                Debug.Log("Detour NetManager::OverlapQuad calls");
                 try
                 {
                     Detours.Add(new Detour(typeof(NetManager).GetMethod("OverlapQuad", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(Quad2), typeof(float), typeof(float), typeof(ItemClass.CollisionType), typeof(ItemClass.Layer), typeof(ItemClass.Layer), typeof(ushort), typeof(ushort), typeof(ushort), typeof(ulong[]) }, null),
@@ -323,12 +361,12 @@ namespace CSURToolBox
                 }
                 catch (Exception)
                 {
-                    DebugLog.LogToFileOnly("Could not detour NetManager::OverlapQuad");
+                    Debug.Log("Could not detour NetManager::OverlapQuad");
                     //detourFailed = true;
                 }
 
                 //6
-                DebugLog.LogToFileOnly("Detour NetSegment::OverlapQuad calls");
+                Debug.Log("Detour NetSegment::OverlapQuad calls");
                 try
                 {
                     Detours.Add(new Detour(typeof(NetSegment).GetMethod("OverlapQuad", BindingFlags.Public | BindingFlags.Instance),
@@ -336,11 +374,11 @@ namespace CSURToolBox
                 }
                 catch (Exception)
                 {
-                    DebugLog.LogToFileOnly("Could not detour NetSegment::OverlapQuad");
+                    Debug.Log("Could not detour NetSegment::OverlapQuad");
                     detourFailed = true;
                 }
                 //7
-                DebugLog.LogToFileOnly("Detour Building::FindParentNode calls");
+                Debug.Log("Detour Building::FindParentNode calls");
                 try
                 {
                     Detours.Add(new Detour(typeof(Building).GetMethod("FindParentNode", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort) }, null),
@@ -348,32 +386,19 @@ namespace CSURToolBox
                 }
                 catch (Exception)
                 {
-                    DebugLog.LogToFileOnly("Could not detour Building::FindParentNode");
+                    Debug.Log("Could not detour Building::FindParentNode");
                     detourFailed = true;
                 }
-
-                //8
-                /*DebugLog.LogToFileOnly("Detour NetSegment::UpdateLanes calls");
-                try
-                {
-                    Detours.Add(new Detour(typeof(NetSegment).GetMethod("UpdateLanes", BindingFlags.Public | BindingFlags.Instance),
-                                           typeof(CustomNetSegment).GetMethod("UpdateLanes", BindingFlags.Public | BindingFlags.Static)));
-                }
-                catch (Exception)
-                {
-                    DebugLog.LogToFileOnly("Could not detour NetSegment::UpdateLanes");
-                    detourFailed = true;
-                }*/
 
                 isMoveItRunning = CheckMoveItIsLoaded();
 
                 if (detourFailed)
                 {
-                    DebugLog.LogToFileOnly("Detours failed");
+                    Debug.Log("Detours failed");
                 }
                 else
                 {
-                    DebugLog.LogToFileOnly("Detours successful");
+                    Debug.Log("Detours successful");
                 }
                 DetourInited = true;
             }
@@ -383,7 +408,7 @@ namespace CSURToolBox
         {
             if (DetourInited)
             {
-                DebugLog.LogToFileOnly("Revert detours");
+                Debug.Log("Revert detours");
                 Detours.Reverse();
                 foreach (Detour d in Detours)
                 {
@@ -392,7 +417,7 @@ namespace CSURToolBox
                 DetourInited = false;
                 Threading.isFirstTime = true;
                 Detours.Clear();
-                DebugLog.LogToFileOnly("Reverting detours finished.");
+                Debug.Log("Reverting detours finished.");
             }
         }
 
@@ -408,7 +433,7 @@ namespace CSURToolBox
                 foreach (ILoadingExtension extension in loadingExtensions)
                 {
                     if (printAll)
-                        DebugLog.LogToFileOnly($"Detected extension: {extension.GetType().Name} in namespace {extension.GetType().Namespace}");
+                        Debug.Log($"Detected extension: {extension.GetType().Name} in namespace {extension.GetType().Namespace}");
                     if (extension.GetType().Namespace == null)
                         continue;
 
@@ -431,14 +456,14 @@ namespace CSURToolBox
 
         private bool CheckMoveItIsLoaded()
         {
-            return this.Check3rdPartyModLoaded("MoveIt", true);
+            return this.Check3rdPartyModLoaded("MoveIt", false);
         }
 
         public void HarmonyInitDetour()
         {
             if (!HarmonyDetourInited)
             {
-                DebugLog.LogToFileOnly("Init harmony detours");
+                Debug.Log("Init harmony detours");
                 HarmonyDetours.Apply();
                 HarmonyDetourInited = true;
             }
@@ -448,7 +473,7 @@ namespace CSURToolBox
         {
             if (HarmonyDetourInited)
             {
-                DebugLog.LogToFileOnly("Revert harmony detours");
+                Debug.Log("Revert harmony detours");
                 HarmonyDetours.DeApply();
                 HarmonyDetourInited = false;
                 HarmonyDetourFailed = true;
@@ -483,121 +508,109 @@ namespace CSURToolBox
                         {
                             case 0:
                             case 1:
-                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = " + laneNum.ToString());
-                                DebugLog.LogToFileOnly("Try to Load pillar Ama S-1_Data");
+                                Debug.Log("Try to Load pillar Ama S-1_Data For " + loaded.name.ToString() + "lane num = " + laneNum.ToString());
                                 elevatedAI.m_bridgePillarOffset = 0.5f;
                                 if (PrefabCollection<BuildingInfo>.FindLoaded("Ama S-1_Data") != null)
                                     elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama S-1_Data"); 
                                 else
-                                    DebugLog.LogToFileOnly("Failed Load pillar Ama S-1_Data");
+                                    Debug.Log("Failed Load pillar Ama S-1_Data");
                                 break;
                             case 2:
-                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = 2");
-                                DebugLog.LogToFileOnly("Try to Load pillar Ama S-2_Data");
+                                Debug.Log("Try to Load pillar Ama S-2_Data For " + loaded.name.ToString() + "lane num = " + laneNum.ToString());
                                 elevatedAI.m_bridgePillarOffset = 1f;
                                 if (PrefabCollection<BuildingInfo>.FindLoaded("Ama S-2_Data") != null)
                                     elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama S-2_Data");
                                 else
-                                    DebugLog.LogToFileOnly("Failed Load pillar Ama S-2_Data");
+                                    Debug.Log("Failed Load pillar Ama S-2_Data");
                                 break;
                             case 3:
-                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = 3");
-                                DebugLog.LogToFileOnly("Try to Load pillar Ama S-3_Data");
+                                Debug.Log("Try to Load pillar Ama S-3_Data For " + loaded.name.ToString() + "lane num = " + laneNum.ToString());
                                 if (PrefabCollection<BuildingInfo>.FindLoaded("Ama S-3_Data") != null)
                                     elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama S-3_Data");
                                 else
-                                    DebugLog.LogToFileOnly("Failed Load pillar Ama S-3_Data");
+                                    Debug.Log("Failed Load pillar Ama S-3_Data");
                                 break;
                             case 4:
-                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = 4");
-                                DebugLog.LogToFileOnly("Try to Load pillar Ama G-3_Data");
+                                Debug.Log("Try to Load pillar Ama G-3_Data For " + loaded.name.ToString() + "lane num = " + laneNum.ToString());
                                 if (PrefabCollection<BuildingInfo>.FindLoaded("Ama G-3_Data") != null)
                                     elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama G-3_Data");
                                 else
-                                    DebugLog.LogToFileOnly("Failed Load pillar Ama G-3_Data");
+                                    Debug.Log("Failed Load pillar Ama G-3_Data");
                                 break;
                             case 5:
-                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = 5");
-                                DebugLog.LogToFileOnly("Try to Load pillar Ama G-4_Data");
+                                Debug.Log("Try to Load pillar Ama G-4_Data For " + loaded.name.ToString() + "lane num = " + laneNum.ToString());
                                 if (PrefabCollection<BuildingInfo>.FindLoaded("Ama G-4_Data") != null)
                                     elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama G-4_Data");
                                 else
-                                    DebugLog.LogToFileOnly("Failed Load pillar Ama G-4_Data");
+                                    Debug.Log("Failed Load pillar Ama G-4_Data");
                                 break;
                             default:
-                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = " + laneNum.ToString());
-                                DebugLog.LogToFileOnly("Try to Load pillar Ama G-5_Data");
+                                Debug.Log("Try to Load pillar Ama G-5_Data For " + loaded.name.ToString() + "lane num = " + laneNum.ToString());
                                 if (PrefabCollection<BuildingInfo>.FindLoaded("Ama G-5_Data") != null)
                                     elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama G-5_Data");
                                 else
-                                    DebugLog.LogToFileOnly("Failed Load pillar Ama G-5_Data");
+                                    Debug.Log("Failed Load pillar Ama G-5_Data");
                                 break;
                         }
                     }
                     else
                     {
-                        if (Regex.Match(loaded.name, "CSUR-S", RegexOptions.IgnoreCase).Success)
+                        /*if (Regex.Match(loaded.name, "CSUR-S", RegexOptions.IgnoreCase).Success)
                             laneNum = laneNum - 1;
                         else if (Regex.Match(loaded.name, "CSUR-T", RegexOptions.IgnoreCase).Success)
                             laneNum = laneNum - 1;
                         else if (Regex.Match(loaded.name, "CSUR-R", RegexOptions.IgnoreCase).Success)
-                            laneNum = laneNum - 1;
+                            laneNum = laneNum - 1;*/
 
                         if (laneNum < 0)
                             laneNum = 0;
 
-                        laneNum = laneNum * 2;
+                        //laneNum = laneNum * 2;
                         switch (laneNum)
                         {
                             case 0:
                             case 2:
-                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = " + laneNum.ToString());
-                                DebugLog.LogToFileOnly("Try to Load pillar Ama S-2_Data");
+                                Debug.Log("Try to Load pillar Ama S-2_Data For " + loaded.name.ToString() + "lane num = " + laneNum.ToString());
                                 elevatedAI.m_bridgePillarOffset = 1f;
                                 if (PrefabCollection<BuildingInfo>.FindLoaded("Ama S-2_Data") != null)
                                     elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama S-2_Data");
                                 else
-                                    DebugLog.LogToFileOnly("Failed Load pillar Ama S-2_Data");
+                                    Debug.Log("Failed Load pillar Ama S-2_Data");
                                 break;
                             case 4:
-                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = 4");
-                                DebugLog.LogToFileOnly("Try to Load pillar Ama G-2_Data");
-                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama G-2_Data") != null)
-                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama G-2_Data");
+                                Debug.Log("Try to Load pillar Ama M-2_Data For " + loaded.name.ToString() + "lane num = " + laneNum.ToString());
+                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama M-2_Data") != null)
+                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama M-2_Data");
                                 else
-                                    DebugLog.LogToFileOnly("Failed Load pillar Ama G-2_Data");
+                                    Debug.Log("Failed Load pillar Ama M-2_Data");
                                 break;
                             case 6:
-                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = 6");
-                                DebugLog.LogToFileOnly("Try to Load pillar Ama G-6DR_Data");
-                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama G-6DR_Data") != null)
-                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama G-6DR_Data");
+                                Debug.Log("Try to Load pillar Ama M-2_Data For " + loaded.name.ToString() + "lane num = " + laneNum.ToString());
+                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama M-2_Data") != null)
+                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama M-2_Data");
                                 else
-                                    DebugLog.LogToFileOnly("Failed Load pillar Ama G-6DR_Data");
+                                    Debug.Log("Failed Load pillar Ama M-2_Data");
                                 break;
                             case 8:
-                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = 8");
-                                DebugLog.LogToFileOnly("Try to Load pillar Ama G-8DR_Data");
-                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama G-8DR_Data") != null)
-                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama G-8DR_Data");
+                                Debug.Log("Try to Load pillar Ama M-4_Data For " + loaded.name.ToString() + "lane num = " + laneNum.ToString());
+                                if (PrefabCollection<BuildingInfo>.FindLoaded("Ama M-4_Data") != null)
+                                    elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama M-4_Data");
                                 else
-                                    DebugLog.LogToFileOnly("Failed Load pillar Ama G-8DR_Data");
+                                    Debug.Log("Failed Load pillar Ama M-4_Data");
                                 break;
                             case 10:
-                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = 10");
-                                DebugLog.LogToFileOnly("Try to Load pillar Ama G-8DR_Data");
+                                Debug.Log("Try to Load pillar Ama G-8DR_Data For " + loaded.name.ToString() + "lane num = " + laneNum.ToString());
                                 if (PrefabCollection<BuildingInfo>.FindLoaded("Ama G-8DR_Data") != null)
                                     elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama G-8DR_Data");
                                 else
-                                    DebugLog.LogToFileOnly("Failed Load pillar Ama G-8DR_Data");
+                                    Debug.Log("Failed Load pillar Ama G-8DR_Data");
                                 break;
                             default:
-                                DebugLog.LogToFileOnly(loaded.name.ToString() + "lane num = " + laneNum.ToString());
-                                DebugLog.LogToFileOnly("Try to Load pillar Ama G-8DR_Data");
+                                Debug.Log("Try to Load pillar Ama G-8DR_Data For " + loaded.name.ToString() + "lane num = " + laneNum.ToString());
                                 if (PrefabCollection<BuildingInfo>.FindLoaded("Ama G-8DR_Data") != null)
                                     elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama G-8DR_Data");
                                 else
-                                    DebugLog.LogToFileOnly("Failed Load pillar Ama G-8DR_Data");
+                                    Debug.Log("Failed Load pillar Ama G-8DR_Data");
                                 break;
                         }
                     }                        
@@ -623,7 +636,77 @@ namespace CSURToolBox
                         continue;
                     }
                     elevatedAI.m_bridgePillarInfo = null;// PrefabCollection<BuildingInfo>.FindLoaded("CSUR 2DC.Ama S-1_Data");
-                    DebugLog.LogToFileOnly("Remove pilla for " + loaded.name.ToString());
+                    Debug.Log("Remove pilla for " + loaded.name.ToString());
+                }
+            }
+        }
+
+        public void RefreshSegment()
+        {
+            for (ushort i = 0; i < Singleton<NetManager>.instance.m_segments.m_size; i++)
+            {
+                NetInfo asset = Singleton<NetManager>.instance.m_segments.m_buffer[i].Info;
+                if (CSURUtil.IsCSUR(asset))
+                {
+                    Singleton<NetManager>.instance.UpdateSegment(i);
+                }
+            }
+        }
+
+        public void RefreshNode()
+        {
+            for (ushort i = 0; i < Singleton<NetManager>.instance.m_nodes.m_size; i++)
+            {
+                NetInfo asset = Singleton<NetManager>.instance.m_nodes.m_buffer[i].Info;
+                if (CSURUtil.IsCSUR(asset))
+                {
+                    Singleton<NetManager>.instance.UpdateNode(i);
+                }
+            }
+        }
+
+        public static void DisableZone()
+        {
+            for (uint num = 0u; num < PrefabCollection<NetInfo>.LoadedCount(); num++)
+            {
+                NetInfo loaded = PrefabCollection<NetInfo>.GetLoaded(num);
+                if (CSURUtil.IsCSUROffset(loaded) || CSURUtil.IsCSURLaneOffset(loaded) || CSURUtil.IsCSURExpress(loaded))
+                {
+                    if (loaded.m_netAI is RoadAI)
+                    {
+                        var AI = loaded.m_netAI as RoadAI;
+                        AI.m_enableZoning = false;
+                    }
+                }
+            }
+
+
+            for (ushort i = 0; i < Singleton<NetManager>.instance.m_segments.m_size; i++)
+            {
+                NetInfo loaded = Singleton<NetManager>.instance.m_segments.m_buffer[i].Info;
+                var segmentData = Singleton<NetManager>.instance.m_segments.m_buffer[i];
+                if (CSURUtil.IsCSUROffset(loaded) || CSURUtil.IsCSURLaneOffset(loaded) || CSURUtil.IsCSURExpress(loaded))
+                {
+                    if (segmentData.m_blockEndLeft != 0)
+                    {
+                        ZoneManager.instance.ReleaseBlock(segmentData.m_blockEndLeft);
+                        segmentData.m_blockEndLeft = 0;
+                    }
+                    if (segmentData.m_blockEndRight != 0)
+                    {
+                        ZoneManager.instance.ReleaseBlock(segmentData.m_blockEndRight);
+                        segmentData.m_blockEndRight = 0;
+                    }
+                    if (segmentData.m_blockStartLeft != 0)
+                    {
+                        ZoneManager.instance.ReleaseBlock(segmentData.m_blockStartLeft);
+                        segmentData.m_blockStartLeft = 0;
+                    }
+                    if (segmentData.m_blockStartRight != 0)
+                    {
+                        ZoneManager.instance.ReleaseBlock(segmentData.m_blockStartRight);
+                        segmentData.m_blockStartRight = 0;
+                    }
                 }
             }
         }

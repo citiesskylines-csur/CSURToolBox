@@ -11,8 +11,8 @@ namespace CSURToolBox.Util
 
         public static void Apply()
         {
-            harmony = HarmonyInstance.Create("CSURToolBox");
             HarmonyInstance.SELF_PATCHING = false;
+            harmony = HarmonyInstance.Create("CSURToolBox");
             harmony.PatchAll();
             Loader.HarmonyDetourFailed = false;
             DebugLog.LogToFileOnly("Harmony patches applied");

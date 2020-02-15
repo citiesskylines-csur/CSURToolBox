@@ -1,4 +1,5 @@
 ﻿using ColossalFramework;
+using CSURToolBox.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,15 +11,18 @@ namespace CSURToolBox.Util
 {
     public class CSURUtil
     {
-        public const string CSUR_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)+(=|-)?([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)*";
-        public const string CSUR_DUAL_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9]D(L|S|C|R)[1-9]*P?)+(=|-)?([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)*";
-        public const string CSUR_OFFSET_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9](L|R)[1-9]*P?)+(=|-)?([[1-9]?[0-9](L|R)[1-9]*P?)*";
+        public const string CSUR_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)+(=|-)?([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)*" + "( compact| express)?" + "_";
+        public const string CSUR_EXPRESS_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)+(=|-)?([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)*" + "( express)" + "_";
+        public const string CSUR_DUAL_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9]D(L|S|C|R)[1-9]*P?)+(=|-)?([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)*" + "( compact| express)?" + "_";
+        public const string CSUR_DUAL_REGEX1 = "CSUR(-(T|R|S))? ([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)-([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)*" + "( compact| express)?" + "_";
+        public const string CSUR_OFFSET_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9](L|R)[1-9]*P?)+(=)?([[1-9]?[0-9](L|R)[1-9]*P?)*" + "( compact| express)?" + "_";
+        public const string CSUR_NOOFFSET_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9](L|R)[1-9]*P?)+(=)?([[1-9]?[0-9]D?(S|C)[1-9]*P?)+" + "( compact| express)?" + "_";
         public const string CSURS_LANE_REGEX = "CSUR-S ([1-9])(R|C)([1-9]?)(P?)=([1-9])(R|C)([1-9]?)(P?)";
         public const string CSUR_LANEOFFSET_REGEXPREFIX = "CSUR-(T|R|S)? ";
         public const string EachUnit = "[1-9]?[0-9]?D?[C|S|L|R]?[1-9]*P?";
         public const string MustUnit = "[1-9]?[0-9]D?[C|S|L|R][1-9]*P?";
         public const string CSUR_LANEOFFSET_REGEXLEFT = CSUR_LANEOFFSET_REGEXPREFIX + "(" + MustUnit + EachUnit + EachUnit + EachUnit + EachUnit + EachUnit + ")" + "=";
-        public const string CSUR_LANEOFFSET_REGEX = CSUR_LANEOFFSET_REGEXLEFT + "(" + MustUnit + EachUnit + EachUnit + EachUnit + EachUnit + EachUnit + ")" + "_";
+        public const string CSUR_LANEOFFSET_REGEX = CSUR_LANEOFFSET_REGEXLEFT + "(" + MustUnit + EachUnit + EachUnit + EachUnit + EachUnit + EachUnit + ")" + "( compact| express)?" + "_";
         public static bool IsCSUR(NetInfo asset)
         {
             if (asset == null || (asset.m_netAI.GetType() != typeof(RoadAI) && asset.m_netAI.GetType() != typeof(RoadBridgeAI) && asset.m_netAI.GetType() != typeof(RoadTunnelAI)))
@@ -38,7 +42,8 @@ namespace CSURToolBox.Util
             }
             string savenameStripped = asset.name.Substring(asset.name.IndexOf('.') + 1);
             Match m = Regex.Match(savenameStripped, CSUR_OFFSET_REGEX, RegexOptions.IgnoreCase);
-            return m.Success;
+            Match m1 = Regex.Match(savenameStripped, CSUR_NOOFFSET_REGEX, RegexOptions.IgnoreCase);
+            return m.Success && (!m1.Success);
         }
 
         public static bool IsCSURDual(NetInfo asset)
@@ -49,6 +54,25 @@ namespace CSURToolBox.Util
             }
             string savenameStripped = asset.name.Substring(asset.name.IndexOf('.') + 1);
             Match m = Regex.Match(savenameStripped, CSUR_DUAL_REGEX, RegexOptions.IgnoreCase);
+            if (m.Success)
+            {
+                return m.Success;
+            }
+            else
+            {
+                Match m1 = Regex.Match(savenameStripped, CSUR_DUAL_REGEX1, RegexOptions.IgnoreCase);
+                return m1.Success;
+            }
+        }
+
+        public static bool IsCSURExpress(NetInfo asset)
+        {
+            if (asset == null || (asset.m_netAI.GetType() != typeof(RoadAI) && asset.m_netAI.GetType() != typeof(RoadBridgeAI) && asset.m_netAI.GetType() != typeof(RoadTunnelAI)))
+            {
+                return false;
+            }
+            string savenameStripped = asset.name.Substring(asset.name.IndexOf('.') + 1);
+            Match m = Regex.Match(savenameStripped, CSUR_EXPRESS_REGEX, RegexOptions.IgnoreCase);
             return m.Success;
         }
 
@@ -66,14 +90,10 @@ namespace CSURToolBox.Util
             if (!m.Success)
                 return false;
 
-            DebugLog.LogToFileOnly(m.Groups[1].Value);
-            DebugLog.LogToFileOnly(m.Groups[2].Value);
-            DebugLog.LogToFileOnly(m.Groups[3].Value);
-            DebugLog.LogToFileOnly(m.Groups[4].Value);
-            DebugLog.LogToFileOnly(m.Groups[5].Value);
-            DebugLog.LogToFileOnly(m.Groups[6].Value);
-            DebugLog.LogToFileOnly(m.Groups[7].Value);
-            DebugLog.LogToFileOnly(m.Groups[8].Value);
+            if (OptionUI.isDebug)
+            {
+                DebugLog.LogToFileOnly(m.Groups[1].Value + " " + m.Groups[2].Value + " " + m.Groups[3].Value + " " + m.Groups[4].Value + " " + m.Groups[5].Value + " " + m.Groups[6].Value + " " + m.Groups[7].Value + " " + m.Groups[8].Value);
+            }
 
             startOffset = 0;
             if (m.Groups[2].Value == "C")
@@ -126,9 +146,10 @@ namespace CSURToolBox.Util
                     }
                 }
             }
-
-            DebugLog.LogToFileOnly("startoffset = " + startOffset.ToString());
-            DebugLog.LogToFileOnly("endoffset = " + endOffset.ToString());
+            if (OptionUI.isDebug)
+            {
+                DebugLog.LogToFileOnly("startoffset = " + startOffset.ToString() + "endoffset = " + endOffset.ToString());
+            }
 
             if (startOffset!=0 && endOffset!=0)
             {
@@ -152,13 +173,29 @@ namespace CSURToolBox.Util
             if (!m.Success)
                 return false;
 
-            DebugLog.LogToFileOnly("CSURLaneOffset1 = " + m.Groups[1].Value);
-            DebugLog.LogToFileOnly("CSURLaneOffset2 = " + m.Groups[2].Value);
-            DebugLog.LogToFileOnly("CSURLaneOffset3 = " + m.Groups[3].Value);
+            if (OptionUI.isDebug)
+            {
+                DebugLog.LogToFileOnly("CSURLaneOffset1 = " + m.Groups[1].Value + "CSURLaneOffset2 = " + m.Groups[2].Value + "CSURLaneOffset3 = " + m.Groups[3].Value);
+            }
             return true;
         }
 
-            //TODO: Use name and laneposition to get LaneOffset
+        public static bool IsCSURRLaneOffset(NetInfo asset)
+        {
+            if (asset == null || (asset.m_netAI.GetType() != typeof(RoadAI) && asset.m_netAI.GetType() != typeof(RoadBridgeAI) && asset.m_netAI.GetType() != typeof(RoadTunnelAI)))
+            {
+                return false;
+            }
+            string savenameStripped = asset.name.Substring(asset.name.IndexOf('.') + 1);
+            Match m = Regex.Match(savenameStripped, CSUR_LANEOFFSET_REGEX, RegexOptions.IgnoreCase);
+            if (!m.Success)
+                return false;
+
+            Match m1 = Regex.Match(savenameStripped, "CSUR-R", RegexOptions.IgnoreCase);
+            return m1.Success;
+        }
+
+        //TODO: Use name and laneposition to get LaneOffset
         public static float CSURLaneOffset(NetInfo asset, NetInfo.Lane lane)
         {
             string savenameStripped = asset.name.Substring(asset.name.IndexOf('.') + 1);
@@ -168,37 +205,98 @@ namespace CSURToolBox.Util
             float[] rightStartLaneOffset = new float[8];
             int leftStartLaneIndex = 0;
             int rightStartLaneIndex = 0;
-            for (int i = 0; i < 6; i++)
+            bool xRxxDSCase = false;
+
+            if (m.Groups[2].Value != "")
             {
-                if (m.Groups[2].Value != "")
+                //add "=" to help match
+                Match m1 = Regex.Match(m.Groups[2].Value + "=", pattern, RegexOptions.IgnoreCase);
+                if ((m1.Groups[1].Value != "") && (m1.Groups[4].Value != ""))
                 {
-                    //add "=" to help match
-                    Match m1 = Regex.Match(m.Groups[2].Value + "=", pattern, RegexOptions.IgnoreCase);
-                    if (m1.Groups[i+1].Value != "")
+                    if ((!TryParseDSInProcessNameUnit(m1.Groups[1].Value)) && TryParseDSInProcessNameUnit(m1.Groups[4].Value))
                     {
-                        ProcessNameUnit(m1.Groups[i+1].Value, ref leftStartLaneOffset, ref rightStartLaneOffset, ref leftStartLaneIndex, ref rightStartLaneIndex);
+                        xRxxDSCase = true;
+                        Regex r = new Regex("R");
+                        string s;
+                        s = r.Replace(m1.Groups[1].Value, "L", 1);
+                        if (OptionUI.isDebug)
+                        {
+                            DebugLog.LogToFileOnly("CSURLaneOffset: replaced xRxxDSCase = " + s);
+                        }
+                        ProcessNameUnit(m1.Groups[4].Value, ref leftStartLaneOffset, ref rightStartLaneOffset, ref leftStartLaneIndex, ref rightStartLaneIndex);
+                        ProcessNameUnit(s, ref leftStartLaneOffset, ref rightStartLaneOffset, ref leftStartLaneIndex, ref rightStartLaneIndex);
                     }
                 }
             }
-            DebugLog.LogToFileOnly("CSURLaneOffset: leftStartLaneIndex = " + leftStartLaneIndex.ToString() + "rightStartLaneIndex = " + rightStartLaneIndex.ToString());
+
+            if (!xRxxDSCase)
+            {
+                for (int i = 0; i < 6; i++)
+                {
+                    if (m.Groups[2].Value != "")
+                    {
+                        //add "=" to help match
+                        Match m1 = Regex.Match(m.Groups[2].Value + "=", pattern, RegexOptions.IgnoreCase);
+                        if (m1.Groups[i * 3 + 1].Value != "")
+                        {
+                            ProcessNameUnit(m1.Groups[i * 3 + 1].Value, ref leftStartLaneOffset, ref rightStartLaneOffset, ref leftStartLaneIndex, ref rightStartLaneIndex);
+                        }
+                    }
+                }
+            }
+            if (OptionUI.isDebug)
+            {
+                DebugLog.LogToFileOnly("CSURLaneOffset: leftStartLaneIndex = " + leftStartLaneIndex.ToString() + "rightStartLaneIndex = " + rightStartLaneIndex.ToString());
+            }
 
             float[] leftEndLaneOffset = new float[8];
             float[] rightEndLaneOffset = new float[8];
             int leftEndLaneIndex = 0;
             int rightEndLaneIndex = 0;
-            for (int i = 0; i < 6; i++)
+
+            xRxxDSCase = false;
+
+            if (m.Groups[3].Value != "")
             {
-                if (m.Groups[3].Value != "")
+                //add "=" to help match
+                Match m1 = Regex.Match(m.Groups[3].Value + "=", pattern, RegexOptions.IgnoreCase);
+                if ((m1.Groups[1].Value != "") && (m1.Groups[4].Value != ""))
                 {
-                    //add "=" to help match
-                    Match m1 = Regex.Match(m.Groups[3].Value + "=", pattern, RegexOptions.IgnoreCase);
-                    if (m1.Groups[i+1].Value != "")
+                    if ((!TryParseDSInProcessNameUnit(m1.Groups[1].Value)) && TryParseDSInProcessNameUnit(m1.Groups[4].Value))
                     {
-                        ProcessNameUnit(m1.Groups[i+1].Value, ref leftEndLaneOffset, ref rightEndLaneOffset, ref leftEndLaneIndex, ref rightEndLaneIndex);
+                        xRxxDSCase = true;
+                        Regex r = new Regex("R");
+                        string s;
+                        s = r.Replace(m1.Groups[1].Value, "L", 1);
+                        if (OptionUI.isDebug)
+                        {
+                            DebugLog.LogToFileOnly("CSURLaneOffset: replaced xRxxDSCase = " + s);
+                        }
+                        ProcessNameUnit(m1.Groups[4].Value, ref leftEndLaneOffset, ref rightEndLaneOffset, ref leftEndLaneIndex, ref rightEndLaneIndex);
+                        ProcessNameUnit(s, ref leftEndLaneOffset, ref rightEndLaneOffset, ref leftEndLaneIndex, ref rightEndLaneIndex);
                     }
                 }
             }
-            DebugLog.LogToFileOnly("CSURLaneOffset: leftEndLaneIndex = " + leftEndLaneIndex.ToString() + "rightEndLaneIndex = " + rightEndLaneIndex.ToString());
+
+            if (!xRxxDSCase)
+            {
+                for (int i = 0; i < 6; i++)
+                {
+                    if (m.Groups[3].Value != "")
+                    {
+                        //add "=" to help match
+                        Match m1 = Regex.Match(m.Groups[3].Value + "=", pattern, RegexOptions.IgnoreCase);
+                        if (m1.Groups[i * 3 + 1].Value != "")
+                        {
+                            ProcessNameUnit(m1.Groups[i * 3 + 1].Value, ref leftEndLaneOffset, ref rightEndLaneOffset, ref leftEndLaneIndex, ref rightEndLaneIndex);
+                        }
+                    }
+                }
+            }
+            if (OptionUI.isDebug)
+            {
+                DebugLog.LogToFileOnly("CSURLaneOffset: leftEndLaneIndex = " + leftEndLaneIndex.ToString() + "rightEndLaneIndex = " + rightEndLaneIndex.ToString());
+            }
 
             if ((leftEndLaneIndex + rightEndLaneIndex) != 0)
             {
@@ -221,7 +319,10 @@ namespace CSURToolBox.Util
                                 {
                                     StartLaneOffset[i] = rightStartLaneOffset[i - leftStartLaneIndex];
                                 }
-                                DebugLog.LogToFileOnly("StartLaneOffset, Line" + i.ToString() + " =" + StartLaneOffset[i].ToString());
+                                if (OptionUI.isDebug)
+                                {
+                                    DebugLog.LogToFileOnly("StartLaneOffset, Line" + i.ToString() + " =" + StartLaneOffset[i].ToString());
+                                }
                             }
 
                             for (int i = 0; i < leftEndLaneIndex + rightEndLaneIndex; i++)
@@ -234,11 +335,17 @@ namespace CSURToolBox.Util
                                 {
                                     EndLaneOffset[i] = rightEndLaneOffset[i - leftEndLaneIndex];
                                 }
-                                DebugLog.LogToFileOnly("EndLaneOffset, Line" + i.ToString() + " =" + EndLaneOffset[i].ToString());
+                                if (OptionUI.isDebug)
+                                {
+                                    DebugLog.LogToFileOnly("EndLaneOffset, Line" + i.ToString() + " =" + EndLaneOffset[i].ToString());
+                                }
                             }
 
                             int laneIndex = GetLaneIndex(asset, lane);
-                            DebugLog.LogToFileOnly("laneIndex = " + laneIndex.ToString() + "lane position = " + lane.m_position.ToString());
+                            if (OptionUI.isDebug)
+                            {
+                                DebugLog.LogToFileOnly("laneIndex = " + laneIndex.ToString() + "lane position = " + lane.m_position.ToString());
+                            }
                             if (lane.m_laneType.IsFlagSet(NetInfo.LaneType.Vehicle) && lane.m_vehicleType.IsFlagSet(VehicleInfo.VehicleType.Car))
                             {
                                 return 0;
@@ -283,12 +390,17 @@ namespace CSURToolBox.Util
                                     EndLaneOffset[i] = rightEndLaneOffset[i - leftEndLaneIndex];
                                 }
 
-                                DebugLog.LogToFileOnly("StartLaneOffset, Line" + i.ToString() + " =" + StartLaneOffset[i].ToString());
-                                DebugLog.LogToFileOnly("EndLaneOffset, Line" + i.ToString() + " =" + EndLaneOffset[i].ToString());
+                                if (OptionUI.isDebug)
+                                {
+                                    DebugLog.LogToFileOnly("StartLaneOffset, Line" + i.ToString() + " =" + StartLaneOffset[i].ToString() + "EndLaneOffset, Line" + i.ToString() + " =" + EndLaneOffset[i].ToString());
+                                }
                             }
 
                             int laneIndex = GetLaneIndex(asset, lane);
-                            DebugLog.LogToFileOnly("laneIndex = " + laneIndex.ToString() + "lane position = " + lane.m_position.ToString());
+                            if (OptionUI.isDebug)
+                            {
+                                DebugLog.LogToFileOnly("laneIndex = " + laneIndex.ToString() + "lane position = " + lane.m_position.ToString());
+                            }
                             if (lane.m_laneType.IsFlagSet(NetInfo.LaneType.Vehicle) && lane.m_vehicleType.IsFlagSet(VehicleInfo.VehicleType.Car))
                             {
                                 return (EndLaneOffset[laneIndex] - StartLaneOffset[laneIndex]);
@@ -345,15 +457,33 @@ namespace CSURToolBox.Util
             }
         }
 
+        //identify 1RXX and XDS case
+        public static bool TryParseDSInProcessNameUnit(string name)
+        {
+            Match m = Regex.Match(name, "([0-9]*)(D?)(S|C|R|L)([0-9]?[0-9]?)(P?)", RegexOptions.IgnoreCase);
+            if (OptionUI.isDebug)
+            {
+                DebugLog.LogToFileOnly("TryParseDSInProcessNameUnit match 1 = " + m.Groups[1].Value + "match 2 = " + m.Groups[2].Value + "match 3 = " + m.Groups[3].Value + "match 4 = " + m.Groups[4].Value + "match 5 = " + m.Groups[5].Value);
+            }
+
+            if (m.Groups[2].Value == "D")
+            {
+                if (m.Groups[3].Value == "S")
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public static void ProcessNameUnit(string name, ref float[] leftLaneOffset, ref float[] rightLaneOffset, ref int leftLaneIndex, ref int rightLaneIndex)
         {
             //name EG:2DR 3DS 1R2 1R2P 3C 3L
             Match m = Regex.Match(name, "([0-9]*)(D?)(S|C|R|L)([0-9]?[0-9]?)(P?)", RegexOptions.IgnoreCase);
-            DebugLog.LogToFileOnly("ProcessNameUnit match 1 = " + m.Groups[1].Value);
-            DebugLog.LogToFileOnly("ProcessNameUnit match 2 = " + m.Groups[2].Value);
-            DebugLog.LogToFileOnly("ProcessNameUnit match 3 = " + m.Groups[3].Value);
-            DebugLog.LogToFileOnly("ProcessNameUnit match 4 = " + m.Groups[4].Value);
-            DebugLog.LogToFileOnly("ProcessNameUnit match 5 = " + m.Groups[5].Value);
+            if (OptionUI.isDebug)
+            {
+                DebugLog.LogToFileOnly("ProcessNameUnit match 1 = " + m.Groups[1].Value + "match 2 = " + m.Groups[2].Value + "match 3 = " + m.Groups[3].Value + "match 4 = " + m.Groups[4].Value + "match 5 = " + m.Groups[5].Value);
+            }
             //Process Dual
             if (m.Groups[2].Value == "D")
             {
@@ -524,7 +654,7 @@ namespace CSURToolBox.Util
                 }
             }
         }
-        
+
         //bike lane is 2.75, treat as 2.75/3.75 lanes
         public static float CountCSURSVehicleLanes(NetInfo info)
         {

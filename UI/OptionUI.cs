@@ -1,4 +1,5 @@
 ﻿using ColossalFramework.UI;
+using CSURToolBox.Util;
 using ICities;
 using System.IO;
 using UnityEngine;
@@ -8,7 +9,13 @@ namespace CSURToolBox.UI
     public class OptionUI : MonoBehaviour
     {
         public static bool isShortCutsToPanel = false;
+        public static bool isDebug = false;
         public static int smoothLevel = 1;
+        public static bool disableZone = false;
+        public static bool disableZoneUpdateAll = false;
+        public static bool enablePillar = true;
+        public static bool fixLargeJunction = true;
+        public static bool alignZone = false;
         public static void makeSettings(UIHelperBase helper)
         {
             // tabbing code is borrowed from RushHour mod
@@ -29,7 +36,7 @@ namespace CSURToolBox.UI
             int tabIndex = 0;
             // Lane_ShortCut
 
-            AddOptionTab(tabStrip, "Lane ShortCut");
+            AddOptionTab(tabStrip, Localization.Get("Lane_ShortCut"));
             tabStrip.selectedIndex = tabIndex;
 
             UIPanel currentPanel = tabStrip.tabContainer.components[tabIndex] as UIPanel;
@@ -41,19 +48,18 @@ namespace CSURToolBox.UI
 
             UIHelper panelHelper = new UIHelper(currentPanel);
 
-            var generalGroup = panelHelper.AddGroup("Lane Button ShortCut") as UIHelper;
+            var generalGroup = panelHelper.AddGroup(Localization.Get("Lane_Button_ShortCut")) as UIHelper;
             var panel = generalGroup.self as UIPanel;
 
             panel.gameObject.AddComponent<OptionsKeymappingLane>();
 
-            var generalGroup1 = panelHelper.AddGroup("ShortCuts Control") as UIHelper;
-            generalGroup1.AddCheckbox("ShortCuts will be used for ToPanel Button", isShortCutsToPanel, (index) => isShortCutsToPanelEnable(index));
-            SaveSetting();
+            var generalGroup1 = panelHelper.AddGroup(Localization.Get("ShortCuts_Control")) as UIHelper;
+            generalGroup1.AddCheckbox(Localization.Get("ShortCuts_Control_TIPS"), isShortCutsToPanel, (index) => isShortCutsToPanelEnable(index));
 
             // Function_ShortCut
             ++tabIndex;
 
-            AddOptionTab(tabStrip, "Function ShortCut");
+            AddOptionTab(tabStrip, Localization.Get("Function_ShortCut"));
             tabStrip.selectedIndex = tabIndex;
 
             currentPanel = tabStrip.tabContainer.components[tabIndex] as UIPanel;
@@ -65,14 +71,14 @@ namespace CSURToolBox.UI
 
             panelHelper = new UIHelper(currentPanel);
 
-            generalGroup = panelHelper.AddGroup("Function Button ShortCut") as UIHelper;
+            generalGroup = panelHelper.AddGroup(Localization.Get("Function_Button_ShortCut")) as UIHelper;
             panel = generalGroup.self as UIPanel;
 
             panel.gameObject.AddComponent<OptionsKeymappingFunction>();
 
             ++tabIndex;
 
-            AddOptionTab(tabStrip, "Experimental Function");
+            AddOptionTab(tabStrip, Localization.Get("Experimental_Function"));
             tabStrip.selectedIndex = tabIndex;
 
             currentPanel = tabStrip.tabContainer.components[tabIndex] as UIPanel;
@@ -83,8 +89,15 @@ namespace CSURToolBox.UI
             currentPanel.autoLayoutPadding.right = 10;
 
             panelHelper = new UIHelper(currentPanel);
-            var generalGroup2 = panelHelper.AddGroup("Experimental Function") as UIHelper;
-            generalGroup2.AddDropdown("smooth level", new string[] { "Low", "Medium", "High" }, smoothLevel, (index) => GetSmoothLevel(index));
+            var generalGroup2 = panelHelper.AddGroup(Localization.Get("Experimental_Function")) as UIHelper;
+            generalGroup2.AddCheckbox(Localization.Get("Debug_Mode"), isDebug, (index) => isDebugEnable(index));
+            generalGroup2.AddCheckbox(Localization.Get("DisableZone"), disableZone, (index) => isDisableZoneEnable(index));
+            generalGroup2.AddCheckbox(Localization.Get("UpdateZone"), disableZoneUpdateAll, (index) => isDisableZoneUpdateAllEnable(index));
+            generalGroup2.AddCheckbox(Localization.Get("EnablePillar"), enablePillar, (index) => isEnablePillarEnable(index));
+            generalGroup2.AddCheckbox(Localization.Get("AlignZone"), alignZone, (index) => isAlignZoneEnable(index));
+            generalGroup2.AddCheckbox(Localization.Get("FixLargeJunction"), fixLargeJunction, (index) => isFixLargeJunctionEnable(index));
+            generalGroup2.AddDropdown(Localization.Get("Lane_Smooth_Level"), new string[] { Localization.Get("Low"), Localization.Get("Medium"), Localization.Get("High") }, smoothLevel, (index) => GetSmoothLevel(index));
+            SaveSetting();
         }
         private static UIButton AddOptionTab(UITabstrip tabStrip, string caption)
         {
@@ -106,45 +119,35 @@ namespace CSURToolBox.UI
         public static void SaveSetting()
         {
             //save langugae
-            FileStream fs = File.Create("CSUR_UI_setting.txt");
+            FileStream fs = File.Create("CSUR_ToolBox_setting.txt");
             StreamWriter streamWriter = new StreamWriter(fs);
             streamWriter.WriteLine(isShortCutsToPanel);
             streamWriter.WriteLine(smoothLevel);
+            streamWriter.WriteLine(disableZone);
+            streamWriter.WriteLine(disableZoneUpdateAll);
+            streamWriter.WriteLine(enablePillar);
+            streamWriter.WriteLine(alignZone);
+            streamWriter.WriteLine(fixLargeJunction);
             streamWriter.Flush();
             fs.Close();
         }
 
         public static void LoadSetting()
         {
-            if (File.Exists("CSUR_UI_setting.txt"))
+            if (File.Exists("CSUR_ToolBox_setting.txt"))
             {
-                FileStream fs = new FileStream("CSUR_UI_setting.txt", FileMode.Open);
+                FileStream fs = new FileStream("CSUR_ToolBox_setting.txt", FileMode.Open);
                 StreamReader sr = new StreamReader(fs);
-                string strLine = sr.ReadLine();
 
-                if (strLine == "True")
-                {
-                    isShortCutsToPanel = true;
-                }
-                else
-                {
-                    isShortCutsToPanel = false;
-                }
+                isShortCutsToPanel = (sr.ReadLine() == "True") ? true : false;
+                var strLine = sr.ReadLine();
+                smoothLevel = (strLine == "2") ? 2 : (strLine == "0") ? 0 : 1;
+                disableZone = (sr.ReadLine() == "True") ? true : false;
+                disableZoneUpdateAll = (sr.ReadLine() == "True") ? true : false;
+                enablePillar = (sr.ReadLine() == "False") ? false : true;
+                alignZone = (sr.ReadLine() == "True") ? true : false;
+                fixLargeJunction = (sr.ReadLine() == "False") ? false : true;
 
-                strLine = sr.ReadLine();
-
-                if (strLine == "2")
-                {
-                    smoothLevel = 2;
-                }
-                else if (strLine == "0")
-                {
-                    smoothLevel = 0;
-                }
-                else
-                {
-                    smoothLevel = 1;
-                }
                 sr.Close();
                 fs.Close();
             }
@@ -157,6 +160,49 @@ namespace CSURToolBox.UI
         public static void GetSmoothLevel(int index)
         {
             smoothLevel = index;
+            SaveSetting();
+        }
+
+        public static void isDebugEnable(bool index)
+        {
+            isDebug = index;
+            SaveSetting();
+        }
+
+        public static void isDisableZoneEnable(bool index)
+        {
+            disableZone = index;
+            if (disableZone)
+            {
+                if (Loader.CurrentLoadMode == LoadMode.NewGame || Loader.CurrentLoadMode == LoadMode.LoadGame)
+                {
+                    Loader.DisableZone();
+                }
+            }
+            SaveSetting();
+        }
+
+        public static void isDisableZoneUpdateAllEnable(bool index)
+        {
+            disableZoneUpdateAll = index;
+            SaveSetting();
+        }
+
+        public static void isEnablePillarEnable(bool index)
+        {
+            enablePillar = index;
+            SaveSetting();
+        }
+
+        public static void isAlignZoneEnable(bool index)
+        {
+            alignZone = index;
+            SaveSetting();
+        }
+
+        public static void isFixLargeJunctionEnable(bool index)
+        {
+            fixLargeJunction = index;
             SaveSetting();
         }
     }

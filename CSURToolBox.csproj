@@ -64,14 +64,18 @@
     <Compile Include="CustomManager\CustomNetManager.cs" />
     <Compile Include="Loader.cs" />
     <Compile Include="Parser.cs" />
+    <Compile Include="Patch\RoadAICreateZoneBlocksPatch.cs" />
+    <Compile Include="Patch\NetSegmentCalculateCornerPatch.cs" />
     <Compile Include="Patch\NetSegmentUpdateLanesPatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Threading.cs" />
+    <Compile Include="UI\StayInLaneUI.cs" />
     <Compile Include="UI\MainButton.cs" />
     <Compile Include="UI\MainUI.cs" />
     <Compile Include="UI\OptionKeyMappingFunction.cs" />
     <Compile Include="UI\OptionKeyMappingLane.cs" />
     <Compile Include="UI\OptionUI.cs" />
+    <Compile Include="Util\MouseSimulater.cs" />
     <Compile Include="Util\HarmonyDetours.cs" />
     <Compile Include="Util\CSURUtil.cs" />
     <Compile Include="Util\DebugLog.cs" />
@@ -81,19 +85,24 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <Content Include="PreviewImage.png" />
     <Content Include="Resources\CSUR.png" />
     <Content Include="Resources\CSUR1.png" />
     <Content Include="Resources\CSUR2.png" />
+    <Content Include="Resources\en.txt" />
     <Content Include="Resources\Notfound.png" />
     <Content Include="Resources\UIBG.png" />
     <Content Include="Resources\UITOP.png" />
+    <Content Include="Resources\zh-cn.txt" />
+    <Content Include="Resources\zh.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "D:\Mod\CSURToolBox\bin\Release\CSURToolBox.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\CSURToolBox.dll
+    <PostBuildEvent>copy "D:\Mod\CSURToolBox\bin\Release\CSURToolBox.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\CSURToolBox.dll"
 rd /q /s "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\Resources"
 mkdir "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\Resources"
 copy "D:\Mod\CSURToolBox\Resources\*.*" "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\Resources"
-copy "D:\Mod\CSURToolBox\bin\Release\0Harmony2.0.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\0Harmony.dll"</PostBuildEvent>
+copy "D:\Mod\CSURToolBox\bin\Release\0Harmony2.0.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\0Harmony.dll"
+copy "D:\Mod\CSURToolBox\PreviewImage.png"  "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\PreviewImage.png"</PostBuildEvent>
   </PropertyGroup>
 </Project>

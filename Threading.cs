@@ -71,8 +71,13 @@ namespace CSURToolBox
                 DebugLog.LogToFileOnly("Detour LaneConnectorTool::CheckSegmentsTurningAngle calls");
                 try
                 {
-                    Loader.Detours.Add(new Loader.Detour(Assembly.Load("TrafficManager").GetType("TrafficManager.UI.SubTools.LaneConnectorTool").GetMethod("CheckSegmentsTurningAngle", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(NetSegment).MakeByRefType(), typeof(bool), typeof(ushort), typeof(NetSegment).MakeByRefType(), typeof(bool) }, null),
+                    // Traffic manager is fixed in version 11.1.1 and higher
+                    // TODO delete this and NewLaneConnectorTool.cs when TMPE 11.0 [STABLE] has been depricated.
+                    Version TMPE_Version = Assembly.Load("TrafficManager").GetName().Version;
+                    if(TMPE_Version < new Version(11, 1, 1)) {
+                        Loader.Detours.Add(new Loader.Detour(Assembly.Load("TrafficManager").GetType("TrafficManager.UI.SubTools.LaneConnectorTool").GetMethod("CheckSegmentsTurningAngle", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(NetSegment).MakeByRefType(), typeof(bool), typeof(ushort), typeof(NetSegment).MakeByRefType(), typeof(bool) }, null),
                                            typeof(NewLaneConnectorTool).GetMethod("CheckSegmentsTurningAngle", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(NetSegment).MakeByRefType(), typeof(bool), typeof(ushort), typeof(NetSegment).MakeByRefType(), typeof(bool) }, null)));
+                    }
                 }
                 catch (Exception)
                 {
@@ -93,44 +98,47 @@ namespace CSURToolBox
 
         public void CheckDetour()
         {
-            if (isFirstTime && Loader.DetourInited)
-            {
-                isFirstTime = false;
-                DetourAfterLoad();
-                DebugLog.LogToFileOnly("ThreadingExtension.OnBeforeSimulationFrame: First frame detected. Checking detours.");
-                List<string> list = new List<string>();
-                foreach (Loader.Detour current in Loader.Detours)
+            if (isFirstTime)
+            { 
+                if (Loader.DetourInited)
                 {
-                    if (!RedirectionHelper.IsRedirected(current.OriginalMethod, current.CustomMethod))
+                    isFirstTime = false;
+                    DetourAfterLoad();
+                    DebugLog.LogToFileOnly("ThreadingExtension.OnBeforeSimulationFrame: First frame detected. Checking detours.");
+                    List<string> list = new List<string>();
+                    foreach (Loader.Detour current in Loader.Detours)
                     {
-                        list.Add(string.Format("{0}.{1} with {2} parameters ({3})", new object[]
+                        if (!RedirectionHelper.IsRedirected(current.OriginalMethod, current.CustomMethod))
                         {
+                            list.Add(string.Format("{0}.{1} with {2} parameters ({3})", new object[]
+                            {
                     current.OriginalMethod.DeclaringType.Name,
                     current.OriginalMethod.Name,
                     current.OriginalMethod.GetParameters().Length,
                     current.OriginalMethod.DeclaringType.AssemblyQualifiedName
-                        }));
+                            }));
+                        }
                     }
-                }
-                DebugLog.LogToFileOnly(string.Format("ThreadingExtension.OnBeforeSimulationFrame: First frame detected. Detours checked. Result: {0} missing detours", list.Count));
-                if (list.Count > 0)
-                {
-                    string error = "CSURToolBox detected an incompatibility with another mod! You can continue playing but it's NOT recommended. CSURToolBox will not work as expected. Send CSURToolBox.txt to Author.";
-                    DebugLog.LogToFileOnly(error);
-                    string text = "The following methods were overriden by another mod:";
-                    foreach (string current2 in list)
+                    DebugLog.LogToFileOnly(string.Format("ThreadingExtension.OnBeforeSimulationFrame: First frame detected. Detours checked. Result: {0} missing detours", list.Count));
+                    if (list.Count > 0)
                     {
-                        text += string.Format("\n\t{0}", current2);
+                        string error = "CSURToolBox detected an incompatibility with another mod! You can continue playing but it's NOT recommended. CSURToolBox will not work as expected. Send CSURToolBox.txt to Author.";
+                        DebugLog.LogToFileOnly(error);
+                        string text = "The following methods were overriden by another mod:";
+                        foreach (string current2 in list)
+                        {
+                            text += string.Format("\n\t{0}", current2);
+                        }
+                        DebugLog.LogToFileOnly(text);
+                        UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", text, true);
                     }
-                    DebugLog.LogToFileOnly(text);
-                    UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", text, true);
-                }
 
-                if (Loader.HarmonyDetourFailed)
-                {
-                    string error = "CSURToolBox HarmonyDetourInit is failed, Send CSURToolBox.txt to Author.";
-                    DebugLog.LogToFileOnly(error);
-                    UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", error, true);
+                    if (Loader.HarmonyDetourFailed)
+                    {
+                        string error = "CSURToolBox HarmonyDetourInit is failed, Send CSURToolBox.txt to Author.";
+                        DebugLog.LogToFileOnly(error);
+                        UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", error, true);
+                    }
                 }
             }
         }

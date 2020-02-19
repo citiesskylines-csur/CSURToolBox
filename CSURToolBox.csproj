@@ -32,8 +32,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony2.0">
-      <HintPath>..\0Harmony2.0.dll</HintPath>
+    <Reference Include="0Harmony1.9">
+      <HintPath>..\0Harmony1.9.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>F:\SteamLibrary\steamapps\common\Cities_Skylines\Cities_Data\Managed\Assembly-CSharp.dll</HintPath>
@@ -56,14 +56,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CSURToolBox.cs" />
-    <Compile Include="CustomAI\CustomNetAI.cs" />
     <Compile Include="CustomAI\NewLaneConnectorTool.cs" />
-    <Compile Include="CustomData\CustomBuilding.cs" />
     <Compile Include="CustomData\CustomNetNode.cs" />
     <Compile Include="CustomData\CustomNetSegment.cs" />
-    <Compile Include="CustomManager\CustomNetManager.cs" />
     <Compile Include="Loader.cs" />
     <Compile Include="Parser.cs" />
+    <Compile Include="Patch\BuildingFindParentNodePatch.cs" />
+    <Compile Include="Patch\NetSegmentOverlapQuadPatch.cs" />
+    <Compile Include="Patch\NetManagerOverlapQuadPatch.cs" />
+    <Compile Include="Patch\NetNodeUpdateBuildingPatch.cs" />
+    <Compile Include="Patch\NetNodeRayCastPatch.cs" />
+    <Compile Include="Patch\NetSegmentRayCastPatch.cs" />
+    <Compile Include="Patch\NetAIGetCollisionHalfWidthPatch.cs" />
     <Compile Include="Patch\RoadAICreateZoneBlocksPatch.cs" />
     <Compile Include="Patch\NetSegmentCalculateCornerPatch.cs" />
     <Compile Include="Patch\NetSegmentUpdateLanesPatch.cs" />
@@ -83,7 +87,9 @@
     <Compile Include="Util\RedirectionHelper.cs" />
     <Compile Include="Util\SpriteUtilities.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="PatchUtil\" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="PreviewImage.png" />
     <Content Include="Resources\CSUR.png" />
@@ -102,7 +108,7 @@
 rd /q /s "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\Resources"
 mkdir "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\Resources"
 copy "D:\Mod\CSURToolBox\Resources\*.*" "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\Resources"
-copy "D:\Mod\CSURToolBox\bin\Release\0Harmony2.0.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\0Harmony.dll"
+copy "D:\Mod\CSURToolBox\bin\Release\0Harmony1.9.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\0Harmony.dll"
 copy "D:\Mod\CSURToolBox\PreviewImage.png"  "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\PreviewImage.png"</PostBuildEvent>
   </PropertyGroup>
 </Project>

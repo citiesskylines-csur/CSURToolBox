@@ -3,13 +3,18 @@ using ColossalFramework.Math;
 using CSURToolBox.UI;
 using CSURToolBox.Util;
 using Harmony;
+using System.Reflection;
 using UnityEngine;
 
 namespace CSURToolBox.Patch
 {
-    [HarmonyPatch(typeof(NetSegment), "UpdateLanes")]
+    [HarmonyPatch]
     public static class NetSegmentUpdateLanesPatch
     {
+        public static MethodBase TargetMethod()
+        {
+            return typeof(NetSegment).GetMethod("UpdateLanes");
+        }
         public static void Postfix(ref NetSegment __instance)
         {
             if (__instance.m_flags != NetSegment.Flags.None)

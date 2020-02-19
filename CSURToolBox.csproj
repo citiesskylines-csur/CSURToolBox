@@ -87,9 +87,7 @@
     <Compile Include="Util\RedirectionHelper.cs" />
     <Compile Include="Util\SpriteUtilities.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="PatchUtil\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="PreviewImage.png" />
     <Content Include="Resources\CSUR.png" />

@@ -28,7 +28,6 @@ namespace CSURToolBox
         public static string m_atlasNameBg = "CSUR_UI_Bg";
         public static string m_atlasNameNoAsset = "CSUR_UI_NoAssert";
         public static bool m_atlasLoaded;
-        public static bool is583429740 = false;
         public static bool is1637663252 = false;
         public static bool is1806963141 = false;
         public static bool HarmonyDetourInited = false;
@@ -103,7 +102,6 @@ namespace CSURToolBox
         public override void OnLevelUnloading()
         {
             base.OnLevelUnloading();
-            is583429740 = false;
             is1637663252 = false;
             is1806963141 = false;
             if (CurrentLoadMode == LoadMode.LoadGame || CurrentLoadMode == LoadMode.NewGame || CurrentLoadMode == LoadMode.LoadMap || CurrentLoadMode == LoadMode.NewMap || CurrentLoadMode == LoadMode.LoadAsset || CurrentLoadMode == LoadMode.NewAsset)
@@ -212,13 +210,9 @@ namespace CSURToolBox
 
         public void CheckTMPE()
         {
-            if ((IsSteamWorkshopItemSubscribed(583429740) && IsSteamWorkshopItemSubscribed(1637663252)) || (IsSteamWorkshopItemSubscribed(1806963141) && IsSteamWorkshopItemSubscribed(1637663252)) || (IsSteamWorkshopItemSubscribed(583429740) && IsSteamWorkshopItemSubscribed(1806963141)))
+            if (IsSteamWorkshopItemSubscribed(1806963141) && IsSteamWorkshopItemSubscribed(1637663252))
             {
-                UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", "Can not sub two TM:PE, steamID:583429740 or 1637663252 or 1806963141", true);
-            }
-            else if (IsSteamWorkshopItemSubscribed(583429740))
-            {
-                is583429740 = true;
+                UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", "Can not sub two TM:PE, 1637663252 or 1806963141", true);
             }
             else if (IsSteamWorkshopItemSubscribed(1637663252))
             {

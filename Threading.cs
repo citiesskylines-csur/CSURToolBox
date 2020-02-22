@@ -67,7 +67,7 @@ namespace CSURToolBox
                 }
             }
 
-            if (Loader.is1637663252 | Loader.is583429740 | Loader.is1806963141)
+            if (Loader.is1637663252 || Loader.is1806963141)
             {
                 DebugLog.LogToFileOnly("Detour LaneConnectorTool::CheckSegmentsTurningAngle calls");
                 try

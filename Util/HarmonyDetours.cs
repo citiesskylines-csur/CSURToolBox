@@ -7,7 +7,6 @@ namespace CSURToolBox.Util
         public const string Id = "csur.toolbox";
         public static void Apply()
         {
-            Harmony.Harmony.DEBUG = true;
             var harmony = new Harmony.Harmony(Id);
             harmony.PatchAll(typeof(HarmonyDetours).Assembly);
             Loader.HarmonyDetourFailed = false;

@@ -16,7 +16,7 @@ namespace CSURToolBox.UI
         bool needLaterLeftClick = false;
         public void OnGUI()
         {
-            if (!(Loader.is1637663252 | Loader.is583429740 | Loader.is1806963141) )
+            if (!(Loader.is1637663252 || Loader.is1806963141) )
             {
                 return;
             }

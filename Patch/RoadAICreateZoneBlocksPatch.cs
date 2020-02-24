@@ -5,64 +5,65 @@ using Harmony;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace CSURToolBox.Patch
 {
-    [HarmonyPatch(typeof(RoadAI), "CreateZoneBlocks")]
+    [HarmonyPatch]
     public static class RoadAICreateZoneBlocksPatch
     {
         public static bool[] segmentHalfWidthLock = new bool[65536];
         public static float[] segmentHalfWidth = new float[65536];
-        public static void Prefix(ushort segment)
+        public static MethodBase TargetMethod()
         {
-            NetManager instance = Singleton<NetManager>.instance;
-            var __instance = instance.m_segments.m_buffer[segment];
+            return typeof(RoadAI).GetMethod("CreateZoneBlocks");
+        }
+        public static void Prefix(ref NetSegment data)
+        {
             if (OptionUI.alignZone)
             {
-                if (CSURUtil.IsCSUR(__instance.Info))
+                if (CSURUtil.IsCSUR(data.Info))
                 {
-                    if (!segmentHalfWidthLock[__instance.m_infoIndex])
+                    if (!segmentHalfWidthLock[data.m_infoIndex])
                     {
-                        segmentHalfWidth[__instance.m_infoIndex] = __instance.Info.m_halfWidth;
-                        if (__instance.Info.m_halfWidth < 9f)
+                        segmentHalfWidth[data.m_infoIndex] = data.Info.m_halfWidth;
+                        if (data.Info.m_halfWidth < 9f)
                         {
-                            __instance.Info.m_halfWidth = 8f;
+                            data.Info.m_halfWidth = 8f;
                         }
-                        else if (__instance.Info.m_halfWidth < 17f)
+                        else if (data.Info.m_halfWidth < 17f)
                         {
-                            __instance.Info.m_halfWidth = 16f;
+                            data.Info.m_halfWidth = 16f;
                         }
-                        else if (__instance.Info.m_halfWidth < 25f)
+                        else if (data.Info.m_halfWidth < 25f)
                         {
-                            __instance.Info.m_halfWidth = 24f;
+                            data.Info.m_halfWidth = 24f;
                         }
-                        else if (__instance.Info.m_halfWidth < 33f)
+                        else if (data.Info.m_halfWidth < 33f)
                         {
-                            __instance.Info.m_halfWidth = 32f;
+                            data.Info.m_halfWidth = 32f;
                         }
-                        else if (__instance.Info.m_halfWidth < 41f)
+                        else if (data.Info.m_halfWidth < 41f)
                         {
-                            __instance.Info.m_halfWidth = 40f;
+                            data.Info.m_halfWidth = 40f;
                         }
-                        segmentHalfWidthLock[__instance.m_infoIndex] = true;
+                        segmentHalfWidthLock[data.m_infoIndex] = true;
                     }
                 }
             }
         }
 
-        public static void Postfix(ushort segment)
+        public static void Postfix(ref NetSegment data)
         {
-            NetManager instance = Singleton<NetManager>.instance;
-            var __instance = instance.m_segments.m_buffer[segment];
             if (OptionUI.alignZone)
             {
-                if (CSURUtil.IsCSUR(__instance.Info))
+                if (CSURUtil.IsCSUR(data.Info))
                 { 
-                    if (segmentHalfWidthLock[__instance.m_infoIndex])
+                    if (segmentHalfWidthLock[data.m_infoIndex])
                     {
-                        __instance.Info.m_halfWidth = segmentHalfWidth[__instance.m_infoIndex];
-                        segmentHalfWidthLock[__instance.m_infoIndex] = false;
+                        data.Info.m_halfWidth = segmentHalfWidth[data.m_infoIndex];
+                        segmentHalfWidthLock[data.m_infoIndex] = false;
                     }
                 }
             }

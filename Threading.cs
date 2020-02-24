@@ -20,6 +20,7 @@ namespace CSURToolBox
     {
         public static bool isFirstTime = true;
         public static Assembly MoveIt = null;
+        public const int HarmonyPatchNum = 10;
 
         public override void OnBeforeSimulationFrame()
         {
@@ -66,7 +67,7 @@ namespace CSURToolBox
                 }
             }
 
-            if (Loader.is1637663252 | Loader.is583429740 | Loader.is1806963141)
+            if (Loader.is1637663252 || Loader.is1806963141)
             {
                 DebugLog.LogToFileOnly("Detour LaneConnectorTool::CheckSegmentsTurningAngle calls");
                 try
@@ -138,6 +139,36 @@ namespace CSURToolBox
                         string error = "CSURToolBox HarmonyDetourInit is failed, Send CSURToolBox.txt to Author.";
                         DebugLog.LogToFileOnly(error);
                         UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", error, true);
+                    }
+                    else
+                    {
+                        var harmony = new Harmony.Harmony(HarmonyDetours.Id);
+                        var methods = harmony.GetPatchedMethods();
+                        int i = 0;
+                        foreach (var method in methods)
+                        {
+                            var info = Harmony.Harmony.GetPatchInfo(method);
+                            if (info.Owners?.Contains(HarmonyDetours.Id) == true)
+                            {
+                                DebugLog.LogToFileOnly("Harmony patch method = " + method.Name.ToString());
+                                if (info.Prefixes.Count != 0)
+                                {
+                                    DebugLog.LogToFileOnly("Harmony patch method has PreFix");
+                                }
+                                if (info.Postfixes.Count != 0)
+                                {
+                                    DebugLog.LogToFileOnly("Harmony patch method has PostFix");
+                                }
+                                i++;
+                            }
+                        }
+
+                        if (i != HarmonyPatchNum)
+                        {
+                            string error = $"CSURToolBox HarmonyDetour Patch Num is {i}, Right Num is {HarmonyPatchNum} Send CSURToolBox.txt to Author.";
+                            DebugLog.LogToFileOnly(error);
+                            UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", error, true);
+                        }
                     }
                 }
             }

@@ -1,21 +1,14 @@
 ﻿using ColossalFramework;
-using ColossalFramework.Math;
 using ColossalFramework.PlatformServices;
 using ColossalFramework.Plugins;
 using ColossalFramework.UI;
-using CSURToolBox.CustomAI;
-using CSURToolBox.CustomData;
-using CSURToolBox.CustomManager;
 using CSURToolBox.Patch;
 using CSURToolBox.UI;
 using CSURToolBox.Util;
 using ICities;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 
@@ -35,7 +28,6 @@ namespace CSURToolBox
         public static string m_atlasNameBg = "CSUR_UI_Bg";
         public static string m_atlasNameNoAsset = "CSUR_UI_NoAssert";
         public static bool m_atlasLoaded;
-        public static bool is583429740 = false;
         public static bool is1637663252 = false;
         public static bool is1806963141 = false;
         public static bool HarmonyDetourInited = false;
@@ -110,7 +102,6 @@ namespace CSURToolBox
         public override void OnLevelUnloading()
         {
             base.OnLevelUnloading();
-            is583429740 = false;
             is1637663252 = false;
             is1806963141 = false;
             if (CurrentLoadMode == LoadMode.LoadGame || CurrentLoadMode == LoadMode.NewGame || CurrentLoadMode == LoadMode.LoadMap || CurrentLoadMode == LoadMode.NewMap || CurrentLoadMode == LoadMode.LoadAsset || CurrentLoadMode == LoadMode.NewAsset)
@@ -219,13 +210,9 @@ namespace CSURToolBox
 
         public void CheckTMPE()
         {
-            if ((IsSteamWorkshopItemSubscribed(583429740) && IsSteamWorkshopItemSubscribed(1637663252)) || (IsSteamWorkshopItemSubscribed(1806963141) && IsSteamWorkshopItemSubscribed(1637663252)) || (IsSteamWorkshopItemSubscribed(583429740) && IsSteamWorkshopItemSubscribed(1806963141)))
+            if (IsSteamWorkshopItemSubscribed(1806963141) && IsSteamWorkshopItemSubscribed(1637663252))
             {
-                UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", "Can not sub two TM:PE, steamID:583429740 or 1637663252 or 1806963141", true);
-            }
-            else if (IsSteamWorkshopItemSubscribed(583429740))
-            {
-                is583429740 = true;
+                UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", "Can not sub two TM:PE, 1637663252 or 1806963141", true);
             }
             else if (IsSteamWorkshopItemSubscribed(1637663252))
             {
@@ -300,96 +287,6 @@ namespace CSURToolBox
                 Debug.Log("Init detours");
                 bool detourFailed = false;
 
-                //1
-                Debug.Log("Detour NetAI::GetCollisionHalfWidth calls");
-                try
-                {
-                    Detours.Add(new Detour(typeof(NetAI).GetMethod("GetCollisionHalfWidth", BindingFlags.Public | BindingFlags.Instance),
-                                           typeof(CustomNetAI).GetMethod("CustomGetCollisionHalfWidth", BindingFlags.Public | BindingFlags.Instance)));
-                }
-                catch (Exception)
-                {
-                    Debug.Log("Could not detour NetAI::GetCollisionHalfWidth");
-                    detourFailed = true;
-                }
-                //2
-                //public static bool RayCast(ref NetSegment mysegment, ushort segmentID, Segment3 ray, float snapElevation, bool nameOnly, out float t, out float priority)
-                Debug.Log("Detour NetSegment::RayCast calls");
-                try
-                {
-                    Detours.Add(new Detour(typeof(NetSegment).GetMethod("RayCast", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(Segment3), typeof(float), typeof(bool), typeof(float).MakeByRefType(), typeof(float).MakeByRefType() }, null),
-                                           typeof(CustomNetSegment).GetMethod("RayCast", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(NetSegment).MakeByRefType(), typeof(ushort), typeof(Segment3), typeof(float), typeof(bool), typeof(float).MakeByRefType(), typeof(float).MakeByRefType() }, null)));
-                }
-                catch (Exception)
-                {
-                    Debug.Log("Could not detour NetSegment::RayCast");
-                    //detourFailed = true;
-                }
-                //3
-                //public static bool RayCast(ref NetNode node, Segment3 ray, float snapElevation, out float t, out float priority)
-                Debug.Log("Detour NetNode::RayCast calls");
-                try
-                {
-                    Detours.Add(new Detour(typeof(NetNode).GetMethod("RayCast", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(Segment3), typeof(float), typeof(float).MakeByRefType(), typeof(float).MakeByRefType() }, null),
-                                           typeof(CustomNetNode).GetMethod("RayCast", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(NetNode).MakeByRefType(), typeof(Segment3), typeof(float), typeof(float).MakeByRefType(), typeof(float).MakeByRefType() }, null)));
-                }
-                catch (Exception)
-                {
-                    Debug.Log("Could not detour NetNode::RayCast");
-                    //detourFailed = true;
-                }
-
-                //4
-                Debug.Log("Detour NetNode::UpdateBuilding calls");
-                try
-                {
-                    Detours.Add(new Detour(typeof(NetNode).GetMethod("UpdateBuilding", BindingFlags.Public | BindingFlags.Instance),
-                                           typeof(CustomNetNode).GetMethod("UpdateBuilding", BindingFlags.Public | BindingFlags.Static)));
-                }
-                catch (Exception)
-                {
-                    Debug.Log("Could not detour NetNode::UpdateBuilding");
-                    detourFailed = true;
-                }
-                //5
-                //public bool OverlapQuad(Quad2 quad, float minY, float maxY, ItemClass.CollisionType collisionType, ItemClass.Layer requireLayers, ItemClass.Layer forbidLayers, ushort ignoreNode1, ushort ignoreNode2, ushort ignoreSegment, ulong[] segmentMask)
-                Debug.Log("Detour NetManager::OverlapQuad calls");
-                try
-                {
-                    Detours.Add(new Detour(typeof(NetManager).GetMethod("OverlapQuad", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(Quad2), typeof(float), typeof(float), typeof(ItemClass.CollisionType), typeof(ItemClass.Layer), typeof(ItemClass.Layer), typeof(ushort), typeof(ushort), typeof(ushort), typeof(ulong[]) }, null),
-                                           typeof(CustomNetManager).GetMethod("OverlapQuad", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(Quad2), typeof(float), typeof(float), typeof(ItemClass.CollisionType), typeof(ItemClass.Layer), typeof(ItemClass.Layer), typeof(ushort), typeof(ushort), typeof(ushort), typeof(ulong[]) }, null)));
-                }
-                catch (Exception)
-                {
-                    Debug.Log("Could not detour NetManager::OverlapQuad");
-                    //detourFailed = true;
-                }
-
-                //6
-                Debug.Log("Detour NetSegment::OverlapQuad calls");
-                try
-                {
-                    Detours.Add(new Detour(typeof(NetSegment).GetMethod("OverlapQuad", BindingFlags.Public | BindingFlags.Instance),
-                                           typeof(CustomNetSegment).GetMethod("OverlapQuad", BindingFlags.Public | BindingFlags.Static)));
-                }
-                catch (Exception)
-                {
-                    Debug.Log("Could not detour NetSegment::OverlapQuad");
-                    detourFailed = true;
-                }
-                //7
-                Debug.Log("Detour Building::FindParentNode calls");
-                try
-                {
-                    Detours.Add(new Detour(typeof(Building).GetMethod("FindParentNode", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort) }, null),
-                                           typeof(CustomBuilding).GetMethod("FindParentNode", BindingFlags.Public | BindingFlags.Static, null, new Type[] { typeof(Building).MakeByRefType(), typeof(ushort) }, null)));
-                }
-                catch (Exception)
-                {
-                    Debug.Log("Could not detour Building::FindParentNode");
-                    detourFailed = true;
-                }
-
                 isMoveItRunning = CheckMoveItIsLoaded();
 
                 if (detourFailed)
@@ -463,7 +360,7 @@ namespace CSURToolBox
         {
             if (!HarmonyDetourInited)
             {
-                Debug.Log("Init harmony detours");
+                DebugLog.LogToFileOnly("Init harmony detours");
                 HarmonyDetours.Apply();
                 HarmonyDetourInited = true;
             }
@@ -473,7 +370,7 @@ namespace CSURToolBox
         {
             if (HarmonyDetourInited)
             {
-                Debug.Log("Revert harmony detours");
+                DebugLog.LogToFileOnly("Revert harmony detours");
                 HarmonyDetours.DeApply();
                 HarmonyDetourInited = false;
                 HarmonyDetourFailed = true;

@@ -1,18 +1,26 @@
 ﻿using ColossalFramework;
 using ColossalFramework.Math;
+using CSURToolBox.UI;
 using CSURToolBox.Util;
+using Harmony;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 
-namespace CSURToolBox.CustomManager
+namespace CSURToolBox.Patch
 {
-    public class CustomNetManager
+    [HarmonyPatch]
+    public static class NetManagerOverlapQuadPatch
     {
-		public bool OverlapQuad(Quad2 quad, float minY, float maxY, ItemClass.CollisionType collisionType, ItemClass.Layer requireLayers, ItemClass.Layer forbidLayers, ushort ignoreNode1, ushort ignoreNode2, ushort ignoreSegment, ulong[] segmentMask)
-		{
+        public static MethodBase TargetMethod()
+        {
+            return typeof(NetManager).GetMethod("OverlapQuad", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(Quad2), typeof(float), typeof(float), typeof(ItemClass.CollisionType), typeof(ItemClass.Layer), typeof(ItemClass.Layer), typeof(ushort), typeof(ushort), typeof(ushort), typeof(ulong[]) }, null);
+        }
+        public static bool Prefix(Quad2 quad, float minY, float maxY, ItemClass.CollisionType collisionType, ItemClass.Layer requireLayers, ItemClass.Layer forbidLayers, ushort ignoreNode1, ushort ignoreNode2, ushort ignoreSegment, ulong[] segmentMask, ref bool __result)
+        {
 			NetManager instance = Singleton<NetManager>.instance;
 			Vector2 vector = quad.Min();
 			Vector2 vector2 = quad.Max();
@@ -96,7 +104,8 @@ namespace CSURToolBox.CustomManager
 										{
 											if (segmentMask == null)
 											{
-												return true;
+												__result = true;
+												return false;
 											}
 											segmentMask[num7 >> 6] |= (ulong)(1L << (int)num7);
 											result = true;
@@ -114,7 +123,8 @@ namespace CSURToolBox.CustomManager
 					}
 				}
 			}
-			return result;
+			__result = result;
+			return false;
 		}
 	}
 }

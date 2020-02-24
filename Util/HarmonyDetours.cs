@@ -1,26 +1,22 @@
 ﻿using Harmony;
-using System.Reflection;
-using System;
-using UnityEngine;
 
 namespace CSURToolBox.Util
 {
-    public static class HarmonyDetours
+    public class HarmonyDetours
     {
-        private static HarmonyInstance harmony = null;
-
+        public const string Id = "csur.toolbox";
         public static void Apply()
         {
-            HarmonyInstance.SELF_PATCHING = false;
-            harmony = HarmonyInstance.Create("CSURToolBox");
-            harmony.PatchAll();
+            var harmony = new Harmony.Harmony(Id);
+            harmony.PatchAll(typeof(HarmonyDetours).Assembly);
             Loader.HarmonyDetourFailed = false;
             DebugLog.LogToFileOnly("Harmony patches applied");
         }
 
         public static void DeApply()
         {
-            harmony.UnpatchAll("CSURToolBox");
+            var harmony = new Harmony.Harmony(Id);
+            harmony.UnpatchAll(Id);
             DebugLog.LogToFileOnly("Harmony patches DeApplied");
         }
     }

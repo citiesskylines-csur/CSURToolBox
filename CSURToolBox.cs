@@ -46,7 +46,7 @@ namespace CSURToolBox
         }
         public void OnSettingsUI(UIHelperBase helper)
         {
-            OptionUI.makeSettings(helper);
+            OptionUI.MakeSettings(helper);
         }
     }
 }

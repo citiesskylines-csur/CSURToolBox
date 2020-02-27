@@ -543,9 +543,12 @@ namespace CSURToolBox
             for (ushort i = 0; i < Singleton<NetManager>.instance.m_segments.m_size; i++)
             {
                 NetInfo asset = Singleton<NetManager>.instance.m_segments.m_buffer[i].Info;
-                if (CSURUtil.IsCSUR(asset))
+                if (asset.m_netAI is RoadAI)
                 {
-                    Singleton<NetManager>.instance.UpdateSegment(i);
+                    if (CSURUtil.IsCSUR(asset))
+                    {
+                        Singleton<NetManager>.instance.UpdateSegment(i);
+                    }
                 }
             }
         }
@@ -555,9 +558,12 @@ namespace CSURToolBox
             for (ushort i = 0; i < Singleton<NetManager>.instance.m_nodes.m_size; i++)
             {
                 NetInfo asset = Singleton<NetManager>.instance.m_nodes.m_buffer[i].Info;
-                if (CSURUtil.IsCSUR(asset))
+                if (asset.m_netAI is RoadAI)
                 {
-                    Singleton<NetManager>.instance.UpdateNode(i);
+                    if (CSURUtil.IsCSUR(asset))
+                    {
+                        Singleton<NetManager>.instance.UpdateNode(i);
+                    }
                 }
             }
         }

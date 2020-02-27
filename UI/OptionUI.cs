@@ -16,7 +16,7 @@ namespace CSURToolBox.UI
         public static bool enablePillar = true;
         public static bool fixLargeJunction = true;
         public static bool alignZone = false;
-        public static void makeSettings(UIHelperBase helper)
+        public static void MakeSettings(UIHelperBase helper)
         {
             // tabbing code is borrowed from RushHour mod
             // https://github.com/PropaneDragon/RushHour/blob/release/RushHour/Options/OptionHandler.cs

@@ -70,7 +70,7 @@
     <Compile Include="Patch\NetAIGetCollisionHalfWidthPatch.cs" />
     <Compile Include="Patch\RoadAICreateZoneBlocksPatch.cs" />
     <Compile Include="Patch\NetSegmentCalculateCornerPatch.cs" />
-    <Compile Include="Patch\RoadBaseAIUpdateLanesPatch.cs" />
+    <Compile Include="Patch\NetSegmentUpdateLanesPatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Threading.cs" />
     <Compile Include="UI\StayInLaneUI.cs" />

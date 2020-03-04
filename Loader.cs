@@ -545,11 +545,15 @@ namespace CSURToolBox
                 NetInfo asset = Singleton<NetManager>.instance.m_segments.m_buffer[i].Info;
                 if (asset != null)
                 {
-                    if (asset.m_netAI is RoadAI)
+                    if (CSURUtil.IsCSUR(asset))
                     {
-                        if (CSURUtil.IsCSUR(asset))
+                        if (asset.m_netAI is RoadAI)
                         {
                             Singleton<NetManager>.instance.UpdateSegment(i);
+                        }
+                        else
+                        {
+                            Singleton<NetManager>.instance.m_segments.m_buffer[i].UpdateLanes(i, true);
                         }
                     }
                 }

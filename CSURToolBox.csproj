@@ -62,6 +62,8 @@
     <Compile Include="Loader.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Patch\BuildingFindParentNodePatch.cs" />
+    <Compile Include="Patch\NetNodeCountSegmentsPatch.cs" />
+    <Compile Include="Patch\NetNodeCalculateNodePatch.cs" />
     <Compile Include="Patch\NetSegmentOverlapQuadPatch.cs" />
     <Compile Include="Patch\NetManagerOverlapQuadPatch.cs" />
     <Compile Include="Patch\NetNodeUpdateBuildingPatch.cs" />

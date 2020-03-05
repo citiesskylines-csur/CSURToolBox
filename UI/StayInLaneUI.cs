@@ -45,8 +45,6 @@ namespace CSURToolBox.UI
                 if (CSURUtil.IsCSUR(asset))
                 {
                     bool IsCSURRLane = false;
-                    bool IsCSURDual = false;
-                    bool IsCSURSingle = false;
                     for (int j = 0; j < 8; j++)
                     {
                         ushort segmentID = Singleton<NetManager>.instance.m_nodes.m_buffer[node].GetSegment(j);
@@ -55,23 +53,15 @@ namespace CSURToolBox.UI
                             var segment = Singleton<NetManager>.instance.m_segments.m_buffer[segmentID];
                             if (CSURUtil.IsCSUR(segment.Info))
                             {
-                                if (CSURUtil.IsCSURDual(segment.Info))
+                                if (CSURUtil.IsCSURRLaneOffset(segment.Info))
                                 {
-                                    IsCSURDual = true;
-                                }
-                                else
-                                {
-                                    if (CSURUtil.IsCSURRLaneOffset(segment.Info))
-                                    {
-                                        IsCSURRLane = true;
-                                        break;
-                                    }
-                                    IsCSURSingle = true;
+                                    IsCSURRLane = true;
+                                    break;
                                 }
                             }
                         }
                     }
-                    if (IsCSURRLane || (IsCSURDual && IsCSURSingle))
+                    if (IsCSURRLane)
                     {
                         AddLaneConnectionForCSUR(node, TMPE);
                         //refresh
@@ -87,8 +77,6 @@ namespace CSURToolBox.UI
                 for (ushort i = 0; i < Singleton<NetManager>.instance.m_nodes.m_size; i++)
                 {
                     bool IsCSURRLane = false;
-                    bool IsCSURDual = false;
-                    bool IsCSURSingle = false;
                     for (int j = 0; j < 8; j++)
                     {
                         ushort segmentID = Singleton<NetManager>.instance.m_nodes.m_buffer[i].GetSegment(j);
@@ -97,23 +85,15 @@ namespace CSURToolBox.UI
                             var segment = Singleton<NetManager>.instance.m_segments.m_buffer[segmentID];
                             if (CSURUtil.IsCSUR(segment.Info))
                             {
-                                if (CSURUtil.IsCSURDual(segment.Info))
+                                if (CSURUtil.IsCSURRLaneOffset(segment.Info))
                                 {
-                                    IsCSURDual = true;
-                                }
-                                else
-                                {
-                                    if (CSURUtil.IsCSURRLaneOffset(segment.Info))
-                                    {
-                                        IsCSURRLane = true;
-                                        break;
-                                    }
-                                    IsCSURSingle = true;
+                                    IsCSURRLane = true;
+                                    break;
                                 }
                             }
                         }
                     }
-                    if (IsCSURRLane || (IsCSURDual && IsCSURSingle))
+                    if (IsCSURRLane)
                     {
                         AddLaneConnectionForCSUR(i, TMPE);
                     }

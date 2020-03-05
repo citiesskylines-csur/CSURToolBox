@@ -24,3 +24,4 @@ Debug_Mode	Debug Mode
 EnablePillar	Enable Pillar
 AlignZone	Align Zone For CSUR Road
 FixLargeJunction	Fix Large Junction
+NOJunction	Remove traffic light for complex CSUR node, fix pedestrian cross issue(need reload)

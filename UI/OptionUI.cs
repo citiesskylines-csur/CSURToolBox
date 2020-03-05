@@ -16,6 +16,7 @@ namespace CSURToolBox.UI
         public static bool enablePillar = true;
         public static bool fixLargeJunction = true;
         public static bool alignZone = false;
+        public static bool noJunction = false;
         public static void MakeSettings(UIHelperBase helper)
         {
             // tabbing code is borrowed from RushHour mod
@@ -96,6 +97,7 @@ namespace CSURToolBox.UI
             generalGroup2.AddCheckbox(Localization.Get("EnablePillar"), enablePillar, (index) => isEnablePillarEnable(index));
             generalGroup2.AddCheckbox(Localization.Get("AlignZone"), alignZone, (index) => isAlignZoneEnable(index));
             generalGroup2.AddCheckbox(Localization.Get("FixLargeJunction"), fixLargeJunction, (index) => isFixLargeJunctionEnable(index));
+            generalGroup2.AddCheckbox(Localization.Get("NOJunction"), noJunction, (index) => isNoJunctionEnable(index));
             generalGroup2.AddDropdown(Localization.Get("Lane_Smooth_Level"), new string[] { Localization.Get("Low"), Localization.Get("Medium"), Localization.Get("High") }, smoothLevel, (index) => GetSmoothLevel(index));
             SaveSetting();
         }
@@ -128,6 +130,7 @@ namespace CSURToolBox.UI
             streamWriter.WriteLine(enablePillar);
             streamWriter.WriteLine(alignZone);
             streamWriter.WriteLine(fixLargeJunction);
+            streamWriter.WriteLine(noJunction);
             streamWriter.Flush();
             fs.Close();
         }
@@ -147,6 +150,7 @@ namespace CSURToolBox.UI
                 enablePillar = (sr.ReadLine() == "False") ? false : true;
                 alignZone = (sr.ReadLine() == "True") ? true : false;
                 fixLargeJunction = (sr.ReadLine() == "False") ? false : true;
+                noJunction = (sr.ReadLine() == "True") ? true : false;
 
                 sr.Close();
                 fs.Close();
@@ -203,6 +207,12 @@ namespace CSURToolBox.UI
         public static void isFixLargeJunctionEnable(bool index)
         {
             fixLargeJunction = index;
+            SaveSetting();
+        }
+
+        public static void isNoJunctionEnable(bool index)
+        {
+            noJunction = index;
             SaveSetting();
         }
     }

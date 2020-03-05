@@ -18,23 +18,26 @@ namespace CSURToolBox.Patch
     {
         public static MethodBase TargetMethod()
         {
-            return typeof(NetNode).GetMethod("CountSegments", BindingFlags.Public | BindingFlags.Instance);
+            return typeof(NetNode).GetMethod("CountSegments", BindingFlags.Public | BindingFlags.Instance, null, new Type[] {}, null);
         }
         public static void Postfix(ref NetNode __instance, ref int __result)
         {
-            for (int j = 0; j < 8; j++)
+            if (OptionUI.noJunction)
             {
-                ushort segmentID = __instance.GetSegment(j);
-                if (segmentID != 0)
+                for (int j = 0; j < 8; j++)
                 {
-                    NetInfo asset = Singleton<NetManager>.instance.m_segments.m_buffer[segmentID].Info;
-                    if (asset != null)
+                    ushort segmentID = __instance.GetSegment(j);
+                    if (segmentID != 0)
                     {
-                        if (asset.m_netAI is RoadAI)
+                        NetInfo asset = Singleton<NetManager>.instance.m_segments.m_buffer[segmentID].Info;
+                        if (asset != null)
                         {
-                            if (CSURUtil.IsCSURNoJunction(asset))
+                            if (asset.m_netAI is RoadAI)
                             {
-                                __result = 2;
+                                if (CSURUtil.IsCSURNoJunction(asset))
+                                {
+                                    __result = 2;
+                                }
                             }
                         }
                     }

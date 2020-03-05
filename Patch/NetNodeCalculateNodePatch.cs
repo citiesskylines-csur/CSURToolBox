@@ -22,16 +22,19 @@ namespace CSURToolBox.Patch
         }
         public static void Postfix(ref NetNode __instance)
         {
-            NetInfo asset = __instance.Info;
-            if (asset != null)
+            if (OptionUI.noJunction)
             {
-                if (asset.m_netAI is RoadAI)
+                NetInfo asset = __instance.Info;
+                if (asset != null)
                 {
-                    if (CSURUtil.IsCSURNoJunction(asset))
+                    if (asset.m_netAI is RoadAI)
                     {
-                        if (__instance.CountSegments() == 2)
+                        if (CSURUtil.IsCSURNoJunction(asset))
                         {
-                            __instance.m_flags &= NetNode.Flags.Junction;
+                            if (__instance.CountSegments() == 2)
+                            {
+                                __instance.m_flags &= ~NetNode.Flags.Junction;
+                            }
                         }
                     }
                 }

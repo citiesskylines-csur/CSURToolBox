@@ -583,7 +583,7 @@ namespace CSURToolBox
             for (uint num = 0u; num < PrefabCollection<NetInfo>.LoadedCount(); num++)
             {
                 NetInfo loaded = PrefabCollection<NetInfo>.GetLoaded(num);
-                if (CSURUtil.IsCSUROffset(loaded) || CSURUtil.IsCSURLaneOffset(loaded) || CSURUtil.IsCSURExpress(loaded))
+                if (CSURUtil.IsCSURNoJunction(loaded) || CSURUtil.IsCSURLaneOffset(loaded) || CSURUtil.IsCSURExpress(loaded))
                 {
                     if (loaded.m_netAI is RoadAI)
                     {
@@ -593,32 +593,33 @@ namespace CSURToolBox
                 }
             }
 
-
-            for (ushort i = 0; i < Singleton<NetManager>.instance.m_segments.m_size; i++)
+            if (OptionUI.disableZoneUpdateAll)
             {
-                NetInfo loaded = Singleton<NetManager>.instance.m_segments.m_buffer[i].Info;
-                var segmentData = Singleton<NetManager>.instance.m_segments.m_buffer[i];
-                if (CSURUtil.IsCSUROffset(loaded) || CSURUtil.IsCSURLaneOffset(loaded) || CSURUtil.IsCSURExpress(loaded))
+                for (ushort i = 0; i < Singleton<NetManager>.instance.m_segments.m_size; i++)
                 {
-                    if (segmentData.m_blockEndLeft != 0)
+                    NetInfo loaded = Singleton<NetManager>.instance.m_segments.m_buffer[i].Info;
+                    if (CSURUtil.IsCSURNoJunction(loaded) || CSURUtil.IsCSURLaneOffset(loaded) || CSURUtil.IsCSURExpress(loaded))
                     {
-                        ZoneManager.instance.ReleaseBlock(segmentData.m_blockEndLeft);
-                        segmentData.m_blockEndLeft = 0;
-                    }
-                    if (segmentData.m_blockEndRight != 0)
-                    {
-                        ZoneManager.instance.ReleaseBlock(segmentData.m_blockEndRight);
-                        segmentData.m_blockEndRight = 0;
-                    }
-                    if (segmentData.m_blockStartLeft != 0)
-                    {
-                        ZoneManager.instance.ReleaseBlock(segmentData.m_blockStartLeft);
-                        segmentData.m_blockStartLeft = 0;
-                    }
-                    if (segmentData.m_blockStartRight != 0)
-                    {
-                        ZoneManager.instance.ReleaseBlock(segmentData.m_blockStartRight);
-                        segmentData.m_blockStartRight = 0;
+                        if (Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockEndLeft != 0)
+                        {
+                            ZoneManager.instance.ReleaseBlock(Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockEndLeft);
+                            Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockEndLeft = 0;
+                        }
+                        if (Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockEndRight != 0)
+                        {
+                            ZoneManager.instance.ReleaseBlock(Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockEndRight);
+                            Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockEndRight = 0;
+                        }
+                        if (Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockStartLeft != 0)
+                        {
+                            ZoneManager.instance.ReleaseBlock(Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockStartLeft);
+                            Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockStartLeft = 0;
+                        }
+                        if (Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockStartRight != 0)
+                        {
+                            ZoneManager.instance.ReleaseBlock(Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockStartRight);
+                            Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockStartRight = 0;
+                        }
                     }
                 }
             }

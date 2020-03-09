@@ -20,7 +20,7 @@ namespace CSURToolBox
     {
         public static bool isFirstTime = true;
         public static Assembly MoveIt = null;
-        public const int HarmonyPatchNum = 14;
+        public const int HarmonyPatchNum = 15;
 
         public override void OnBeforeSimulationFrame()
         {

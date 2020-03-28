@@ -21,18 +21,12 @@ namespace CSURToolBox.Patch
         {
             return typeof(NetSegment).GetMethod("CalculateCorner", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(bool), typeof(bool), typeof(bool), typeof(Vector3).MakeByRefType(), typeof(Vector3).MakeByRefType(), typeof(bool).MakeByRefType() }, null);
         }
-        public static void Prefix(ref NetSegment __instance, ushort segmentID, bool start)
+        public static void Prefix(ref NetSegment __instance, bool start)
         {
             if (OptionUI.fixLargeJunction)
             {
-                NetInfo info = __instance.Info;
                 NetManager instance = Singleton<NetManager>.instance;
                 ushort num = (!start) ? __instance.m_endNode : __instance.m_startNode;
-                ushort num2 = (!start) ? __instance.m_startNode : __instance.m_endNode;
-                Vector3 position = instance.m_nodes.m_buffer[(int)num].m_position;
-                Vector3 position2 = instance.m_nodes.m_buffer[(int)num2].m_position;
-                Vector3 startDir = (!start) ? __instance.m_endDirection : __instance.m_startDirection;
-                Vector3 endDir = (!start) ? __instance.m_startDirection : __instance.m_endDirection;
                 // NON-STOCK CODE STARTS
                 float m_minCornerOffset = 0f;
                 float tempMinCornerOffset = 1000f;
@@ -81,7 +75,7 @@ namespace CSURToolBox.Patch
             }
         }
 
-        public static void Postfix(ref NetSegment __instance, ushort segmentID)
+        public static void Postfix(ref NetSegment __instance)
         {
             if (OptionUI.fixLargeJunction)
             {

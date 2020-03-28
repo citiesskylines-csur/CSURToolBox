@@ -101,7 +101,7 @@ namespace CSURToolBox
         {
             if (isFirstTime)
             { 
-                if (Loader.DetourInited)
+                if (Loader.DetourInited && Loader.HarmonyDetourInited)
                 {
                     isFirstTime = false;
                     DetourAfterLoad();

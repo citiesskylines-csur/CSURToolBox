@@ -40,7 +40,7 @@ namespace CSURToolBox.UI
                 var selectedNodeId = TMPE.GetType("TrafficManager.UI.TrafficManagerTool").GetProperty("SelectedNodeId");
                 var TrafficManagerTool = TMPE.CreateInstance("TrafficManager.UI.TrafficManagerTool");
                 ushort node = (ushort)selectedNodeId.GetValue(TrafficManagerTool, null);
-                DebugLog.LogToFileOnly("TMPE select node = " + node.ToString());
+                //DebugLog.LogToFileOnly("TMPE select node = " + node.ToString());
                 NetInfo asset = Singleton<NetManager>.instance.m_nodes.m_buffer[node].Info;
                 if (CSURUtil.IsCSUR(asset))
                 {
@@ -181,7 +181,7 @@ namespace CSURToolBox.UI
                                 }
                                 if (laneID != 0)
                                 {
-                                    DebugLog.LogToFileOnly("firstLane = " + firstLane.ToString() + "laneID = " + laneID.ToString());
+                                    //DebugLog.LogToFileOnly("firstLane = " + firstLane.ToString() + "laneID = " + laneID.ToString());
                                     AddLaneConnection.Invoke(LaneConnectionManager, new object[] { firstLane, laneID, startNode });
                                 }
                             } //outgoing to match incoming
@@ -245,7 +245,7 @@ namespace CSURToolBox.UI
                                 }
                                 if (laneID != 0)
                                 {
-                                    DebugLog.LogToFileOnly("firstLane = " + firstLane.ToString() + "laneID = " + laneID.ToString());
+                                    //DebugLog.LogToFileOnly("firstLane = " + firstLane.ToString() + "laneID = " + laneID.ToString());
                                     AddLaneConnection.Invoke(LaneConnectionManager, new object[] { laneID, firstLane, tmpStartNode });
                                 }
                             }//incoming to match outgoing

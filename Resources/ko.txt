@@ -1,0 +1,27 @@
+ShortCuts_Control_TIPS	단축키를 시작패널에서 사용합니다
+DisableZone	CSUR 진입로와 고속도로를 위한 구역/존 비활성화
+UpdateZone	로딩 중 구역/존 업데이트
+Lane_Smooth_Level	부드러운 차선 이동 레벨(디버그 전용)
+LaneType	일방통행/양방통행/유턴/비대칭+1/비대칭+2
+RoadType	없음/인도/인도&자전거도로
+StayInLane	선택된 CSUR 노드 차선연결(TMPE 모드 필요함)
+StayInLaneAll	가능한 모든 CSUR 노드 차선연결(TMPE 모드 필요함)
+Copy	복사
+Swap	교체
+Clear	초기화
+Low	낮음
+Medium	중간
+High	높음
+Experimental_Function	실험 기능
+Function_Button_ShortCut	기능 버튼 단축키
+ShortCuts_Control	단축키 기능 수정
+Lane_Button_ShortCut	차선 버튼 단축키
+Lane_ShortCut	차선 단축키
+From	끝
+To	시작
+Function_ShortCut	기능 단축키
+Debug_Mode	디버그 모드
+EnablePillar	기둥 활성화
+AlignZone	CSUR 도로를 위한 구역/존 정렬
+FixLargeJunction	대형 교차로 수정
+NOJunction	복잡한 CSUR 노드에 있는 신호등 제거, 횡단보도 문제 수정(게임 재실행 필요함)

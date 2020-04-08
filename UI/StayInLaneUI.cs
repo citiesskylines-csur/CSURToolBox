@@ -1,12 +1,8 @@
-﻿using System.Collections.Generic;
-using ColossalFramework;
+﻿using ColossalFramework;
 using ColossalFramework.UI;
 using UnityEngine;
-using System.Collections;
 using CSURToolBox.Util;
 using System.Reflection;
-using System;
-using ColossalFramework.Math;
 
 namespace CSURToolBox.UI
 {

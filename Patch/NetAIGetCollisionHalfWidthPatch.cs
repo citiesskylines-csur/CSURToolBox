@@ -1,12 +1,6 @@
-﻿using ColossalFramework;
-using CSURToolBox.UI;
-using CSURToolBox.Util;
-using Harmony;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using CSURToolBox.Util;
+using HarmonyLib;
 using System.Reflection;
-using System.Text;
 
 namespace CSURToolBox.Patch
 {

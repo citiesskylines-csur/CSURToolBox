@@ -1,10 +1,10 @@
 ﻿using ICities;
 using System.IO;
-using ColossalFramework.UI;
 using ColossalFramework;
 using System;
 using CSURToolBox.Util;
 using CSURToolBox.UI;
+using CitiesHarmony.API;
 
 namespace CSURToolBox
 {
@@ -24,6 +24,7 @@ namespace CSURToolBox
             IsEnabled = true;
             FileStream fs = File.Create("CSURToolBox.txt");
             fs.Close();
+            HarmonyHelper.EnsureHarmonyInstalled();
         }
         public void OnDisabled()
         {

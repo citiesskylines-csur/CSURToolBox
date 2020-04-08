@@ -1,11 +1,4 @@
-﻿using ColossalFramework;
-using ColossalFramework.Math;
-using CSURToolBox.UI;
-using CSURToolBox.Util;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using ColossalFramework.Math;
 using UnityEngine;
 
 namespace CSURToolBox.CustomData

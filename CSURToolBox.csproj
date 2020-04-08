@@ -32,11 +32,14 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony1.9">
-      <HintPath>..\0Harmony1.9.dll</HintPath>
+    <Reference Include="0Harmony, Version=2.0.0.9, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\Lib.Harmony.2.0.0.9\lib\net35\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>F:\SteamLibrary\steamapps\common\Cities_Skylines\Cities_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="CitiesHarmony.API, Version=1.0.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\CitiesHarmony.API.1.0.4\lib\net35\CitiesHarmony.API.dll</HintPath>
     </Reference>
     <Reference Include="ColossalManaged">
       <HintPath>F:\SteamLibrary\steamapps\common\Cities_Skylines\Cities_Data\Managed\ColossalManaged.dll</HintPath>
@@ -92,7 +95,9 @@
     <Compile Include="Util\RedirectionHelper.cs" />
     <Compile Include="Util\SpriteUtilities.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="PreviewImage.png" />
     <Content Include="Resources\CSUR.png" />
@@ -107,11 +112,13 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "D:\Mod\CSURToolBox\bin\Release\CSURToolBox.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\CSURToolBox.dll"
+    <PostBuildEvent>rd /q /s "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332"
+mkdir "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332"
+copy "D:\Mod\CSURToolBox\bin\Release\CSURToolBox.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\CSURToolBox.dll"
 rd /q /s "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\Resources"
 mkdir "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\Resources"
 copy "D:\Mod\CSURToolBox\Resources\*.*" "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\Resources"
-copy "D:\Mod\CSURToolBox\bin\Release\0Harmony1.9.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\0Harmony.dll"
+copy "D:\Mod\CSURToolBox\bin\Release\CitiesHarmony.API.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\CitiesHarmony.API.dll"
 copy "D:\Mod\CSURToolBox\PreviewImage.png"  "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\PreviewImage.png"</PostBuildEvent>
   </PropertyGroup>
 </Project>

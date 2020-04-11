@@ -145,7 +145,7 @@ namespace CSURToolBox
                             var info = Harmony.GetPatchInfo(method);
                             if (info.Owners?.Contains(HarmonyDetours.Id) == true)
                             {
-                                DebugLog.LogToFileOnly("Harmony patch method = " + method.Name.ToString());
+                                DebugLog.LogToFileOnly($"Harmony patch method = {method.FullDescription()}");
                                 if (info.Prefixes.Count != 0)
                                 {
                                     DebugLog.LogToFileOnly("Harmony patch method has PreFix");

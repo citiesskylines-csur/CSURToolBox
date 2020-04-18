@@ -115,7 +115,6 @@
     <PostBuildEvent>rd /q /s "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332"
 mkdir "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332"
 copy "D:\Mod\CSURToolBox\bin\Release\CSURToolBox.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\CSURToolBox.dll"
-rd /q /s "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\Resources"
 mkdir "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\Resources"
 copy "D:\Mod\CSURToolBox\Resources\*.*" "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\Resources"
 copy "D:\Mod\CSURToolBox\bin\Release\CitiesHarmony.API.dll"  "F:\SteamLibrary\steamapps\workshop\content\255710\1959342332\CitiesHarmony.API.dll"

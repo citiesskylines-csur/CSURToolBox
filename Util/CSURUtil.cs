@@ -52,9 +52,7 @@ namespace CSURToolBox.Util
             {
                 return false;
             }
-            string savenameStripped = asset.name.Substring(asset.name.IndexOf('.') + 1);
-            Match m = Regex.Match(savenameStripped, CSUR_OFFSET_REGEX, RegexOptions.IgnoreCase);
-            return m.Success;
+            return asset.m_nodes.Length == 0;
         }
 
         public static bool IsCSURDual(NetInfo asset)

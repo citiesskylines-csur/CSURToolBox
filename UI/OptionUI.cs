@@ -17,6 +17,7 @@ namespace CSURToolBox.UI
         public static bool fixLargeJunction = true;
         public static bool alignZone = false;
         public static bool noJunction = false;
+        public static bool tempPatchForSpeedAndPrice = false;
         public static void MakeSettings(UIHelperBase helper)
         {
             // tabbing code is borrowed from RushHour mod
@@ -98,6 +99,7 @@ namespace CSURToolBox.UI
             generalGroup2.AddCheckbox(Localization.Get("AlignZone"), alignZone, (index) => isAlignZoneEnable(index));
             generalGroup2.AddCheckbox(Localization.Get("FixLargeJunction"), fixLargeJunction, (index) => isFixLargeJunctionEnable(index));
             generalGroup2.AddCheckbox(Localization.Get("NOJunction"), noJunction, (index) => isNoJunctionEnable(index));
+            generalGroup2.AddCheckbox(Localization.Get("TEMPPATCH"), tempPatchForSpeedAndPrice, (index) => isTempPatchEnable(index));
             generalGroup2.AddDropdown(Localization.Get("Lane_Smooth_Level"), new string[] { Localization.Get("Low"), Localization.Get("Medium"), Localization.Get("High") }, smoothLevel, (index) => GetSmoothLevel(index));
             SaveSetting();
         }
@@ -131,6 +133,7 @@ namespace CSURToolBox.UI
             streamWriter.WriteLine(alignZone);
             streamWriter.WriteLine(fixLargeJunction);
             streamWriter.WriteLine(noJunction);
+            streamWriter.WriteLine(tempPatchForSpeedAndPrice);
             streamWriter.Flush();
             fs.Close();
         }
@@ -151,6 +154,7 @@ namespace CSURToolBox.UI
                 alignZone = (sr.ReadLine() == "True") ? true : false;
                 fixLargeJunction = (sr.ReadLine() == "False") ? false : true;
                 noJunction = (sr.ReadLine() == "True") ? true : false;
+                tempPatchForSpeedAndPrice = (sr.ReadLine() == "True") ? true : false;
 
                 sr.Close();
                 fs.Close();
@@ -213,6 +217,12 @@ namespace CSURToolBox.UI
         public static void isNoJunctionEnable(bool index)
         {
             noJunction = index;
+            SaveSetting();
+        }
+
+        public static void isTempPatchEnable(bool index)
+        {
+            tempPatchForSpeedAndPrice = index;
             SaveSetting();
         }
     }

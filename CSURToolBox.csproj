@@ -104,6 +104,7 @@
     <Content Include="Resources\CSUR1.png" />
     <Content Include="Resources\CSUR2.png" />
     <Content Include="Resources\en.txt" />
+    <Content Include="Resources\ko.txt" />
     <Content Include="Resources\Notfound.png" />
     <Content Include="Resources\UIBG.png" />
     <Content Include="Resources\UITOP.png" />

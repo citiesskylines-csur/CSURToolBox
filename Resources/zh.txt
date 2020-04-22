@@ -25,3 +25,4 @@ EnablePillar	启用桥墩
 AlignZone	CSUR路对齐格子
 FixLargeJunction	修复过大的路口
 NOJunction	复杂的CSUR路口不会出现红绿灯和行人乱穿(重启生效)
+TEMPPATCH	调整CSUR路的道路限速和建设价格,临时补丁(重启生效)

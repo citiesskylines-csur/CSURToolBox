@@ -678,21 +678,24 @@ namespace CSURToolBox.Util
             return count;
         }
 
-        public static float CountCSURSOtherLanes(NetInfo info, bool bikelaneAsOne = false)
+        public static float CountCSURSOtherLanes(NetInfo info, bool caculatePrice = false)
         {
             float count = 0f;
             for (int i = 0; i < info.m_lanes.Length; i++)
             {
                 if (info.m_lanes[i].m_laneType.IsFlagSet(NetInfo.LaneType.Vehicle) && info.m_lanes[i].m_vehicleType.IsFlagSet(VehicleInfo.VehicleType.Bicycle))
                 {
-                    if (bikelaneAsOne)
-                        count += 1f;
+                    if (caculatePrice)
+                        count += 0.5f;
                     else
                         count += (2.75f / 3.75f);
                 }
                 else if (info.m_lanes[i].m_laneType.IsFlagSet(NetInfo.LaneType.Pedestrian))
                 {
-                    count += 1f;
+                    if (caculatePrice)
+                        count += 0.5f;
+                    else
+                        count += 1f;
                 }
             }
             return count;

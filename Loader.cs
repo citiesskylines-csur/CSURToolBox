@@ -674,8 +674,16 @@ namespace CSURToolBox
                                     }
                                 }
                                 laneNum += (int)CSURUtil.CountCSURSOtherLanes(asset, true);
+
+                                float width = 0;
+                                if (asset.m_lanes.Length > 0)
+                                    width = asset.m_lanes[asset.m_sortedLanes[0]].m_position - asset.m_lanes[asset.m_sortedLanes[asset.m_lanes.Length - 1]].m_position;
+
+                                if (width < 0)
+                                    width = -width;
+
                                 PlayerNetAI AI = asset.m_netAI as PlayerNetAI;
-                                AI.m_constructionCost = 1000 * laneNum;
+                                AI.m_constructionCost = 400 * laneNum + (int)(width * 100);
                             }
                         }
                     }

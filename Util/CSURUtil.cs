@@ -686,14 +686,14 @@ namespace CSURToolBox.Util
                 if (info.m_lanes[i].m_laneType.IsFlagSet(NetInfo.LaneType.Vehicle) && info.m_lanes[i].m_vehicleType.IsFlagSet(VehicleInfo.VehicleType.Bicycle))
                 {
                     if (caculatePrice)
-                        count += 0.5f;
+                        count += 1f;
                     else
                         count += (2.75f / 3.75f);
                 }
                 else if (info.m_lanes[i].m_laneType.IsFlagSet(NetInfo.LaneType.Pedestrian))
                 {
                     if (caculatePrice)
-                        count += 0.5f;
+                        count += 1f;
                     else
                         count += 1f;
                 }

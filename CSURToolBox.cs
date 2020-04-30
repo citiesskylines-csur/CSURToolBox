@@ -24,10 +24,11 @@ namespace CSURToolBox
             IsEnabled = true;
             FileStream fs = File.Create("CSURToolBox.txt");
             fs.Close();
-            HarmonyHelper.EnsureHarmonyInstalled();
+            HarmonyHelper.DoOnHarmonyReady(() => Loader.HarmonyInitDetour());
         }
         public void OnDisabled()
         {
+            Loader.HarmonyRevertDetour();
             IsEnabled = false;
         }
         public CSURToolBox()

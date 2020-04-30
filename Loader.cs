@@ -88,8 +88,7 @@ namespace CSURToolBox
                             DisableZone();
                         }
                     }
-                    RefreshSegment();
-                    RefreshNode();
+
                     ChangeDefaultSpeedAndConstructionFee();
                     Debug.Log("OnLevelLoaded");
                     if (mode == LoadMode.NewGame)
@@ -358,30 +357,24 @@ namespace CSURToolBox
             return this.Check3rdPartyModLoaded("MoveIt", false);
         }
 
-        public void HarmonyInitDetour()
+        public static void HarmonyInitDetour()
         {
-            if (HarmonyHelper.IsHarmonyInstalled)
+            if (!HarmonyDetourInited)
             {
-                if (!HarmonyDetourInited)
-                {
-                    DebugLog.LogToFileOnly("Init harmony detours");
-                    HarmonyDetours.Apply();
-                    HarmonyDetourInited = true;
-                }
+                DebugLog.LogToFileOnly("Init harmony detours");
+                HarmonyDetours.Apply();
+                HarmonyDetourInited = true;
             }
         }
 
-        public void HarmonyRevertDetour()
+        public static void HarmonyRevertDetour()
         {
-            if (HarmonyHelper.IsHarmonyInstalled)
+            if (HarmonyDetourInited)
             {
-                if (HarmonyDetourInited)
-                {
-                    DebugLog.LogToFileOnly("Revert harmony detours");
-                    HarmonyDetours.DeApply();
-                    HarmonyDetourInited = false;
-                    HarmonyDetourFailed = true;
-                }
+                DebugLog.LogToFileOnly("Revert harmony detours");
+                HarmonyDetours.DeApply();
+                HarmonyDetourInited = false;
+                HarmonyDetourFailed = true;
             }
         }
 
@@ -547,46 +540,6 @@ namespace CSURToolBox
                         }
                         elevatedAI.m_bridgePillarInfo = null;// PrefabCollection<BuildingInfo>.FindLoaded("CSUR 2DC.Ama S-1_Data");
                         Debug.Log("Remove pilla for " + loaded.name.ToString());
-                    }
-                }
-            }
-        }
-
-        public void RefreshSegment()
-        {
-            for (ushort i = 0; i < Singleton<NetManager>.instance.m_segments.m_size; i++)
-            {
-                NetInfo asset = Singleton<NetManager>.instance.m_segments.m_buffer[i].Info;
-                if (asset != null)
-                {
-                    if (CSURUtil.IsCSUR(asset))
-                    {
-                        if (asset.m_netAI is RoadAI)
-                        {
-                            Singleton<NetManager>.instance.UpdateSegment(i);
-                        }
-                        else
-                        {
-                            Singleton<NetManager>.instance.m_segments.m_buffer[i].UpdateLanes(i, true);
-                        }
-                    }
-                }
-            }
-        }
-
-        public void RefreshNode()
-        {
-            for (ushort i = 0; i < Singleton<NetManager>.instance.m_nodes.m_size; i++)
-            {
-                NetInfo asset = Singleton<NetManager>.instance.m_nodes.m_buffer[i].Info;
-                if (asset != null)
-                {
-                    if (asset.m_netAI is RoadAI)
-                    {
-                        if (CSURUtil.IsCSUR(asset))
-                        {
-                            Singleton<NetManager>.instance.UpdateNode(i);
-                        }
                     }
                 }
             }

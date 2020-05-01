@@ -67,6 +67,7 @@
     <Compile Include="Patch\BuildingFindParentNodePatch.cs" />
     <Compile Include="Patch\NetNodeCountSegmentsPatch.cs" />
     <Compile Include="Patch\NetNodeCalculateNodePatch.cs" />
+    <Compile Include="Patch\NetNodeRefreshJunctionDataPatch.cs" />
     <Compile Include="Patch\NetSegmentGetLeftAndRightLanesPatch.cs" />
     <Compile Include="Patch\NetSegmentCalculateCornerPatch.cs" />
     <Compile Include="Patch\NetSegmentOverlapQuadPatch.cs" />

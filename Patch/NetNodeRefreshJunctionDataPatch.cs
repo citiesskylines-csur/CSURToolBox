@@ -1,23 +1,18 @@
-﻿using ColossalFramework;
-using System;
+﻿using System;
 using System.Reflection;
-using UnityEngine;
 using CSURToolBox.Util;
 using HarmonyLib;
-using CSURToolBox.UI;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 
 namespace CSURToolBox.Patch
 {
     [HarmonyPatch]
-    public static class NetSegmentCalculateCornerPatch
+    public static class NetNodeRefreshJunctionDataPatch
     {
-        public static bool[] segmentOffsetLock = new bool[65536];
-        public static float[] segmentOffset = new float[65536];
         public static MethodBase TargetMethod()
         {
-            return typeof(NetSegment).GetMethod("CalculateCorner", BindingFlags.Public | BindingFlags.Static);
+            return typeof(NetNode).GetMethod("RefreshJunctionData", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(ushort), typeof(NetInfo), typeof(uint) }, null);
         }
 
         static FieldInfo f_minCornerOffset =
@@ -32,7 +27,7 @@ namespace CSURToolBox.Patch
 
         public static IEnumerable<CodeInstruction> Transpiler(ILGenerator il, IEnumerable<CodeInstruction> instructions)
         {
-            CodeInstruction ldarg_startNodeID = CSURUtil.GetLDArg(targetMethod_, "startNodeID"); // push startNodeID into stack,
+            CodeInstruction ldarg_startNodeID = CSURUtil.GetLDArg(targetMethod_, "nodeID"); // push nodeID into stack,
             CodeInstruction call_GetMinCornerOffset = new CodeInstruction(OpCodes.Call, mGetMinCornerOffset);
 
             int n = 0;
@@ -49,7 +44,7 @@ namespace CSURToolBox.Patch
                 }
             }
 
-            DebugLog.LogToFileOnly($"TRANSPILER CalculateCornerPatch: Successfully patched NetSegment.CalculateCorner(). " +
+            DebugLog.LogToFileOnly($"TRANSPILER RefreshJunctionData: Successfully patched NetNode.RefreshJunctionData(). " +
                 $"found {n} instances of Ldfld NetInfo.m_minCornerOffset");
             yield break;
         }

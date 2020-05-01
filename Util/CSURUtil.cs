@@ -1,8 +1,11 @@
 ﻿using ColossalFramework;
 using CSURToolBox.UI;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
@@ -786,6 +789,94 @@ namespace CSURToolBox.Util
                 }
             }
             return default(NetSegment);
+        }
+
+        public static byte GetParameterLoc(MethodInfo method, string name)
+        {
+            var parameters = method.GetParameters();
+            for (byte i = 0; i < parameters.Length; ++i)
+            {
+                if (parameters[i].Name == name)
+                {
+                    return i;
+                }
+            }
+            throw new Exception($"did not found parameter with name:<{name}>");
+        }
+
+        public static CodeInstruction GetLDArg(MethodInfo method, string argName)
+        {
+            byte idx = (byte)GetParameterLoc(method, argName);
+            if (!method.IsStatic)
+                idx++; // first argument is object instance.
+            if (idx == 0)
+            {
+                return new CodeInstruction(OpCodes.Ldarg_0);
+            }
+            else if (idx == 1)
+            {
+                return new CodeInstruction(OpCodes.Ldarg_1);
+            }
+            else if (idx == 2)
+            {
+                return new CodeInstruction(OpCodes.Ldarg_2);
+            }
+            else if (idx == 3)
+            {
+                return new CodeInstruction(OpCodes.Ldarg_3);
+            }
+            else
+            {
+                return new CodeInstruction(OpCodes.Ldarg_S, idx);
+            }
+        }
+
+        public static float GetMinCornerOffset(float cornerOffset0, ushort nodeID)
+        {
+            var instance = Singleton<NetManager>.instance;
+            if (OptionUI.fixLargeJunction)
+            {
+                // NON-STOCK CODE STARTS
+                float m_minCornerOffset = 0f;
+                float tempMinCornerOffset = 1000f;
+                int segmentCount = 0;
+                bool isCSURRoad = false;
+                for (int i = 0; i < 8; i++)
+                {
+                    ushort segment1 = instance.m_nodes.m_buffer[nodeID].GetSegment(i);
+                    if (segment1 != 0)
+                    {
+                        segmentCount++;
+                        if (CSURUtil.IsCSUR(instance.m_segments.m_buffer[segment1].Info))
+                        {
+                            isCSURRoad = true;
+                        }
+                        if (instance.m_segments.m_buffer[segment1].Info.m_minCornerOffset < tempMinCornerOffset)
+                        {
+                            tempMinCornerOffset = instance.m_segments.m_buffer[segment1].Info.m_minCornerOffset;
+                        }
+                    }
+                }
+
+                if (isCSURRoad)
+                {
+                    if (tempMinCornerOffset != 1000f)
+                    {
+                        m_minCornerOffset = tempMinCornerOffset;
+                    }
+                    //direct node
+                    if (segmentCount == 2)
+                    {
+                        m_minCornerOffset = m_minCornerOffset / 2f;
+                        if (m_minCornerOffset > 24f)
+                        {
+                            m_minCornerOffset = 24f;
+                        }
+                    }
+                }
+                return m_minCornerOffset;
+            }
+            return cornerOffset0;
         }
     }
 }

@@ -1,67 +1,86 @@
-﻿using CSURToolBox.UI;
+﻿using ColossalFramework;
+using CSURToolBox.UI;
 using CSURToolBox.Util;
 using HarmonyLib;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
+using System.Reflection.Emit;
 
 namespace CSURToolBox.Patch
 {
     [HarmonyPatch]
     public static class RoadAICreateZoneBlocksPatch
     {
-        public static bool[] segmentHalfWidthLock = new bool[65536];
-        public static float[] segmentHalfWidth = new float[65536];
         public static MethodBase TargetMethod()
         {
             return typeof(RoadAI).GetMethod("CreateZoneBlocks");
         }
-        public static void Prefix(ref NetSegment data)
+
+        static FieldInfo f_halfWidth =
+            typeof(NetInfo).GetField(nameof(NetInfo.m_halfWidth)) ??
+            throw new Exception("f_halfWidth is null");
+
+        static MethodInfo mChangeHalfWidth = AccessTools.DeclaredMethod(
+            typeof(RoadAICreateZoneBlocksPatch), nameof(ChangeHalfWidth)) ??
+            throw new Exception("mChangeHalfWidth is null");
+
+        static MethodInfo targetMethod_ = TargetMethod() as MethodInfo;
+
+        public static IEnumerable<CodeInstruction> Transpiler(ILGenerator il, IEnumerable<CodeInstruction> instructions)
         {
+            CodeInstruction ldarg_segment = CSURUtil.GetLDArg(targetMethod_, "segment"); // push segment into stack,
+            CodeInstruction call_ChangeHalfWidth = new CodeInstruction(OpCodes.Call, mChangeHalfWidth);
+
+            int n = 0;
+            foreach (var innstruction in instructions)
+            {
+                yield return innstruction;
+                bool is_ldfld_f_halfWidth =
+                    innstruction.opcode == OpCodes.Ldfld && innstruction.operand == f_halfWidth;
+                if (is_ldfld_f_halfWidth)
+                {
+                    n++;
+                    yield return ldarg_segment;
+                    yield return call_ChangeHalfWidth;
+                }
+            }
+
+            DebugLog.LogToFileOnly($"TRANSPILER CreateZoneBlocksPatch: Successfully patched RoadAI.CreateZoneBlocks(). " +
+                $"found {n} instances of Ldfld NetInfo.m_halfWidth");
+            yield break;
+        }
+
+        public static float ChangeHalfWidth(float halfWidth0, ushort segment)
+        {
+            var data = Singleton<NetManager>.instance.m_segments.m_buffer[segment];
             if (OptionUI.alignZone)
             {
                 if (CSURUtil.IsCSUR(data.Info))
                 {
-                    if (!segmentHalfWidthLock[data.m_infoIndex])
+                    if (data.Info.m_halfWidth < 9f)
                     {
-                        segmentHalfWidth[data.m_infoIndex] = data.Info.m_halfWidth;
-                        if (data.Info.m_halfWidth < 9f)
-                        {
-                            data.Info.m_halfWidth = 8f;
-                        }
-                        else if (data.Info.m_halfWidth < 17f)
-                        {
-                            data.Info.m_halfWidth = 16f;
-                        }
-                        else if (data.Info.m_halfWidth < 25f)
-                        {
-                            data.Info.m_halfWidth = 24f;
-                        }
-                        else if (data.Info.m_halfWidth < 33f)
-                        {
-                            data.Info.m_halfWidth = 32f;
-                        }
-                        else if (data.Info.m_halfWidth < 41f)
-                        {
-                            data.Info.m_halfWidth = 40f;
-                        }
-                        segmentHalfWidthLock[data.m_infoIndex] = true;
+                        return 8f;
+                    }
+                    else if (data.Info.m_halfWidth < 17f)
+                    {
+                        return 16f;
+                    }
+                    else if (data.Info.m_halfWidth < 25f)
+                    {
+                        return 24f;
+                    }
+                    else if (data.Info.m_halfWidth < 33f)
+                    {
+                        return 32f;
+                    }
+                    else if (data.Info.m_halfWidth < 41f)
+                    {
+                        return 40f;
                     }
                 }
             }
-        }
-
-        public static void Postfix(ref NetSegment data)
-        {
-            if (OptionUI.alignZone)
-            {
-                if (CSURUtil.IsCSUR(data.Info))
-                { 
-                    if (segmentHalfWidthLock[data.m_infoIndex])
-                    {
-                        data.Info.m_halfWidth = segmentHalfWidth[data.m_infoIndex];
-                        segmentHalfWidthLock[data.m_infoIndex] = false;
-                    }
-                }
-            }
+            return halfWidth0;
         }
     }
 }

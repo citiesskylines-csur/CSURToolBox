@@ -68,7 +68,6 @@ namespace CSURToolBox
                 if (mode == LoadMode.LoadGame || mode == LoadMode.NewGame || mode == LoadMode.NewMap || mode == LoadMode.LoadMap || mode == LoadMode.NewAsset || mode == LoadMode.LoadAsset)
                 {
                     OptionUI.LoadSetting();
-                    DataInit();
                     SetupGui();
                     if (mode == LoadMode.LoadGame || mode == LoadMode.NewGame)
                     {
@@ -123,16 +122,6 @@ namespace CSURToolBox
             }
         }
 
-        public static void DataInit()
-        {
-            for (int i = 0; i < NetSegmentCalculateCornerPatch.segmentOffsetLock.Length; i++)
-            {
-                NetSegmentCalculateCornerPatch.segmentOffsetLock[i] = false;
-                NetSegmentCalculateCornerPatch.segmentOffset[i] = 0f;
-                RoadAICreateZoneBlocksPatch.segmentHalfWidthLock[i] = false;
-                RoadAICreateZoneBlocksPatch.segmentHalfWidth[i] = 0f;
-            }
-        }
         private static void LoadSprites()
         {
             if (SpriteUtilities.GetAtlas(m_atlasName) != null) return;

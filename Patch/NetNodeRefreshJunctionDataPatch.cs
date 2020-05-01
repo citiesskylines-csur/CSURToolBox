@@ -27,7 +27,7 @@ namespace CSURToolBox.Patch
 
         public static IEnumerable<CodeInstruction> Transpiler(ILGenerator il, IEnumerable<CodeInstruction> instructions)
         {
-            CodeInstruction ldarg_startNodeID = CSURUtil.GetLDArg(targetMethod_, "nodeID"); // push nodeID into stack,
+            CodeInstruction ldarg_nodeID = CSURUtil.GetLDArg(targetMethod_, "nodeID"); // push nodeID into stack,
             CodeInstruction call_GetMinCornerOffset = new CodeInstruction(OpCodes.Call, mGetMinCornerOffset);
 
             int n = 0;
@@ -39,7 +39,7 @@ namespace CSURToolBox.Patch
                 if (is_ldfld_minCornerOffset)
                 {
                     n++;
-                    yield return ldarg_startNodeID;
+                    yield return ldarg_nodeID;
                     yield return call_GetMinCornerOffset;
                 }
             }

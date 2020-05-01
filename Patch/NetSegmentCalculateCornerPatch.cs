@@ -13,16 +13,14 @@ namespace CSURToolBox.Patch
     [HarmonyPatch]
     public static class NetSegmentCalculateCornerPatch
     {
-        public static bool[] segmentOffsetLock = new bool[65536];
-        public static float[] segmentOffset = new float[65536];
         public static MethodBase TargetMethod()
         {
             return typeof(NetSegment).GetMethod("CalculateCorner", BindingFlags.Public | BindingFlags.Static);
         }
 
         static FieldInfo f_minCornerOffset =
-        typeof(NetInfo).GetField(nameof(NetInfo.m_minCornerOffset)) ??
-        throw new Exception("f_minCornerOffset is null");
+            typeof(NetInfo).GetField(nameof(NetInfo.m_minCornerOffset)) ??
+            throw new Exception("f_minCornerOffset is null");
 
         static MethodInfo mGetMinCornerOffset = AccessTools.DeclaredMethod(
             typeof(CSURUtil), nameof(CSURUtil.GetMinCornerOffset)) ??

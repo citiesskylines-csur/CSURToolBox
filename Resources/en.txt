@@ -25,4 +25,4 @@ EnablePillar	Enable Pillar
 AlignZone	Align Zone For CSUR Road
 FixLargeJunction	Fix Large Junction
 NOJunction	Remove traffic light for complex CSUR node, fix pedestrian cross issue(need reload)
-TEMPPATCH	Temp patch to adjust CSUR Road lanespeed and construction price(need reload)
+TEMPPATCH	Add patch to adjust CSUR Road lanespeed and construction price(need reload)

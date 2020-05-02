@@ -839,6 +839,9 @@ namespace CSURToolBox.Util
                 // NON-STOCK CODE STARTS
                 float m_minCornerOffset = 0f;
                 float tempMinCornerOffset = 1000f;
+                float m_maxCornerOffset = 1000f;
+                float tempMaxCornerOffset = 0f;
+                float finalCornerOffset = 0f;
                 int segmentCount = 0;
                 bool isCSURRoad = false;
                 for (int i = 0; i < 8; i++)
@@ -855,6 +858,10 @@ namespace CSURToolBox.Util
                         {
                             tempMinCornerOffset = instance.m_segments.m_buffer[segment1].Info.m_minCornerOffset;
                         }
+                        if (instance.m_segments.m_buffer[segment1].Info.m_minCornerOffset > tempMaxCornerOffset)
+                        {
+                            tempMaxCornerOffset = instance.m_segments.m_buffer[segment1].Info.m_minCornerOffset;
+                        }
                     }
                 }
 
@@ -864,17 +871,38 @@ namespace CSURToolBox.Util
                     {
                         m_minCornerOffset = tempMinCornerOffset;
                     }
+
+                    if (tempMaxCornerOffset != 0f)
+                    {
+                        m_maxCornerOffset = tempMaxCornerOffset;
+                    }
+
                     //direct node
                     if (segmentCount == 2)
                     {
-                        m_minCornerOffset = m_minCornerOffset / 2f;
-                        if (m_minCornerOffset > 24f)
+                        finalCornerOffset = m_minCornerOffset / 2f;
+                        if (finalCornerOffset > 24f)
                         {
-                            m_minCornerOffset = 24f;
+                            finalCornerOffset = 24f;
+                        }
+                    }
+                    else
+                    {
+                        if (cornerOffset0 == m_maxCornerOffset)
+                        {
+                            finalCornerOffset = (m_minCornerOffset + m_maxCornerOffset) / 2f;
+                        }
+                        else if (cornerOffset0 == m_minCornerOffset)
+                        {
+                            finalCornerOffset = m_maxCornerOffset;
+                        }
+                        else
+                        {
+                            finalCornerOffset = m_maxCornerOffset;
                         }
                     }
                 }
-                return m_minCornerOffset;
+                return finalCornerOffset;
             }
             return cornerOffset0;
         }

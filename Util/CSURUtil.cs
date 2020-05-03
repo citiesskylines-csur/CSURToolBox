@@ -839,11 +839,11 @@ namespace CSURToolBox.Util
                 // NON-STOCK CODE STARTS
                 float m_minCornerOffset = 0f;
                 float tempMinCornerOffset = 1000f;
-                float m_maxCornerOffset = 1000f;
+                float m_maxCornerOffset = 0f;
                 float tempMaxCornerOffset = 0f;
                 float finalCornerOffset = 0f;
                 int segmentCount = 0;
-                bool isCSURRoad = false;
+                bool isCSURRoadFixLargeJunction = false;
                 for (int i = 0; i < 8; i++)
                 {
                     ushort segment1 = instance.m_nodes.m_buffer[nodeID].GetSegment(i);
@@ -852,7 +852,15 @@ namespace CSURToolBox.Util
                         segmentCount++;
                         if (CSURUtil.IsCSUR(instance.m_segments.m_buffer[segment1].Info))
                         {
-                            isCSURRoad = true;
+                            if (instance.m_segments.m_buffer[segment1].Info.m_nodes.Length == 0)
+                            {
+                                isCSURRoadFixLargeJunction = false;
+                                break;
+                            }
+                            else
+                            {
+                                isCSURRoadFixLargeJunction = true;
+                            }
                         }
                         if (instance.m_segments.m_buffer[segment1].Info.m_minCornerOffset < tempMinCornerOffset)
                         {
@@ -865,7 +873,7 @@ namespace CSURToolBox.Util
                     }
                 }
 
-                if (isCSURRoad)
+                if (isCSURRoadFixLargeJunction)
                 {
                     if (tempMinCornerOffset != 1000f)
                     {

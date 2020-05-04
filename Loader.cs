@@ -74,7 +74,6 @@ namespace CSURToolBox
                         CheckTMPE();
                     }
                     InitDetour();
-                    HarmonyInitDetour();
                     if (OptionUI.enablePillar)
                     {
                         InstallPillar();
@@ -109,7 +108,6 @@ namespace CSURToolBox
                 if (CSURToolBox.IsEnabled)
                 {
                     RevertDetour();
-                    HarmonyRevertDetour();
                     if (OptionUI.enablePillar)
                     {
                         RemovePillar();

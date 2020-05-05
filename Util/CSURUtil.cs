@@ -831,7 +831,7 @@ namespace CSURToolBox.Util
             }
         }
 
-        public static float GetMinCornerOffset(float cornerOffset0, ushort nodeID, ushort segmentID)
+        public static float GetMinCornerOffset(float cornerOffset0, ushort nodeID)
         {
             var instance = Singleton<NetManager>.instance;
             if (OptionUI.fixLargeJunction)
@@ -887,8 +887,8 @@ namespace CSURToolBox.Util
                     {
                         finalCornerOffset = 0;
                     }
+                    return finalCornerOffset;
                 }
-                return finalCornerOffset;
             }
             return cornerOffset0;
         }

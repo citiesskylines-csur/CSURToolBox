@@ -68,6 +68,7 @@ namespace CSURToolBox
                 if (mode == LoadMode.LoadGame || mode == LoadMode.NewGame || mode == LoadMode.NewMap || mode == LoadMode.LoadMap || mode == LoadMode.NewAsset || mode == LoadMode.LoadAsset)
                 {
                     OptionUI.LoadSetting();
+                    DataInit();
                     SetupGui();
                     if (mode == LoadMode.LoadGame || mode == LoadMode.NewGame)
                     {
@@ -117,6 +118,14 @@ namespace CSURToolBox
                         RemoveGui();
                     }
                 }
+            }
+        }
+
+        public static void DataInit()
+        {
+            for (int i = 0; i < NetToolCreateNodePatch.needUpdateSegment.Length; i++)
+            {
+                NetToolCreateNodePatch.needUpdateSegment[i] = 0;
             }
         }
 

@@ -8,6 +8,8 @@ using ColossalFramework.UI;
 using CSURToolBox.CustomData;
 using CSURToolBox.CustomAI;
 using HarmonyLib;
+using ColossalFramework;
+using CSURToolBox.Patch;
 
 namespace CSURToolBox
 {
@@ -16,6 +18,7 @@ namespace CSURToolBox
         public static bool isFirstTime = true;
         public static Assembly MoveIt = null;
         public const int HarmonyPatchNum = 16;
+        public static bool updateSegmentNextTimeFlag = false;
 
         public override void OnBeforeSimulationFrame()
         {
@@ -163,6 +166,37 @@ namespace CSURToolBox
                             string error = $"CSURToolBox HarmonyDetour Patch Num is {i}, Right Num is {HarmonyPatchNum} Send CSURToolBox.txt to Author.";
                             DebugLog.LogToFileOnly(error);
                             UIView.library.ShowModal<ExceptionPanel>("ExceptionPanel").SetMessage("Incompatibility Issue", error, true);
+                        }
+                    }
+                }
+            }
+        }
+
+        public override void OnAfterSimulationFrame()
+        {
+            base.OnAfterSimulationFrame();
+            if (Loader.CurrentLoadMode == LoadMode.LoadGame || Loader.CurrentLoadMode == LoadMode.NewGame)
+            {
+                if (CSURToolBox.IsEnabled)
+                {
+                    uint currentFrameIndex = Singleton<SimulationManager>.instance.m_currentFrameIndex;
+                    int num4 = (int)(currentFrameIndex & 255u);
+                    if (num4 == 255)
+                    {
+                        if (NetToolCreateNodePatch.needUpdateSegmentFlag)
+                        {
+                            updateSegmentNextTimeFlag = true;
+                            NetToolCreateNodePatch.needUpdateSegmentFlag = false;
+                        }
+                        else if (updateSegmentNextTimeFlag)
+                        { 
+                            for (int i = 0; i < NetToolCreateNodePatch.needUpdateSegmentCount; i++)
+                            {
+                                Singleton<NetManager>.instance.UpdateSegment(NetToolCreateNodePatch.needUpdateSegment[i]);
+                                DebugLog.LogToFileOnly($"Update segment = {NetToolCreateNodePatch.needUpdateSegment[i]}");
+                            }
+                            NetToolCreateNodePatch.needUpdateSegmentCount = 0;
+                            updateSegmentNextTimeFlag = false;
                         }
                     }
                 }

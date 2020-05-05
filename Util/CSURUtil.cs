@@ -831,7 +831,7 @@ namespace CSURToolBox.Util
             }
         }
 
-        public static float GetMinCornerOffset(float cornerOffset0, ushort nodeID)
+        public static float GetMinCornerOffset(float cornerOffset0, ushort nodeID, ushort segmentID)
         {
             var instance = Singleton<NetManager>.instance;
             if (OptionUI.fixLargeJunction)
@@ -839,8 +839,6 @@ namespace CSURToolBox.Util
                 // NON-STOCK CODE STARTS
                 float m_minCornerOffset = 0f;
                 float tempMinCornerOffset = 1000f;
-                float m_maxCornerOffset = 0f;
-                float tempMaxCornerOffset = 0f;
                 float finalCornerOffset = 0f;
                 int segmentCount = 0;
                 bool isCSURRoadFixLargeJunction = false;
@@ -866,10 +864,6 @@ namespace CSURToolBox.Util
                         {
                             tempMinCornerOffset = instance.m_segments.m_buffer[segment1].Info.m_minCornerOffset;
                         }
-                        if (instance.m_segments.m_buffer[segment1].Info.m_minCornerOffset > tempMaxCornerOffset)
-                        {
-                            tempMaxCornerOffset = instance.m_segments.m_buffer[segment1].Info.m_minCornerOffset;
-                        }
                     }
                 }
 
@@ -878,11 +872,6 @@ namespace CSURToolBox.Util
                     if (tempMinCornerOffset != 1000f)
                     {
                         m_minCornerOffset = tempMinCornerOffset;
-                    }
-
-                    if (tempMaxCornerOffset != 0f)
-                    {
-                        m_maxCornerOffset = tempMaxCornerOffset;
                     }
 
                     //direct node
@@ -896,18 +885,7 @@ namespace CSURToolBox.Util
                     }
                     else
                     {
-                        if (cornerOffset0 == m_maxCornerOffset)
-                        {
-                            finalCornerOffset = (m_minCornerOffset + m_maxCornerOffset) / 2f;
-                        }
-                        else if (cornerOffset0 == m_minCornerOffset)
-                        {
-                            finalCornerOffset = m_maxCornerOffset;
-                        }
-                        else
-                        {
-                            finalCornerOffset = m_maxCornerOffset;
-                        }
+                        finalCornerOffset = 0;
                     }
                 }
                 return finalCornerOffset;

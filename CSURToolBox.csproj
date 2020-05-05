@@ -64,10 +64,10 @@
     <Compile Include="CustomData\CustomNetSegment.cs" />
     <Compile Include="Loader.cs" />
     <Compile Include="Parser.cs" />
+    <Compile Include="Patch\NetToolCreateNodePatch.cs" />
     <Compile Include="Patch\BuildingFindParentNodePatch.cs" />
     <Compile Include="Patch\NetNodeCountSegmentsPatch.cs" />
     <Compile Include="Patch\NetNodeCalculateNodePatch.cs" />
-    <Compile Include="Patch\NetNodeRefreshJunctionDataPatch.cs" />
     <Compile Include="Patch\NetSegmentGetLeftAndRightLanesPatch.cs" />
     <Compile Include="Patch\NetSegmentCalculateCornerPatch.cs" />
     <Compile Include="Patch\NetSegmentOverlapQuadPatch.cs" />

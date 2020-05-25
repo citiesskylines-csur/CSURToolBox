@@ -64,7 +64,7 @@
     <Compile Include="CustomData\CustomNetSegment.cs" />
     <Compile Include="Loader.cs" />
     <Compile Include="Parser.cs" />
-    <Compile Include="Patch\NetToolCreateNodePatch.cs" />
+    <Compile Include="Patch\NetManagerCreateSegmentPatch.cs" />
     <Compile Include="Patch\BuildingFindParentNodePatch.cs" />
     <Compile Include="Patch\NetNodeCountSegmentsPatch.cs" />
     <Compile Include="Patch\NetNodeCalculateNodePatch.cs" />

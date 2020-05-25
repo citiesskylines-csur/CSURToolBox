@@ -171,36 +171,5 @@ namespace CSURToolBox
                 }
             }
         }
-
-        public override void OnAfterSimulationFrame()
-        {
-            base.OnAfterSimulationFrame();
-            if (Loader.CurrentLoadMode == LoadMode.LoadGame || Loader.CurrentLoadMode == LoadMode.NewGame)
-            {
-                if (CSURToolBox.IsEnabled)
-                {
-                    uint currentFrameIndex = Singleton<SimulationManager>.instance.m_currentFrameIndex;
-                    int num4 = (int)(currentFrameIndex & 255u);
-                    if (num4 == 255)
-                    {
-                        if (NetToolCreateNodePatch.needUpdateSegmentFlag)
-                        {
-                            updateSegmentNextTimeFlag = true;
-                            NetToolCreateNodePatch.needUpdateSegmentFlag = false;
-                        }
-                        else if (updateSegmentNextTimeFlag)
-                        { 
-                            for (int i = 0; i < NetToolCreateNodePatch.needUpdateSegmentCount; i++)
-                            {
-                                Singleton<NetManager>.instance.UpdateSegment(NetToolCreateNodePatch.needUpdateSegment[i]);
-                                DebugLog.LogToFileOnly($"Update segment = {NetToolCreateNodePatch.needUpdateSegment[i]}");
-                            }
-                            NetToolCreateNodePatch.needUpdateSegmentCount = 0;
-                            updateSegmentNextTimeFlag = false;
-                        }
-                    }
-                }
-            }
-        }
     }
 }

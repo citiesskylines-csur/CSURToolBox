@@ -68,7 +68,6 @@ namespace CSURToolBox
                 if (mode == LoadMode.LoadGame || mode == LoadMode.NewGame || mode == LoadMode.NewMap || mode == LoadMode.LoadMap || mode == LoadMode.NewAsset || mode == LoadMode.LoadAsset)
                 {
                     OptionUI.LoadSetting();
-                    DataInit();
                     SetupGui();
                     if (mode == LoadMode.LoadGame || mode == LoadMode.NewGame)
                     {
@@ -120,14 +119,6 @@ namespace CSURToolBox
                         RemoveGui();
                     }
                 }
-            }
-        }
-
-        public static void DataInit()
-        {
-            for (int i = 0; i < NetToolCreateNodePatch.needUpdateSegment.Length; i++)
-            {
-                NetToolCreateNodePatch.needUpdateSegment[i] = 0;
             }
         }
 
@@ -357,22 +348,28 @@ namespace CSURToolBox
 
         public static void HarmonyInitDetour()
         {
-            if (!HarmonyDetourInited)
+            if (HarmonyHelper.IsHarmonyInstalled)
             {
-                DebugLog.LogToFileOnly("Init harmony detours");
-                HarmonyDetours.Apply();
-                HarmonyDetourInited = true;
+                if (!HarmonyDetourInited)
+                {
+                    DebugLog.LogToFileOnly("Init harmony detours");
+                    HarmonyDetours.Apply();
+                    HarmonyDetourInited = true;
+                }
             }
         }
 
         public static void HarmonyRevertDetour()
         {
-            if (HarmonyDetourInited)
+            if (HarmonyHelper.IsHarmonyInstalled)
             {
-                DebugLog.LogToFileOnly("Revert harmony detours");
-                HarmonyDetours.DeApply();
-                HarmonyDetourInited = false;
-                HarmonyDetourFailed = true;
+                if (HarmonyDetourInited)
+                {
+                    DebugLog.LogToFileOnly("Revert harmony detours");
+                    HarmonyDetours.DeApply();
+                    HarmonyDetourInited = false;
+                    HarmonyDetourFailed = true;
+                }
             }
         }
 

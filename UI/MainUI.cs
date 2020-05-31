@@ -47,10 +47,12 @@ namespace CSURToolBox.UI
         public static bool refreshOnce = false;
         public static int fromSelected;
         public static int toSelected;
-        public static byte symmetry;
-        public static bool uturnLane;
-        public static bool hasSidewalk;
-        public static bool hasBike;
+        /* symmetry/hasSidewalk/hasBike records what road variant the user is looking for
+         * available*** records what Road Selector has found
+         */
+        public static byte symmetry, availableSymmetry;
+        public static bool hasSidewalk, availableHasSidewalk;
+        public static bool hasBike, availableHasBike;
 
         public override void Update()
         {
@@ -65,7 +67,6 @@ namespace CSURToolBox.UI
             fromSelected = 0;
             toSelected = 0;
             symmetry = 255;
-            uturnLane = false;
             hasSidewalk = true;
             hasBike = true;
             //UI
@@ -302,129 +303,44 @@ namespace CSURToolBox.UI
         }
         public void symButton_OnCheckChanged()
         {
-            if (symmetry == 255)
-            {
-                symmetry = 0;
-                m_symButton.normalBgSprite = "+0";
-                uturnLane = false;
-            }
-            else if (symmetry == 0 && (uturnLane == false))
-            {
-                //try uturn
-                uturnLane = true;
-                if (PrefabCollection<NetInfo>.FindLoaded(Parser.ModuleNameFromUI(fromSelected, toSelected, symmetry, uturnLane, hasSidewalk, hasBike) + "_Data") == null)
-                {
-                    //try +1
-                    symmetry = 1;
-                    uturnLane = false;
-                    if (PrefabCollection<NetInfo>.FindLoaded(Parser.ModuleNameFromUI(fromSelected, toSelected, symmetry, uturnLane, hasSidewalk, hasBike) + "_Data") == null)
-                    {
-                        //try +2
-                        symmetry = 2;
-                        uturnLane = false;
-                        if (PrefabCollection<NetInfo>.FindLoaded(Parser.ModuleNameFromUI(fromSelected, toSelected, symmetry, uturnLane, hasSidewalk, hasBike) + "_Data") == null)
-                        {
-                            m_symButton.normalBgSprite = "0_S";
-                            symmetry = 255;
-                            uturnLane = false;
-                        }
-                        else
-                        {
-                            m_symButton.normalBgSprite = "+2";
-                        }
-                    }
-                    else
-                    {
-                        m_symButton.normalBgSprite = "+1";
-                    }
-                }
-                else
-                {
-                    m_symButton.normalBgSprite = "UTURN_S";
-                    symmetry = 0;
-                }
-            }
-            else if ((symmetry == 0) && (uturnLane == true))
-            {
-                //try +1
-                symmetry = 1;
-                uturnLane = false;
-                if (PrefabCollection<NetInfo>.FindLoaded(Parser.ModuleNameFromUI(fromSelected, toSelected, symmetry, uturnLane, hasSidewalk, hasBike) + "_Data") == null)
-                {
-                    //try +2
-                    symmetry = 2;
-                    uturnLane = false;
-                    if (PrefabCollection<NetInfo>.FindLoaded(Parser.ModuleNameFromUI(fromSelected, toSelected, symmetry, uturnLane, hasSidewalk, hasBike) + "_Data") == null)
-                    {
-                        m_symButton.normalBgSprite = "0_S";
-                        symmetry = 255;
-                        uturnLane = false;
-                    }
-                    else
-                    {
-                        m_symButton.normalBgSprite = "+2";
-                    }
-                }
-                else
-                {
-                    m_symButton.normalBgSprite = "+1";
-                }
-            }
-            else if (symmetry == 1)
-            {
-                //try + 2
-                symmetry = 2;
-                uturnLane = false;
-                if (PrefabCollection<NetInfo>.FindLoaded(Parser.ModuleNameFromUI(fromSelected, toSelected, symmetry, uturnLane, hasSidewalk, hasBike) + "_Data") == null)
-                {
-                    m_symButton.normalBgSprite = "0_S";
-                    symmetry = 255;
-                    uturnLane = false;
-                }
-                else
-                {
-                    m_symButton.normalBgSprite = "+2";
-                }
-            }
-            else if (symmetry == 2)
-            {
-                m_symButton.normalBgSprite = "0_S";
-                symmetry = 255;
-                uturnLane = false;
-            }
-            else
-            {
-                DebugLog.LogToFileOnly("Error: symmetry = " + symmetry.ToString() + "uturnLane = " + uturnLane.ToString());
-                m_symButton.normalBgSprite = "0_S";
-                symmetry = 255;
-                uturnLane = false;
-            }
+            /* Symmetry definitions:
+             * 0 - symmetric two-way road
+             * 1 - asymmetrical two-way road with +1 lane forward
+             * 2 - asymmetrical two-way road with +2 lane forward
+             * 127 - symmetric two-way road with a U-turn lane, need to restore symmetry=0 to find prefab
+             * 255 - one-way road
+             * Also need to check U-turn for base and transition modules
+             */
+            symmetry = Parser.TryNextSymmetry(availableSymmetry, fromSelected, toSelected);
+            
         }
         public void hasSideWalkButton_OnCheckChanged()
         {
-            if (!hasSidewalk && !hasBike)
+            hasSidewalk = availableHasSidewalk;
+            hasBike = availableHasBike;
+            NetInfo nextModule = null;
+            if (hasSidewalk && hasBike)
             {
-                m_hasSideWalkButton.normalBgSprite = "SIDEWALK";
-                hasSidewalk = true;
-                hasBike = false;
+                nextModule = Parser.NetInfoFromUI(fromSelected, toSelected, availableSymmetry, false, false);
+                if (nextModule != null)
+                {
+                    hasSidewalk = false;
+                    hasBike = false;
+                }
+
+            } else if (!hasSidewalk && !hasBike)
+            {
+                nextModule = Parser.NetInfoFromUI(fromSelected, toSelected, availableSymmetry, true, false);
+                if (nextModule != null)
+                {
+                    hasSidewalk = true;
+                    hasBike = false;
+                }
             }
-            else if (hasSidewalk && !hasBike)
+            if (nextModule == null)
             {
-                m_hasSideWalkButton.normalBgSprite = "BIKE";
                 hasSidewalk = true;
                 hasBike = true;
-            }
-            else if (hasSidewalk && hasBike)
-            {
-                m_hasSideWalkButton.normalBgSprite = "NOSIDEWALK";
-                hasSidewalk = false;
-                hasBike = false;
-            }
-            else
-            {
-                DebugLog.LogToFileOnly("Error: hasSidewalk = " + hasSidewalk.ToString() + "hasBike = " + hasBike.ToString());
-                hasSidewalk = false;
-                hasBike = false;
             }
         }
         private void RefreshDisplayData()
@@ -437,9 +353,9 @@ namespace CSURToolBox.UI
                     m_toLabel.text = Localization.Get("To");
                     //DebugLog.LogToFileOnly("fromSelected = " + fromSelected.ToString() + " toSelected = " + toSelected.ToString() + " symmetry = " + symmetry.ToString() + " uturnLane: " + uturnLane.ToString() + " hasSidewalk: " + hasSidewalk.ToString());
 
-                    var m_currentModule = Parser.ModuleNameFromUI(fromSelected, toSelected, symmetry, uturnLane, hasSidewalk, hasBike);
                     //DebugLog.LogToFileOnly(m_currentModule);
-                    var m_prefab = PrefabCollection<NetInfo>.FindLoaded(m_currentModule + "_Data");
+                    var m_prefab = Parser.NetInfoFromUI(fromSelected, toSelected, symmetry, hasSidewalk, hasBike);
+                    m_prefab = UpdateRoadVariant(m_prefab);
                     if (m_prefab != null)
                     {
                         m_netTool = ToolsModifierControl.SetTool<NetTool>();
@@ -462,6 +378,100 @@ namespace CSURToolBox.UI
                 }
             }
         }
+
+
+        private NetInfo UpdateRoadVariant(NetInfo prefab)
+        {
+            availableHasSidewalk = hasSidewalk;
+            availableHasBike = hasBike;
+            availableSymmetry = symmetry;
+
+
+            // Try first pass of symmetry fall back to prevent changing sidewalk/bike lane
+            if ((availableSymmetry == 2 || availableSymmetry == 1 || availableSymmetry == 127) && prefab == null)
+            {
+                availableSymmetry = 0;
+                prefab = Parser.NetInfoFromUI(fromSelected, toSelected, availableSymmetry, availableHasSidewalk, availableHasBike);
+            }
+            // Fall back two-way modules
+            if (prefab == null)
+            {
+                availableSymmetry = 255;
+                prefab = Parser.NetInfoFromUI(fromSelected, toSelected, availableSymmetry, availableHasSidewalk, availableHasBike);
+            }
+
+
+            if (availableHasSidewalk && !availableHasBike)
+            {
+                if (prefab == null)
+                {
+                    prefab = Parser.NetInfoFromUI(fromSelected, toSelected, availableSymmetry, false, false);
+                    if (prefab != null)
+                    {
+                        availableHasSidewalk = false;
+                        availableHasBike = false;
+                    } else
+                    {
+                        prefab = Parser.NetInfoFromUI(fromSelected, toSelected, availableSymmetry, true, true);
+                        availableHasSidewalk = true;
+                        availableHasBike = true;
+                    }
+                } else
+                {
+                    m_hasSideWalkButton.normalBgSprite = "SIDEWALK";
+                }
+            }
+            if (!availableHasSidewalk && !availableHasBike)
+            {
+                if (prefab == null)
+                {
+                    prefab = Parser.NetInfoFromUI(fromSelected, toSelected, availableSymmetry, true, true);
+                    availableHasSidewalk = true;
+                    availableHasBike = true;
+                }
+                else
+                {
+                    m_hasSideWalkButton.normalBgSprite = "NOSIDEWALK";
+                }
+            }
+            if (availableHasSidewalk && availableHasBike)
+            {
+                m_hasSideWalkButton.normalBgSprite = "BIKE";
+            }
+
+            // Second symmetry pass, restore symmetry if possible
+            NetInfo nextPrefab = Parser.NetInfoFromUI(fromSelected, toSelected, symmetry, availableHasSidewalk, availableHasBike);
+            if (nextPrefab != null)
+            {
+                availableSymmetry = symmetry;
+                prefab = nextPrefab;
+            }
+
+            // Update symmetry sprites
+            if (availableSymmetry == 127)
+            {
+                m_symButton.normalBgSprite = "UTURN_S";
+            }
+            else if (availableSymmetry == 255)
+            {
+                m_symButton.normalBgSprite = "0_S";
+            }
+            else if (availableSymmetry == 0)
+            {
+                m_symButton.normalBgSprite = "+0";
+            }
+            else if (availableSymmetry == 1)
+            {
+                m_symButton.normalBgSprite = "+1";
+            }
+            else if (availableSymmetry == 2)
+            {
+                m_symButton.normalBgSprite = "+2";
+            }
+
+            return prefab;
+        }
+
         private void RefreshData()
         {
             for (int i = 0; i < N_POS_INT; i++)

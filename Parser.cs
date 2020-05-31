@@ -181,8 +181,14 @@ namespace CSURToolBox
 
 
         public static string ModuleNameFromUI(int fromSelected, int toSelected, byte symmetry,
-                                            bool uturnLane, bool hasSidewalk, bool hasBike)
+                                            bool hasSidewalk, bool hasBike)
         {
+            bool uturnLane = false;
+            if (symmetry == 127)
+            {
+                uturnLane = true;
+                symmetry = 0;
+            }
             // or overlapping lanes always give no module
             if ((fromSelected & fromSelected << 1) != 0 || (toSelected & toSelected << 1) != 0)
             {
@@ -198,7 +204,7 @@ namespace CSURToolBox
             {
                 if (hasSidewalk && hasBike) return "CSUR SidewalkWithBikeLane";
                 if (hasSidewalk && !hasBike) return "CSUR Sidewalk";
-                if (!hasSidewalk && !hasBike) return "CSUR Median";
+                if (!hasSidewalk && !hasBike) return "CSUR Middle Model";
             }
             // screen uturn modules, only a two-way non-ramp road with the right side aligned
             // may have a uturn variant. 
@@ -282,52 +288,72 @@ namespace CSURToolBox
             }
         }
 
+
+        public static NetInfo NetInfoFromUI(int fromSelected, int toSelected, byte symmetry,
+                                            bool hasSidewalk, bool hasBike)
+        {
+            Debug.Log("fromSelected = " + fromSelected.ToString() + " toSelected = " + toSelected.ToString() + " symmetry = " + symmetry.ToString() +  " hasSidewalk: " + hasSidewalk.ToString());
+            string moduleName = ModuleNameFromUI(fromSelected, toSelected, symmetry, hasSidewalk, hasBike);
+            return PrefabCollection<NetInfo>.FindLoaded(moduleName + "_Data");
+        }
+
         // Tries next symmetry possibility when cycling
         // symmetry options. Returns the next possible symmetry value.
-        // Specially, tryNextSymmetry(0) == 0 indicates that
+        // Specially, nextSymmetry = 127 indicates that
         // there may exist an uturn segment.
-        public byte tryNextSymmetry(int symmetry, int fromSelected, int toSelected, bool hasSidewalk, bool hasBike)
+        public static byte TryNextSymmetry(int symmetry, int fromSelected, int toSelected)
         {
             byte nextSymmetry = 255;
-            string nextModule;
+            NetInfo nextModule = null;
             switch (symmetry)
             {
                 case 255:
                     // one-way road (symmetry==255) is always cycled to a two-way road, except
                     // for when it cross the origin
                     nextSymmetry = 0;
-                    nextModule = ModuleNameFromUI(fromSelected, toSelected, nextSymmetry, false, hasSidewalk, hasBike);
-                    // if there is no two-way road there cannot be any asym option as well
+                    nextModule = NetInfoFromUI(fromSelected, toSelected, nextSymmetry, true, true);
                     if (nextModule == null)
                     {
-                        nextSymmetry = 255;
+                        nextSymmetry = 127;
+                        nextModule = NetInfoFromUI(fromSelected, toSelected, nextSymmetry, true, true);
                     }
                     break;
                 case 0:
                     // a two-way road may have a uturn variant exist, first check uturn
-                    nextSymmetry = 0;
-                    nextModule = ModuleNameFromUI(fromSelected, toSelected, nextSymmetry, true, hasSidewalk, hasBike);
+                    nextSymmetry = 127;
+                    nextModule = NetInfoFromUI(fromSelected, toSelected, nextSymmetry, true, true);
                     if (nextModule == null)
                     {
                         nextSymmetry = 1;
-                        nextModule = ModuleNameFromUI(fromSelected, toSelected, nextSymmetry, false, hasSidewalk, hasBike);
+                        nextModule = NetInfoFromUI(fromSelected, toSelected, nextSymmetry, true, true);
                     }
                     if (nextModule == null)
                     {
-                        nextSymmetry = 255;
+                        nextSymmetry = 2;
+                        nextModule = NetInfoFromUI(fromSelected, toSelected, nextSymmetry, true, true);
                     }
                     break;
                 case 1:
                     nextSymmetry = 2;
-                    nextModule = ModuleNameFromUI(fromSelected, toSelected, nextSymmetry, false, hasSidewalk, hasBike);
-                    if (nextModule == null)
-                    {
-                        nextSymmetry = 255;
-                    }
+                    nextModule = NetInfoFromUI(fromSelected, toSelected, nextSymmetry, true, true);
                     break;
                 case 2:
                     nextSymmetry = 255;
                     break;
+                case 127:
+                    nextSymmetry = 1;
+                    nextModule = NetInfoFromUI(fromSelected, toSelected, nextSymmetry, true, true);
+                    if (nextModule == null)
+                    {
+                        nextSymmetry = 2;
+                        nextModule = NetInfoFromUI(fromSelected, toSelected, nextSymmetry, true, true);
+                    }
+                    break;
+            }
+            // fall back to one-way
+            if (nextModule == null)
+            {
+                nextSymmetry = 255;
             }
             return nextSymmetry;
         }

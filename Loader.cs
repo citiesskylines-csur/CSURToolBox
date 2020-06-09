@@ -465,6 +465,7 @@ namespace CSURToolBox
                             {
                                 case 0:
                                 case 2:
+                                case 3:
                                     Debug.Log("Try to Load pillar Ama S-2_Data For " + loaded.name.ToString() + "lane num = " + laneNum.ToString());
                                     elevatedAI.m_bridgePillarOffset = 1f;
                                     if (PrefabCollection<BuildingInfo>.FindLoaded("Ama S-2_Data") != null)
@@ -473,6 +474,7 @@ namespace CSURToolBox
                                         Debug.Log("Failed Load pillar Ama S-2_Data");
                                     break;
                                 case 4:
+                                case 5:
                                     Debug.Log("Try to Load pillar Ama M-2_Data For " + loaded.name.ToString() + "lane num = " + laneNum.ToString());
                                     if (PrefabCollection<BuildingInfo>.FindLoaded("Ama M-2_Data") != null)
                                         elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama M-2_Data");
@@ -480,6 +482,7 @@ namespace CSURToolBox
                                         Debug.Log("Failed Load pillar Ama M-2_Data");
                                     break;
                                 case 6:
+                                case 7:
                                     Debug.Log("Try to Load pillar Ama M-2_Data For " + loaded.name.ToString() + "lane num = " + laneNum.ToString());
                                     if (PrefabCollection<BuildingInfo>.FindLoaded("Ama M-2_Data") != null)
                                         elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama M-2_Data");
@@ -487,6 +490,7 @@ namespace CSURToolBox
                                         Debug.Log("Failed Load pillar Ama M-2_Data");
                                     break;
                                 case 8:
+                                case 9:
                                     Debug.Log("Try to Load pillar Ama M-4_Data For " + loaded.name.ToString() + "lane num = " + laneNum.ToString());
                                     if (PrefabCollection<BuildingInfo>.FindLoaded("Ama M-4_Data") != null)
                                         elevatedAI.m_bridgePillarInfo = PrefabCollection<BuildingInfo>.FindLoaded("Ama M-4_Data");

@@ -2,13 +2,9 @@
 using CSURToolBox.UI;
 using HarmonyLib;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
 using System.Text.RegularExpressions;
-using UnityEngine;
 
 namespace CSURToolBox.Util
 {
@@ -19,7 +15,8 @@ namespace CSURToolBox.Util
         public const string CSUR_DUAL_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9]D(L|S|C|R)[1-9]*P?)+(=|-)?([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)*" + "( compact| express)?" + "_";
         public const string CSUR_DUAL_REGEX1 = "CSUR(-(T|R|S))? ([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)-([[1-9]?[0-9]D?(L|S|C|R)[1-9]*P?)*" + "( compact| express)?" + "_";
         public const string CSUR_OFFSET_REGEX =   "CSUR(-(T|R|S))? ([[1-9]?[0-9](L|R)[1-9]*P?)+(=)?([[1-9]?[0-9](L|R)[1-9]*P?)*" + "( compact| express)?" + "_";
-        public const string CSUR_NOOFFSET_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9](L|R)[1-9]*P?)+(=)?([[1-9]?[0-9]D?(S|C)[1-9]*P?)+" + "( compact| express)?" + "_";
+        public const string CSUR_OFFSETRC_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9](L|R)[1-9]*P?)+(=)?([[1-9]?[0-9](L|R|C)[1-9]*P?)*" + "( compact| express)?" + "_";
+        public const string CSUR_OFFSETCR_REGEX = "CSUR(-(T|R|S))? ([[1-9]?[0-9](L|R|C)[1-9]*P?)+(=)?([[1-9]?[0-9](L|R)[1-9]*P?)*" + "( compact| express)?" + "_";
         public const string CSURS_LANE_REGEX = "CSUR-S ([1-9])(R|C)([1-9]?)(P?)=([1-9])(R|C)([1-9]?)(P?)";
         public const string CSUR_LANEOFFSET_REGEXPREFIX = "CSUR-(T|R|S)? ";
         public const string EachUnit = "[1-9]?[0-9]?D?[C|S|L|R]?[1-9]*P?";
@@ -45,8 +42,9 @@ namespace CSURToolBox.Util
             }
             string savenameStripped = asset.name.Substring(asset.name.IndexOf('.') + 1);
             Match m = Regex.Match(savenameStripped, CSUR_OFFSET_REGEX, RegexOptions.IgnoreCase);
-            Match m1 = Regex.Match(savenameStripped, CSUR_NOOFFSET_REGEX, RegexOptions.IgnoreCase);
-            return m.Success && (!m1.Success);
+            Match m1 = Regex.Match(savenameStripped, CSUR_OFFSETCR_REGEX, RegexOptions.IgnoreCase);
+            Match m2 = Regex.Match(savenameStripped, CSUR_OFFSETRC_REGEX, RegexOptions.IgnoreCase);
+            return (m.Success || m1.Success || m2.Success);
         }
 
         public static bool IsCSURNoJunction(NetInfo asset)
@@ -158,17 +156,18 @@ namespace CSURToolBox.Util
                     }
                 }
             }
-            if (OptionUI.isDebug)
-            {
-                DebugLog.LogToFileOnly($"startoffset = {startOffset} endoffset = {endOffset}");
-            }
 
-            if (startOffset!=0 && endOffset!=0)
+            if ((startOffset != 0) || (endOffset != 0))
             {
                 laneOffset = endOffset - startOffset;
             }
 
-            if (laneOffset!=0)
+            if (OptionUI.isDebug)
+            {
+                DebugLog.LogToFileOnly($"startoffset = {startOffset} endoffset = {endOffset} laneOffset = {laneOffset}, m.Success = {m.Success}");
+            }
+
+            if (laneOffset != 0)
                 return m.Success;
             else
                 return false;
@@ -592,12 +591,12 @@ namespace CSURToolBox.Util
                         }
                         for (int i = 0; i < (int)(int.Parse(m.Groups[1].Value) / 2f); i++)
                         {
-                            leftLaneOffset[leftLaneIndex] = -(i + 0.5f);
+                            leftLaneOffset[leftLaneIndex] = -(i + 1f);
                             leftLaneIndex++;
                         }
                         for (int i = 0; i < (int)(int.Parse(m.Groups[1].Value) / 2f); i++)
                         {
-                            rightLaneOffset[rightLaneIndex] = i + 0.5f;
+                            rightLaneOffset[rightLaneIndex] = i + 1f;
                             rightLaneIndex++;
                         }
                     }

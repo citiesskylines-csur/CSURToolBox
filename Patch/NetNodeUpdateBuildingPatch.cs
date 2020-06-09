@@ -60,11 +60,13 @@ namespace CSURToolBox.Patch
                                 float laneNum = otherLaneNum + vehicleLaneNum;
                                 if (CSURUtil.isStartNode(nodeID))
                                 {
-                                    collisionHalfWidth = startOffset * 3.75f - laneNum * 1.875f + 1.875f + otherLaneNum * 3.75f;
+                                    if (startOffset != 0)
+                                        collisionHalfWidth = startOffset * 3.75f - laneNum * 1.875f + 1.875f + otherLaneNum * 3.75f;
                                 }
                                 else
                                 {
-                                    collisionHalfWidth = endOffset * 3.75f - laneNum * 1.875f + 1.875f + otherLaneNum * 3.75f;
+                                    if (endOffset != 0)
+                                        collisionHalfWidth = endOffset * 3.75f - laneNum * 1.875f + 1.875f + otherLaneNum * 3.75f;
                                 }
                                 NetSegment mysegment = CSURUtil.GetSameInfoSegment(__instance);
                                 Vector3 direction = CSURUtil.CheckNodeEq(mysegment.m_startNode, __instance) ? mysegment.m_startDirection : -mysegment.m_endDirection;
@@ -123,11 +125,13 @@ namespace CSURToolBox.Patch
                             float laneNum = otherLaneNum + vehicleLaneNum;
                             if (CSURUtil.isStartNode(nodeID))
                             {
-                                collisionHalfWidth = startOffset * 3.75f - laneNum * 1.875f + 1.875f + otherLaneNum * 3.75f;
+                                if (startOffset != 0)
+                                    collisionHalfWidth = startOffset * 3.75f - laneNum * 1.875f + 1.875f + otherLaneNum * 3.75f;
                             }
                             else
                             {
-                                collisionHalfWidth = endOffset * 3.75f - laneNum * 1.875f + 1.875f + otherLaneNum * 3.75f;
+                                if (endOffset != 0)
+                                    collisionHalfWidth = endOffset * 3.75f - laneNum * 1.875f + 1.875f + otherLaneNum * 3.75f;
                             }
                             NetSegment mysegment = CSURUtil.GetSameInfoSegment(__instance);
                             Vector3 direction = CSURUtil.CheckNodeEq(mysegment.m_startNode, __instance) ? mysegment.m_startDirection : -mysegment.m_endDirection;

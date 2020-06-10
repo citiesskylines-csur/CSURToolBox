@@ -51,13 +51,14 @@ namespace CSURToolBox.Patch
                                 var endDir = __instance.m_endDirection;
                                 var bezier = instance.m_lanes.m_buffer[firstLane].m_bezier;
 
-                                Line2.Intersect(VectorUtils.XZ(bezier.a), VectorUtils.XZ(startDir), VectorUtils.XZ(bezier.d), VectorUtils.XZ(endDir), out float startLength, out float endLength);
-                                var startPercent = startLength / (startLength + endLength);
-                                var endPercent = endLength / (startLength + endLength);
+                                Line2.Intersect(VectorUtils.XZ(bezier.a), VectorUtils.XZ(startDir), VectorUtils.XZ(bezier.Position(0.333f)), VectorUtils.XZ(-bezier.Tangent(0.333f)), out float startALength, out float startBLength);
+                                Line2.Intersect(VectorUtils.XZ(bezier.Position(0.667f)), VectorUtils.XZ(bezier.Tangent(0.667f)), VectorUtils.XZ(bezier.d), VectorUtils.XZ(endDir), out float endCLength, out float endDLength);
+                                var startPercent = startALength / (startALength + startBLength);
+                                var endPercent = endDLength / (endCLength + endDLength);
 
                                 var length = instance.m_lanes.m_buffer[firstLane].m_length;
-                                var startAngle = Mathf.Atan((laneOffset / 2) / (length * startPercent));
-                                var endAngle = Mathf.Atan((laneOffset / 2) / (length * endPercent));
+                                var startAngle = Mathf.Atan((laneOffset / 4) / (length * startPercent));
+                                var endAngle = Mathf.Atan((laneOffset / 4) / (length * endPercent));
 
                                 var newStartDir = startDir.Turn(startAngle, true).normalized;
                                 var newEndDir = endDir.Turn(endAngle, true).normalized;
@@ -71,7 +72,7 @@ namespace CSURToolBox.Patch
                                 //Thanks end.
 
                                 instance.m_lanes.m_buffer[firstLane].m_bezier = newBezier;
-                                num += instance.m_lanes.m_buffer[firstLane].UpdateLength();
+                                instance.m_lanes.m_buffer[firstLane].UpdateLength();
                                 num2 += 1f;
                                 firstLane = instance.m_lanes.m_buffer[firstLane].m_nextLane;
                             }

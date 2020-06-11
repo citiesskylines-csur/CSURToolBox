@@ -583,21 +583,34 @@ namespace CSURToolBox.Util
                     //3C
                     if (m.Groups[1].Value != "")
                     {
-                        //store C road
+                        //store C Lane
                         if (int.Parse(m.Groups[1].Value) % 2 != 0)
                         {
                             leftLaneOffset[leftLaneIndex] = 0;
                             leftLaneIndex++;
+                            for (int i = 0; i < (int)(int.Parse(m.Groups[1].Value) / 2f); i++)
+                            {
+                                leftLaneOffset[leftLaneIndex] = -(i + 1f);
+                                leftLaneIndex++;
+                            }
+                            for (int i = 0; i < (int)(int.Parse(m.Groups[1].Value) / 2f); i++)
+                            {
+                                rightLaneOffset[rightLaneIndex] = i + 1f;
+                                rightLaneIndex++;
+                            }
                         }
-                        for (int i = 0; i < (int)(int.Parse(m.Groups[1].Value) / 2f); i++)
+                        else
                         {
-                            leftLaneOffset[leftLaneIndex] = -(i + 1f);
-                            leftLaneIndex++;
-                        }
-                        for (int i = 0; i < (int)(int.Parse(m.Groups[1].Value) / 2f); i++)
-                        {
-                            rightLaneOffset[rightLaneIndex] = i + 1f;
-                            rightLaneIndex++;
+                            for (int i = 0; i < (int)(int.Parse(m.Groups[1].Value) / 2f); i++)
+                            {
+                                leftLaneOffset[leftLaneIndex] = -(i + 0.5f);
+                                leftLaneIndex++;
+                            }
+                            for (int i = 0; i < (int)(int.Parse(m.Groups[1].Value) / 2f); i++)
+                            {
+                                rightLaneOffset[rightLaneIndex] = i + 0.5f;
+                                rightLaneIndex++;
+                            }
                         }
                     }
                 }

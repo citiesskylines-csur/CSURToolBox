@@ -8,8 +8,6 @@ using ColossalFramework.UI;
 using CSURToolBox.CustomData;
 using CSURToolBox.CustomAI;
 using HarmonyLib;
-using ColossalFramework;
-using CSURToolBox.Patch;
 
 namespace CSURToolBox
 {
@@ -18,7 +16,6 @@ namespace CSURToolBox
         public static bool isFirstTime = true;
         public static Assembly MoveIt = null;
         public const int HarmonyPatchNum = 16;
-        public static bool updateSegmentNextTimeFlag = false;
 
         public override void OnBeforeSimulationFrame()
         {

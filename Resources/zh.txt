@@ -1,7 +1,6 @@
 ﻿ShortCuts_Control_TIPS	快捷键用于终点面板
 DisableZone	对CSUR Shift Ramp和Transition以及CSUR高速路禁用格子
 UpdateZone	读取游戏时候自动重新刷新一把CSUR无格子道路
-Lane_Smooth_Level	道路顺滑强度(debug用)
 LaneType	单向/双向/掉头/不对称+1/不对称+2
 RoadType	无人行道/仅人行道/人行道和自行车道
 StayInLane	对选中的CSUR路口划线保持车道(需要TMPE)

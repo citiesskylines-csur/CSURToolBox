@@ -1,7 +1,6 @@
 ShortCuts_Control_TIPS	단축키를 시작패널에서 사용합니다
 DisableZone	CSUR 진입로와 고속도로를 위한 구역/존 비활성화
 UpdateZone	로딩 중 구역/존 업데이트
-Lane_Smooth_Level	부드러운 차선 이동 레벨(디버그 전용)
 LaneType	일방통행/양방통행/유턴/비대칭+1/비대칭+2
 RoadType	없음/인도/인도&자전거도로
 StayInLane	선택된 CSUR 노드 차선연결(TMPE 모드 필요함)

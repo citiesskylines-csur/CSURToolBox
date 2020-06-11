@@ -10,7 +10,6 @@ namespace CSURToolBox.UI
     {
         public static bool isShortCutsToPanel = false;
         public static bool isDebug = false;
-        public static int smoothLevel = 1;
         public static bool disableZone = false;
         public static bool disableZoneUpdateAll = false;
         public static bool enablePillar = true;
@@ -100,7 +99,6 @@ namespace CSURToolBox.UI
             generalGroup2.AddCheckbox(Localization.Get("FixLargeJunction"), fixLargeJunction, (index) => isFixLargeJunctionEnable(index));
             generalGroup2.AddCheckbox(Localization.Get("NOJunction"), noJunction, (index) => isNoJunctionEnable(index));
             generalGroup2.AddCheckbox(Localization.Get("TEMPPATCH"), tempPatchForSpeedAndPrice, (index) => isTempPatchEnable(index));
-            generalGroup2.AddDropdown(Localization.Get("Lane_Smooth_Level"), new string[] { Localization.Get("Low"), Localization.Get("Medium"), Localization.Get("High") }, smoothLevel, (index) => GetSmoothLevel(index));
             SaveSetting();
         }
         private static UIButton AddOptionTab(UITabstrip tabStrip, string caption)
@@ -126,7 +124,7 @@ namespace CSURToolBox.UI
             FileStream fs = File.Create("CSUR_ToolBox_setting.txt");
             StreamWriter streamWriter = new StreamWriter(fs);
             streamWriter.WriteLine(isShortCutsToPanel);
-            streamWriter.WriteLine(smoothLevel);
+            streamWriter.WriteLine(1);//reserved
             streamWriter.WriteLine(disableZone);
             streamWriter.WriteLine(disableZoneUpdateAll);
             streamWriter.WriteLine(enablePillar);
@@ -147,7 +145,7 @@ namespace CSURToolBox.UI
 
                 isShortCutsToPanel = (sr.ReadLine() == "True") ? true : false;
                 var strLine = sr.ReadLine();
-                smoothLevel = (strLine == "2") ? 2 : (strLine == "0") ? 0 : 1;
+                _ = (strLine == "2") ? 2 : (strLine == "0") ? 0 : 1;//reserved
                 disableZone = (sr.ReadLine() == "True") ? true : false;
                 disableZoneUpdateAll = (sr.ReadLine() == "True") ? true : false;
                 enablePillar = (sr.ReadLine() == "False") ? false : true;
@@ -163,11 +161,6 @@ namespace CSURToolBox.UI
         public static void isShortCutsToPanelEnable(bool index)
         {
             isShortCutsToPanel = index;
-            SaveSetting();
-        }
-        public static void GetSmoothLevel(int index)
-        {
-            smoothLevel = index;
             SaveSetting();
         }
 

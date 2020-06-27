@@ -56,6 +56,7 @@ namespace CSURToolBox
         public override void OnCreated(ILoading loading)
         {
             Detours = new List<Detour>();
+            HarmonyInitDetour();
             base.OnCreated(loading);
         }
         public override void OnLevelLoaded(LoadMode mode)
@@ -87,8 +88,6 @@ namespace CSURToolBox
                         }
                     }
 
-                    RefreshSegment();
-                    RefreshNode();
                     ChangeDefaultSpeedAndConstructionFee();
                     Debug.Log("OnLevelLoaded");
                     if (mode == LoadMode.NewGame)
@@ -544,47 +543,6 @@ namespace CSURToolBox
                 }
             }
         }
-
-        public void RefreshSegment()
-        {
-            for (ushort i = 0; i < Singleton<NetManager>.instance.m_segments.m_size; i++)
-            {
-                NetInfo asset = Singleton<NetManager>.instance.m_segments.m_buffer[i].Info;
-                if (asset != null)
-                {
-                    if (CSURUtil.IsCSUR(asset))
-                    {
-                        if (asset.m_netAI is RoadAI)
-                        {
-                            Singleton<NetManager>.instance.UpdateSegment(i);
-                        }
-                        else
-                        {
-                            Singleton<NetManager>.instance.m_segments.m_buffer[i].UpdateLanes(i, true);
-                        }
-                    }
-                }
-            }
-        }
-
-        public void RefreshNode()
-        {
-            for (ushort i = 0; i < Singleton<NetManager>.instance.m_nodes.m_size; i++)
-            {
-                NetInfo asset = Singleton<NetManager>.instance.m_nodes.m_buffer[i].Info;
-                if (asset != null)
-                {
-                    if (asset.m_netAI is RoadAI)
-                    {
-                        if (CSURUtil.IsCSUR(asset))
-                        {
-                            Singleton<NetManager>.instance.UpdateNode(i);
-                        }
-                    }
-                }
-            }
-        }
-
 
         public static void DisableZone()
         {

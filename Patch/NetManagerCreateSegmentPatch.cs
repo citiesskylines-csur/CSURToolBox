@@ -24,7 +24,7 @@ namespace CSURToolBox.Patch
 				{
 					if (__instance.m_segments.m_buffer[segment].Info.m_vehicleTypes.IsFlagSet(VehicleInfo.VehicleType.Car))
 					{
-						DebugLog.LogToFileOnly($"Update segment to fix a wierd issue = {segment}");
+						//DebugLog.LogToFileOnly($"Update segment to fix a wierd issue = {segment}");
 						__instance.m_segments.m_buffer[segment].CalculateSegment(segment);
 						__instance.m_segments.m_buffer[segment].UpdateBounds(segment);
 						__instance.m_segments.m_buffer[segment].UpdateLanes(segment, false);

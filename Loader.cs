@@ -86,6 +86,16 @@ namespace CSURToolBox
                         {
                             DisableZone();
                         }
+
+                        if (OptionUI.disableWideRoadZone)
+                        {
+                            DisableWideRoadZone();
+                        }
+
+                        if (OptionUI.disableBikeRoadZone)
+                        {
+                            DisableBikeRoadZone();
+                        }
                     }
 
                     ChangeDefaultSpeedAndConstructionFee();
@@ -539,6 +549,100 @@ namespace CSURToolBox
                         }
                         elevatedAI.m_bridgePillarInfo = null;// PrefabCollection<BuildingInfo>.FindLoaded("CSUR 2DC.Ama S-1_Data");
                         Debug.Log("Remove pilla for " + loaded.name.ToString());
+                    }
+                }
+            }
+        }
+
+        public static void DisableBikeRoadZone()
+        {
+            for (uint num = 0u; num < PrefabCollection<NetInfo>.LoadedCount(); num++)
+            {
+                NetInfo loaded = PrefabCollection<NetInfo>.GetLoaded(num);
+                if (CSURUtil.isCSURBicycleLane(loaded))
+                {
+                    if (loaded.m_netAI is RoadAI)
+                    {
+                        var AI = loaded.m_netAI as RoadAI;
+                        AI.m_enableZoning = false;
+                    }
+                }
+            }
+
+            if (OptionUI.disableZoneUpdateAll)
+            {
+                for (ushort i = 0; i < Singleton<NetManager>.instance.m_segments.m_size; i++)
+                {
+                    NetInfo loaded = Singleton<NetManager>.instance.m_segments.m_buffer[i].Info;
+                    if (CSURUtil.isCSURBicycleLane(loaded))
+                    {
+                        if (Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockEndLeft != 0)
+                        {
+                            ZoneManager.instance.ReleaseBlock(Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockEndLeft);
+                            Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockEndLeft = 0;
+                        }
+                        if (Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockEndRight != 0)
+                        {
+                            ZoneManager.instance.ReleaseBlock(Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockEndRight);
+                            Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockEndRight = 0;
+                        }
+                        if (Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockStartLeft != 0)
+                        {
+                            ZoneManager.instance.ReleaseBlock(Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockStartLeft);
+                            Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockStartLeft = 0;
+                        }
+                        if (Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockStartRight != 0)
+                        {
+                            ZoneManager.instance.ReleaseBlock(Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockStartRight);
+                            Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockStartRight = 0;
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void DisableWideRoadZone()
+        {
+            for (uint num = 0u; num < PrefabCollection<NetInfo>.LoadedCount(); num++)
+            {
+                NetInfo loaded = PrefabCollection<NetInfo>.GetLoaded(num);
+                if (CSURUtil.IsCSURWideRoad(loaded))
+                {
+                    if (loaded.m_netAI is RoadAI)
+                    {
+                        var AI = loaded.m_netAI as RoadAI;
+                        AI.m_enableZoning = false;
+                    }
+                }
+            }
+
+            if (OptionUI.disableZoneUpdateAll)
+            {
+                for (ushort i = 0; i < Singleton<NetManager>.instance.m_segments.m_size; i++)
+                {
+                    NetInfo loaded = Singleton<NetManager>.instance.m_segments.m_buffer[i].Info;
+                    if (CSURUtil.IsCSURWideRoad(loaded))
+                    {
+                        if (Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockEndLeft != 0)
+                        {
+                            ZoneManager.instance.ReleaseBlock(Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockEndLeft);
+                            Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockEndLeft = 0;
+                        }
+                        if (Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockEndRight != 0)
+                        {
+                            ZoneManager.instance.ReleaseBlock(Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockEndRight);
+                            Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockEndRight = 0;
+                        }
+                        if (Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockStartLeft != 0)
+                        {
+                            ZoneManager.instance.ReleaseBlock(Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockStartLeft);
+                            Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockStartLeft = 0;
+                        }
+                        if (Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockStartRight != 0)
+                        {
+                            ZoneManager.instance.ReleaseBlock(Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockStartRight);
+                            Singleton<NetManager>.instance.m_segments.m_buffer[i].m_blockStartRight = 0;
+                        }
                     }
                 }
             }

@@ -11,6 +11,8 @@ namespace CSURToolBox.UI
         public static bool isShortCutsToPanel = false;
         public static bool isDebug = false;
         public static bool disableZone = false;
+        public static bool disableWideRoadZone = false;
+        public static bool disableBikeRoadZone = false;
         public static bool disableZoneUpdateAll = false;
         public static bool enablePillar = true;
         public static bool fixLargeJunction = true;
@@ -93,6 +95,8 @@ namespace CSURToolBox.UI
             var generalGroup2 = panelHelper.AddGroup(Localization.Get("Experimental_Function")) as UIHelper;
             generalGroup2.AddCheckbox(Localization.Get("Debug_Mode"), isDebug, (index) => isDebugEnable(index));
             generalGroup2.AddCheckbox(Localization.Get("DisableZone"), disableZone, (index) => isDisableZoneEnable(index));
+            generalGroup2.AddCheckbox(Localization.Get("DisableWideRoadZone"), disableWideRoadZone, (index) => isDisableWideRoadZoneEnable(index));
+            generalGroup2.AddCheckbox(Localization.Get("DisableBikeRoadZone"), disableBikeRoadZone, (index) => isDisableBikeRoadZoneEnable(index));
             generalGroup2.AddCheckbox(Localization.Get("UpdateZone"), disableZoneUpdateAll, (index) => isDisableZoneUpdateAllEnable(index));
             generalGroup2.AddCheckbox(Localization.Get("EnablePillar"), enablePillar, (index) => isEnablePillarEnable(index));
             generalGroup2.AddCheckbox(Localization.Get("AlignZone"), alignZone, (index) => isAlignZoneEnable(index));
@@ -132,6 +136,8 @@ namespace CSURToolBox.UI
             streamWriter.WriteLine(fixLargeJunction);
             streamWriter.WriteLine(noJunction);
             streamWriter.WriteLine(tempPatchForSpeedAndPrice);
+            streamWriter.WriteLine(disableWideRoadZone);
+            streamWriter.WriteLine(disableBikeRoadZone);
             streamWriter.Flush();
             fs.Close();
         }
@@ -153,6 +159,8 @@ namespace CSURToolBox.UI
                 fixLargeJunction = (sr.ReadLine() == "False") ? false : true;
                 noJunction = (sr.ReadLine() == "True") ? true : false;
                 tempPatchForSpeedAndPrice = (sr.ReadLine() == "True") ? true : false;
+                disableWideRoadZone = (sr.ReadLine() == "True") ? true : false;
+                disableBikeRoadZone = (sr.ReadLine() == "True") ? true : false;
 
                 sr.Close();
                 fs.Close();
@@ -178,6 +186,32 @@ namespace CSURToolBox.UI
                 if (Loader.CurrentLoadMode == LoadMode.NewGame || Loader.CurrentLoadMode == LoadMode.LoadGame)
                 {
                     Loader.DisableZone();
+                }
+            }
+            SaveSetting();
+        }
+
+        public static void isDisableWideRoadZoneEnable(bool index)
+        {
+            disableWideRoadZone = index;
+            if (disableWideRoadZone)
+            {
+                if (Loader.CurrentLoadMode == LoadMode.NewGame || Loader.CurrentLoadMode == LoadMode.LoadGame)
+                {
+                    Loader.DisableWideRoadZone();
+                }
+            }
+            SaveSetting();
+        }
+
+        public static void isDisableBikeRoadZoneEnable(bool index)
+        {
+            disableBikeRoadZone = index;
+            if (disableBikeRoadZone)
+            {
+                if (Loader.CurrentLoadMode == LoadMode.NewGame || Loader.CurrentLoadMode == LoadMode.LoadGame)
+                {
+                    Loader.DisableBikeRoadZone();
                 }
             }
             SaveSetting();

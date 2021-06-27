@@ -75,6 +75,23 @@ namespace CSURToolBox.Util
             }
         }
 
+        public static bool IsCSURWideRoad(NetInfo asset)
+        {
+            if (asset == null || (asset.m_netAI.GetType() != typeof(RoadAI) && asset.m_netAI.GetType() != typeof(RoadBridgeAI) && asset.m_netAI.GetType() != typeof(RoadTunnelAI)))
+            {
+                return false;
+            }
+            int laneNum = (int)CountCSURSVehicleLanes(asset) + (int)CountCSURSOtherLanes(asset, true);
+            if (CSURUtil.IsCSURDual(asset))
+            {
+                if (laneNum >=8)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public static bool IsCSURExpress(NetInfo asset)
         {
             if (asset == null || (asset.m_netAI.GetType() != typeof(RoadAI) && asset.m_netAI.GetType() != typeof(RoadBridgeAI) && asset.m_netAI.GetType() != typeof(RoadTunnelAI)))
@@ -714,6 +731,18 @@ namespace CSURToolBox.Util
                 }
             }
             return count;
+        }
+
+        public static bool isCSURBicycleLane(NetInfo info)
+        {
+            for (int i = 0; i < info.m_lanes.Length; i++)
+            {
+                if (info.m_lanes[i].m_laneType.IsFlagSet(NetInfo.LaneType.Vehicle) && info.m_lanes[i].m_vehicleType.IsFlagSet(VehicleInfo.VehicleType.Bicycle))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public static bool isStartNode(ushort nodeID)

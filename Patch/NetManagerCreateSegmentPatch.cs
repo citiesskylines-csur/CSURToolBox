@@ -1,4 +1,5 @@
 ﻿using ColossalFramework;
+using ColossalFramework.Math;
 using ColossalFramework.UI;
 using CSURToolBox.UI;
 using CSURToolBox.Util;
@@ -14,7 +15,22 @@ namespace CSURToolBox.Patch
 	{
 		public static MethodBase TargetMethod()
         {
-            return typeof(NetManager).GetMethod("CreateSegment", BindingFlags.Public | BindingFlags.Instance);
+			// public bool CreateSegment(out ushort, ref Randomizer, NetInfo, TreeInfo, ushort, ushort, Vector3, Vector3, uint, uint, bool)
+			Type[] argTypes = new Type[]
+			{
+				typeof(ushort).MakeByRefType(),
+				typeof(Randomizer).MakeByRefType(),
+				typeof(NetInfo),
+				typeof(TreeInfo),
+				typeof(ushort),
+				typeof(ushort),
+				typeof(Vector3),
+				typeof(Vector3),
+				typeof(uint),
+				typeof(uint),
+				typeof(bool)
+			};
+			return typeof(NetManager).GetMethod("CreateSegment", argTypes);
         }
         public static void Postfix(ref NetManager __instance, ref ushort segment, ref bool __result)
         {

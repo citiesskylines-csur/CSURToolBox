@@ -1,0 +1,29 @@
+﻿ShortCuts_Control_TIPS	[ToPanel] ボタンにショートカットを使用
+DisableZone	CSUR Shift RampとTransition Roadのゾーンを無効化
+UpdateZone	ゲームロード時にゾーンを更新
+DisableWideRoadZone	CSUR Wide Roadのゾーンを無効化
+DisableBikeRoadZone	CSUR Road with bike laneのゾーンを無効化
+LaneType	単一/二重/Uターン/非対称+1/非対称+2
+RoadType	NA/歩道/歩道＆自転車道
+StayInLane	選択したCSUR ノードを車線変更不可(TMPEが必要)
+StayInLaneAll	全てのCSUR ノードで車線変更不可(TMPEが必要)
+Copy	コピー
+Swap	入れ替え
+Clear	クリア
+Low	Low
+Medium	Medium
+High	High
+Experimental_Function	実験的な機能
+Function_Button_ShortCut	機能ボタンのショートカット
+ShortCuts_Control	ショートカットの制御
+Lane_Button_ShortCut	車線ボタンのショートカット
+Lane_ShortCut	車線のショートカット
+From	From
+To	To
+Function_ShortCut	機能のショートカット
+Debug_Mode	デバッグモード
+EnablePillar	橋脚を有効化
+AlignZone	CSUR Road用にゾーンを調整
+FixLargeJunction	大型JCTを修正
+NOJunction	複雑なCSUR ノードの信号機を削除して、横断歩道と交差点の問題を修正します(要再起動)
+TEMPPATCH	CSUR Roadの車線速度と建設費を調整するパッチを追加します(要再起動)

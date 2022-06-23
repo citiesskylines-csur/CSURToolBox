@@ -1,0 +1,29 @@
+﻿ShortCuts_Control_TIPS	Sneltoetsen zullen worden gebruikt voor de "Naar" knoppen
+DisableZone	Schakel zones uit voor CSUR Shift, Ramp en Transition wegen
+UpdateZone	Update zones bij het laden van het spel
+DisableWideRoadZone	Schakel zones uit voor CSUR brede wegen
+DisableBikeRoadZone	Schakel zones uit voor CSUR wegen met fietsstroken
+LaneType	Enkel/Dubbel/U-bocht/Asym+1/Asym+2
+RoadType	Geen/Voetpad/Voetpad+Fietspad
+StayInLane	Blijf in rijstrook voor geselecteerd CSUR knooppunt (TMPE vereist)
+StayInLaneAll	Blijf in rijstrook voor alle CSUR-knooppunten die nodig zijn (TMPE vereist)
+Copy	Kopiëren
+Swap	Wisselen
+Clear	Reset
+Low	Laag
+Medium	Middel
+High	Hoog
+Experimental_Function	Experimentele functies
+Function_Button_ShortCut	Sneltoetsen voor functies
+ShortCuts_Control	Sneltoets gedrag
+Lane_Button_ShortCut	Sneltoetsen voor rijstroken
+Lane_ShortCut	Rijstrook sneltoetsen
+From	Van
+To	Naar
+Function_ShortCut	Functie sneltoetsen
+Debug_Mode	Debug modus
+EnablePillar	Brugpijlers inschakelen
+AlignZone	Lijn zones voor CSUR wegen uit
+FixLargeJunction	Repareer grote kruising
+NOJunction	Verwijder verkeerslicht voor complex CSUR knooppunt, los zebrapadprobleem op (moet herladen worden)
+TEMPPATCH	Patch toevoegen om CSUR rijstrooksnelheid en bouwprijs aan te passen (moet herladen worden)

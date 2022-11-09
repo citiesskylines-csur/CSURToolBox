@@ -316,31 +316,16 @@ namespace CSURToolBox.UI
         }
         public void hasSideWalkButton_OnCheckChanged()
         {
-            hasSidewalk = availableHasSidewalk;
-            hasBike = availableHasBike;
+            uint bit = (System.Convert.ToUInt32(availableHasSidewalk) << 1) + System.Convert.ToUInt32(availableHasBike);
             NetInfo nextModule = null;
-            if (hasSidewalk && hasBike)
+            for (int i = 0; i < 4; i++)
             {
-                nextModule = Parser.NetInfoFromUI(fromSelected, toSelected, availableSymmetry, false, false);
+                bit = (bit + 1) % 4;
+                hasSidewalk = System.Convert.ToBoolean(bit & 2);
+                hasBike = System.Convert.ToBoolean(bit & 1);
+                nextModule = Parser.NetInfoFromUI(fromSelected, toSelected, availableSymmetry, hasSidewalk, hasBike);
                 if (nextModule != null)
-                {
-                    hasSidewalk = false;
-                    hasBike = false;
-                }
-
-            } else if (!hasSidewalk && !hasBike)
-            {
-                nextModule = Parser.NetInfoFromUI(fromSelected, toSelected, availableSymmetry, true, false);
-                if (nextModule != null)
-                {
-                    hasSidewalk = true;
-                    hasBike = false;
-                }
-            }
-            if (nextModule == null)
-            {
-                hasSidewalk = true;
-                hasBike = true;
+                    break;
             }
         }
         private void RefreshDisplayData()
